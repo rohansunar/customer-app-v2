@@ -3,7 +3,6 @@ import { profileService } from '../services/profileService';
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: profileService.updateProfile,
     onSuccess: () => {

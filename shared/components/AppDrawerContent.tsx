@@ -27,7 +27,7 @@ export function AppDrawerContent(props: any) {
           return (
             <DrawerItem
               key={route.key}
-              label={routeName}
+              label={routeName.toString().toUpperCase()}
               focused={isFocused}
               onPress={() => props.navigation.navigate(routeName)}
             />
