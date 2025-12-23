@@ -6,7 +6,7 @@ import { Profile } from '../types';
 
 export function useProfile() {
   const { isAuthenticated } = useAuth();
-  
+
   const queryFn = useCallback(() => profileService.getProfile(), []);
   return useQuery<Profile>({
     queryKey: ['profile'],

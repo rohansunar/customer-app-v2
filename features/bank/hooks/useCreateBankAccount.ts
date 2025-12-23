@@ -1,22 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { bankService } from '../services/bankService';
 
-export function useUpdateBankAccount() {
+export function useCreateBankAccount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: {
-        accountHolderName: string;
-        accountNumber: string;
-        ifscCode: string;
-        bankName: string;
-      };
-    }) => bankService.updateBankAccount(id, data),
+    mutationFn: bankService.createBankAccount,
 
     onSuccess: () => {
       queryClient.invalidateQueries({

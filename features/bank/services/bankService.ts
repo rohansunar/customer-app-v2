@@ -4,22 +4,45 @@ import { BankAccount } from '../types';
 
 export const bankService = {
   /**
-   * Get user's bank account
+   * Get user's bank accounts
    */
-  async getBankAccount(): Promise<BankAccount> {
-     const response = await apiClient.get(API_ENDPOINTS.BANK);
-     return response.data;
+  async getBankAccounts(): Promise<BankAccount[]> {
+    const response = await apiClient.get(API_ENDPOINTS.BANK);
+    return response.data;
   },
 
   /**
-   * Update bank account details
+   * Create a new bank account
    */
-  updateBankAccount(data: {
+  createBankAccount(data: {
     accountHolderName: string;
     accountNumber: string;
     ifscCode: string;
     bankName: string;
   }) {
+    console.log("Create a new bank account", data)
     return apiClient.post(API_ENDPOINTS.BANK, data);
+  },
+
+  /**
+   * Update bank account details by ID
+   */
+  updateBankAccount(
+    id: string,
+    data: {
+      accountHolderName: string;
+      accountNumber: string;
+      ifscCode: string;
+      bankName: string;
+    },
+  ) {
+    return apiClient.put(`${API_ENDPOINTS.BANK}/${id}`, data);
+  },
+
+  /**
+   * Delete bank account by ID
+   */
+  deleteBankAccount(id: string) {
+    return apiClient.delete(`${API_ENDPOINTS.BANK}/${id}`);
   },
 };

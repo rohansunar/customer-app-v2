@@ -1,11 +1,11 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
 
-type updateData = { 
+type updateData = {
   name: string;
   email: string | null;
-  // is_available_today: boolean; 
-}
+  // is_available_today: boolean;
+};
 
 export const profileService = {
   /**
@@ -16,11 +16,11 @@ export const profileService = {
     return response.data;
   },
 
-   /**
+  /**
    * Update editable profile fields
    */
   updateProfile(data: updateData) {
-    console.log("Update editable profile fields", data);
+    console.log('Update editable profile fields', data);
     return apiClient.put(API_ENDPOINTS.VENDOR_ME, data);
   },
 };

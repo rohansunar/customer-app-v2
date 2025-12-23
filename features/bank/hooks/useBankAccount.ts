@@ -2,12 +2,12 @@ import { useAuth } from '@/core/providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { bankService } from '../services/bankService';
 
-export function useBankAccount() {
+export function useBankAccounts() {
   const { isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: ['bank-account'],
-    queryFn: bankService.getBankAccount,
+    queryKey: ['bank-accounts'],
+    queryFn: bankService.getBankAccounts,
     enabled: isAuthenticated,
   });
 }

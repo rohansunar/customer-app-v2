@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
-  console.log('ProfileScreen render');
+  // console.log('ProfileScreen render');
   const { data, isLoading, error } = useProfile();
   const { mutate, isPending } = useUpdateProfile();
 
@@ -20,7 +20,7 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState<string | null>(null);
   const [isAvailableToday, setIsAvailableToday] = useState(false);
 
-  console.log("Data", data)
+  // console.log('Data', data);
   // Populate form when profile loads
   useEffect(() => {
     if (data) {
@@ -88,10 +88,7 @@ export default function ProfileScreen() {
       {/* Availability toggle */}
       <View style={styles.switchRow}>
         <Text>Available Today</Text>
-        <Switch
-          value={isAvailableToday}
-          onValueChange={setIsAvailableToday}
-        />
+        <Switch value={isAvailableToday} onValueChange={setIsAvailableToday} />
       </View>
 
       <Button

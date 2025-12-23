@@ -1,128 +1,200 @@
-import { useBankAccount } from '@/features/bank/hooks/useBankAccount';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { BankAccountForm } from '@/features/bank/components/BankAccountForm';
+import { BankAccountItem } from '@/features/bank/components/BankAccountItem';
+import { useBankAccounts } from '@/features/bank/hooks/useBankAccount';
+import { useCreateBankAccount } from '@/features/bank/hooks/useCreateBankAccount';
+import { useDeleteBankAccount } from '@/features/bank/hooks/useDeleteBankAccount';
 import { useUpdateBankAccount } from '@/features/bank/hooks/useUpdateBankAccount';
-import { useEffect, useState } from 'react';
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { BankAccount } from '@/features/bank/types';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { FlatList, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function BankScreen() {
-  const { data, isLoading, error } = useBankAccount();
-  const { mutate, isPending } = useUpdateBankAccount();
+  const { data: accounts, isLoading, error } = useBankAccounts();
+  const createMutation = useCreateBankAccount();
+  const updateMutation = useUpdateBankAccount();
+  const deleteMutation = useDeleteBankAccount();
 
-  const [accountHolderName, setAccountHolderName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [ifscCode, setIfscCode] = useState('');
-  const [bankName, setBankName] = useState('');
+  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(
+    null,
+  );
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  useEffect(() => {
-    if (data) {
-      setAccountHolderName(data.accountHolderName);
-      setAccountNumber(data.accountNumber);
-      setIfscCode(data.ifscCode);
-      setBankName(data.bankName);
-    }
-  }, [data]);
+  const backgroundColor = useThemeColor({}, 'background');
+  const tintColor = useThemeColor({}, 'tint');
 
   if (isLoading) {
-    return <Text>Loading bank details...</Text>;
+    return (
+      <ThemedView style={styles.centered}>
+        <ThemedText>Loading bank accounts...</ThemedText>
+      </ThemedView>
+    );
   }
 
   if (error) {
-    return <Text>Error loading Bank Details: {error.message}</Text>;
+    return (
+      <ThemedView style={styles.centered}>
+        <ThemedText>Error loading bank accounts: {error.message}</ThemedText>
+      </ThemedView>
+    );
   }
-  function handleSave() {
-    mutate({
-      accountHolderName: accountHolderName,
-      accountNumber: accountNumber,
-      ifscCode: ifscCode,
-      bankName: bankName,
-    });
-  }
+
+
+  const handleItemPress = (account: BankAccount) => {
+    setSelectedAccount(account);
+    setIsEditMode(true);
+    setIsModalVisible(true);
+  };
+
+  const handleAddPress = () => {
+    setSelectedAccount(null);
+    setIsEditMode(false);
+    setIsModalVisible(true);
+  };
+
+  const handleSave = (formData: {
+    accountHolderName: string;
+    accountNumber: string;
+    ifscCode: string;
+    bankName: string;
+  }) => {
+    if (isEditMode && selectedAccount) {
+      updateMutation.mutate(
+        { id: selectedAccount.id, data: formData },
+        {
+          onSuccess: () => {
+            setIsModalVisible(false);
+            setSelectedAccount(null);
+          },
+        },
+      );
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          setIsModalVisible(false);
+        },
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedAccount) {
+      deleteMutation.mutate(selectedAccount.id, {
+        onSuccess: () => {
+          setIsModalVisible(false);
+          setSelectedAccount(null);
+        },
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setSelectedAccount(null);
+  };
+
+  const renderItem = ({ item }: { item: BankAccount }) => (
+    <BankAccountItem account={item} onPress={() => handleItemPress(item)} />
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bank Account</Text>
+    <ThemedView style={[styles.container, { backgroundColor }]}>
+      <ThemedText style={styles.title}>Bank Accounts</ThemedText>
 
-      {/* Verification status */}
-      <Text style={styles.status}>
-        Status: {data?.is_verified ? 'Verified' : 'Not Verified'}
-      </Text>
-
-      <Text>Account Holder Name</Text>
-      <TextInput
-        value={accountHolderName}
-        onChangeText={setAccountHolderName}
-        style={styles.input}
-      />
-
-      <Text>Account Number</Text>
-      <TextInput
-        value={accountNumber}
-        onChangeText={setAccountNumber}
-        keyboardType="number-pad"
-        style={styles.input}
-        editable={!data?.is_verified}
-      />
-
-      <Text>IFSC Code</Text>
-      <TextInput
-        value={ifscCode}
-        onChangeText={setIfscCode}
-        autoCapitalize="characters"
-        style={styles.input}
-        placeholder='SBIN0001234'
-        editable={!data?.is_verified}
-      />
-
-      <Text>Bank Name</Text>
-      <TextInput
-        value={bankName}
-        onChangeText={setBankName}
-        style={styles.input}
-        editable={!data?.is_verified}
-      />
-
-      {data?.is_verified && (
-        <Text style={styles.note}>
-          Bank details are verified and cannot be edited.
-        </Text>
-      )}
-
-      {!data?.is_verified && (
-        <Button
-          title={isPending ? 'Saving...' : 'Save Bank Details'}
-          onPress={handleSave}
-          disabled={isPending}
+      {accounts && accounts.length > 0 ? (
+        <FlatList
+          data={accounts}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
         />
+      ) : (
+        <ThemedView style={styles.centered}>
+          <ThemedText>No Bank Accounts found</ThemedText>
+        </ThemedView>
       )}
-    </View>
+
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: tintColor }]}
+        onPress={handleAddPress}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={handleCancel}
+        transparent
+      >
+        <ThemedView style={styles.modalOverlay}>
+          <ThemedView style={styles.modalContent}>
+            <BankAccountForm
+              account={selectedAccount || undefined}
+              onSave={handleSave}
+              onDelete={isEditMode ? handleDelete : undefined}
+              onCancel={handleCancel}
+              isPending={createMutation.isPending || updateMutation.isPending}
+            />
+          </ThemedView>
+        </ThemedView>
+      </Modal>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    marginBottom: 12,
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 16,
   },
-  status: {
-    marginBottom: 12,
-    fontWeight: '500',
+  listContainer: {
+    paddingBottom: 80, // Space for FAB
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 12,
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
-  note: {
-    color: '#666',
-    marginTop: 12,
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '80%',
+    borderRadius: 8,
+    elevation: 5,
+    shadowColor: '#0e64e6ff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   },
 });

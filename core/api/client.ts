@@ -6,18 +6,20 @@ import { ENV } from '../config/env';
 export const apiClient = axios.create({
   baseURL: ENV.API_URL,
   timeout: 10000,
-}); 
-
-// Set up interceptors
-apiClient.interceptors.request.use(async (config) => {
-  const token = await getToken();
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } 
-  
-  return config;
-},(error)=>{
-  return Promise.reject(error);
 });
 
+// Set up interceptors
+apiClient.interceptors.request.use(
+  async (config) => {
+    const token = await getToken();
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
