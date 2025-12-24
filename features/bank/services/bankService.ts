@@ -20,7 +20,7 @@ export const bankService = {
     ifscCode: string;
     bankName: string;
   }) {
-    console.log("Create a new bank account", data)
+    console.log('Create a new bank account', data);
     return apiClient.post(API_ENDPOINTS.BANK, data);
   },
 

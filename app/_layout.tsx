@@ -4,7 +4,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 
 import { useAuth } from '@/core/providers/AuthProvider';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEffect } from 'react';
 // Prevent splash from auto hiding
 SplashScreen.preventAutoHideAsync();
@@ -40,8 +39,6 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <AppProvider>
       <RootNavigator />

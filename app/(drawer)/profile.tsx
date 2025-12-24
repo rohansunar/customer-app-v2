@@ -38,6 +38,10 @@ export default function ProfileScreen() {
     return <Text>Error loading profile: {error.message}</Text>;
   }
 
+  if (!data) {
+    return <Text>No profile data available.</Text>;
+  }
+
   function handleSave() {
     mutate({
       name,

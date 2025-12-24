@@ -43,7 +43,6 @@ export default function BankScreen() {
     );
   }
 
-
   const handleItemPress = (account: BankAccount) => {
     setSelectedAccount(account);
     setIsEditMode(true);

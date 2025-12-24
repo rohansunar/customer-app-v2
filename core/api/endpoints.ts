@@ -3,4 +3,5 @@ export const API_ENDPOINTS = {
   VERIFY_OTP: '/auth/vendor/verify-otp',
   VENDOR_ME: '/vendor/me',
   BANK: '/vendor/bank-accounts',
+  ADDRESS: '/vendor/addresses',
 };
