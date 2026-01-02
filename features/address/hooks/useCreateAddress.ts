@@ -12,5 +12,9 @@ export function useCreateAddress() {
         queryKey: ['addresses'],
       });
     },
+    onError: (error) => {
+      console.log('❌ Address creation failed');
+      console.log(error);
+    },
   });
 }

@@ -1,8 +1,5 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Address } from '../types';
 
 interface AddressItemProps {
@@ -11,21 +8,40 @@ interface AddressItemProps {
 }
 
 export function AddressItem({ address, onPress }: AddressItemProps) {
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const tintColor = useThemeColor({}, 'tint');
+
+  {{address}}
+  // Handle location if it's a stringified object
+  let locationObj: { lat: number; lng: number; } | null = null;
+  if (address.location) {
+    if (typeof address.location === 'string') {
+      try {
+        locationObj = JSON.parse(address.location);
+      } catch {
+        // keep null
+      }
+    } else {
+      locationObj = address.location;
+    }
+  }
 
   return (
     <TouchableOpacity
-      style={[styles.container, { backgroundColor }]}
+      style={[styles.container, { backgroundColor: '#fff' }]}
       onPress={onPress}
     >
-      <ThemedView style={styles.content}>
-        <ThemedText style={[styles.title, { color: textColor }]}>
-          {address.street}, {address.city}, {address.state}
-        </ThemedText>
-        <Ionicons name="location-outline" size={20} color={tintColor} />
-      </ThemedView>
+      <View style={styles.content}>
+        <View style={styles.textContainer}>
+          <Text style={[styles.title, { color: '#000' }]}>
+            {address.street}, {address.city}, {address.state}, {address.zipCode}
+          </Text>
+          {locationObj && (
+            <Text style={[styles.coordinates, { color: '#000' }]}>
+              Lat: {locationObj.lat}, Lng: {locationObj.lng}
+            </Text>
+          )}
+        </View>
+        <Ionicons name="location-outline" size={20} color={'#000'} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -47,8 +63,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
+  textContainer: {
+    flex: 1,
+  },
   title: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  coordinates: {
+    fontSize: 14,
+    marginTop: 4,
+    opacity: 0.7,
   },
 });

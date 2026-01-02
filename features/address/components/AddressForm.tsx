@@ -1,29 +1,6 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { useEffect, useState } from 'react';
-import { Alert, Button, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { Address } from '../types';
-
-interface AddressFormProps {
-  address?: Address;
-  onSave: (data: {
-    service_radius_m: number;
-    delivery_time_msg?: string;
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    location: {
-      lat: number;
-      lng: number;
-    };
-    address: string;
-  }) => void;
-  onDelete?: () => void;
-  onCancel: () => void;
-  isPending: boolean;
-}
+import { Alert, Button, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AddressFormProps } from '../types';
 
 export function AddressForm({
   address,
@@ -32,12 +9,10 @@ export function AddressForm({
   onCancel,
   isPending,
 }: AddressFormProps) {
+  
   const [service_radius_m, setServiceRadiusM] = useState(
     address?.service_radius_m?.toString() || '',
   );
-
-  const [delivery_time_msg, setDeliveryTimeMsg] = useState(address?.delivery_time_msg || '');
-
   const [street, setStreet] = useState(address?.street || '');
   const [city, setCity] = useState(address?.city || '');
   const [state, setState] = useState(address?.state || '');
@@ -46,13 +21,9 @@ export function AddressForm({
   const [lng, setLng] = useState(address?.location?.lng?.toString() || '');
   const [fullAddress, setFullAddress] = useState(address?.address || '');
 
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-
   useEffect(() => {
     if (address) {
       setServiceRadiusM(address.service_radius_m.toString());
-      setDeliveryTimeMsg(address.delivery_time_msg || '');
       setStreet(address.street);
       setCity(address.city);
       setState(address.state);
@@ -66,7 +37,6 @@ export function AddressForm({
   const handleSave = () => {
     if (
       !service_radius_m ||
-      !delivery_time_msg ||
       !street ||
       !city ||
       !state ||
@@ -87,7 +57,6 @@ export function AddressForm({
     }
     onSave({
       service_radius_m: radius,
-      delivery_time_msg,
       street,
       city,
       state,
@@ -111,37 +80,37 @@ export function AddressForm({
   const isEdit = !!address;
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <ThemedText style={[styles.title, { color: textColor }]}>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>
         {isEdit ? 'Edit Address' : 'Add Address'}
-      </ThemedText>
+      </Text>
 
       <TextInput
         placeholder="Street"
         value={street}
         onChangeText={setStreet}
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
       <TextInput
         placeholder="City"
         value={city}
         onChangeText={setCity}
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={[styles.input]}
       />
 
       <TextInput
         placeholder="State"
         value={state}
         onChangeText={setState}
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
       <TextInput
         placeholder="Zip Code"
         value={zipCode}
         onChangeText={setZipCode}
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={[styles.input]}
       />
 
       <TextInput
@@ -149,7 +118,7 @@ export function AddressForm({
         value={lat}
         onChangeText={setLat}
         keyboardType="numeric"
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
       <TextInput
@@ -157,7 +126,7 @@ export function AddressForm({
         value={lng}
         onChangeText={setLng}
         keyboardType="numeric"
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
       <TextInput
@@ -165,7 +134,7 @@ export function AddressForm({
         value={fullAddress}
         onChangeText={setFullAddress}
         multiline
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
       <TextInput
@@ -173,24 +142,17 @@ export function AddressForm({
         value={service_radius_m}
         onChangeText={setServiceRadiusM}
         keyboardType="numeric"
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
+        style={styles.input}
       />
 
-      <TextInput
-        placeholder="Delivery Time Message"
-        value={delivery_time_msg}
-        onChangeText={setDeliveryTimeMsg}
-        style={[styles.input, { color: textColor, borderColor: textColor }]}
-      />
-
-      <ThemedView style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}>
         <Button title="Cancel" onPress={onCancel} />
         <Button
           title={isPending ? 'Saving...' : 'Save'}
           onPress={handleSave}
           disabled={isPending}
         />
-      </ThemedView>
+      </View>
 
       {isEdit && onDelete && (
         <Button title="Delete" onPress={handleDelete} color="red" />
@@ -200,24 +162,28 @@ export function AddressForm({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 4,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 16,
-  },
+   container: {
+     padding: 20,
+     backgroundColor: 'white',
+   },
+   title: {
+     fontSize: 18,
+     fontWeight: 'bold',
+     marginBottom: 16,
+     textAlign: 'center',
+     color: 'black',
+   },
+   input: {
+     borderWidth: 1,
+     padding: 12,
+     marginBottom: 12,
+     borderRadius: 4,
+     color: 'black',
+     borderColor: 'gray',
+   },
+   buttonContainer: {
+     flexDirection: 'row',
+     justifyContent: 'space-around',
+     marginTop: 16,
+   },
 });

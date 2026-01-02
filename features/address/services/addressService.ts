@@ -8,7 +8,7 @@ export const addressService = {
    */
   async getAddresses(): Promise<Address[]> {
     const response = await apiClient.get(API_ENDPOINTS.ADDRESS);
-    return response.data;
+    return response.data == null ? [] : [response.data];
   },
 
   /**
@@ -16,7 +16,6 @@ export const addressService = {
    */
   createAddress(data: {
     service_radius_m: number;
-    delivery_time_msg?: string;
     street: string;
     city: string;
     state: string;
@@ -27,7 +26,6 @@ export const addressService = {
     };
     address: string;
   }) {
-    console.log('Create a new address', data);
     return apiClient.post(API_ENDPOINTS.ADDRESS, data);
   },
 
