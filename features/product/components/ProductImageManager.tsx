@@ -64,7 +64,7 @@ export function ProductImageManager({ productId, images }: Props) {
     }
   }
 
-  function handleDelete(imageUrl: string) {
+  function handleImageDelete(imageUrl: string) {
     Alert.alert('Delete Image', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -115,7 +115,7 @@ export function ProductImageManager({ productId, images }: Props) {
             {/* IMAGE */}
             <TouchableOpacity
               onLongPress={drag}
-              onPress={() => handleDelete(item)}
+              onPress={() => handleImageDelete(item)}
               style={styles.imageWrapper}
             >
               <Image source={{ uri: item }} style={styles.image} />
@@ -123,7 +123,7 @@ export function ProductImageManager({ productId, images }: Props) {
 
             <TouchableOpacity
               style={styles.deleteIcon}
-              onPress={() => handleDelete(item)}
+              onPress={() => handleImageDelete(item)}
               disabled={deleteMutation.isPending}
               activeOpacity={0.7}
             >

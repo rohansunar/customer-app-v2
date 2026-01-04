@@ -32,14 +32,19 @@ export const productService = {
       categoryId: string;
     },
   ) {
-    console.log('Update Product', `${API_ENDPOINTS.PRODUCT}/${id}`, data);
     return apiClient.put(`${API_ENDPOINTS.PRODUCT}/${id}`, data);
   },
 
   /**
-   * Delete product by ID
+   * Soft delete product (mark inactive)
    */
   deleteProduct(id: string) {
-    return apiClient.delete(`/products/${id}`);
+    return apiClient.delete(`${API_ENDPOINTS.PRODUCT}/${id}`);
+  },
+  /**
+   * Restore product (mark active)
+   */
+  restoreProduct(id: string) {
+    return apiClient.put(`${API_ENDPOINTS.PRODUCT}/${id}/restore`);
   },
 };

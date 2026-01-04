@@ -3,11 +3,10 @@ import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
 import {
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { Product } from '../types';
 
@@ -29,7 +28,6 @@ export function ProductForm({ product, onSubmit, isPending }: Props) {
   const [name, setName] = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [price, setPrice] = useState(product?.price?.toString() ?? '');
-  const [isActive, setIsActive] = useState(product?.is_active ?? true);
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? '');
 
   useEffect(() => {
@@ -91,13 +89,6 @@ export function ProductForm({ product, onSubmit, isPending }: Props) {
           value={price}
           onChangeText={setPrice}
         />
-
-        {product && (
-          <View style={styles.switchRow}>
-            <Text style={styles.label}>Active</Text>
-            <Switch value={isActive} onValueChange={setIsActive} />
-          </View>
-        )}
       </View>
 
       {/* DESCRIPTION */}
