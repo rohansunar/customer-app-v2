@@ -5,13 +5,22 @@ export const productImageService = {
   /**
    * Upload multiple images for a product
    */
-  uploadImages(productId: string, files: FormData) {
+  uploadImages(
+    productId: string,
+    files: FormData,
+    onProgress?: (percent: number) => void,
+  ) {
     return apiClient.post(
       `${API_ENDPOINTS.PRODUCT_IMAGE}/${productId}`,
       files,
       {
         headers: {
           'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (event) => {
+          if (!event.total) return;
+          const percent = Math.round((event.loaded * 100) / event.total);
+          onProgress?.(percent);
         },
       },
     );
@@ -20,9 +29,9 @@ export const productImageService = {
   /**
    * Delete a single image
    */
-  deleteImage(productId: string, imageUrl: string) {
+  deleteImage(productId: string, imageId: string) {
     return apiClient.delete(`${API_ENDPOINTS.PRODUCT_IMAGE}/${productId}`, {
-      data: { imageUrl },
+      data: { imageId },
     });
   },
 

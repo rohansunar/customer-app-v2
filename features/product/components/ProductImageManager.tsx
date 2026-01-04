@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
 import {
   Alert,
   Image,
@@ -13,6 +14,7 @@ import { useDeleteProductImage } from '../hooks/useDeleteProductImage';
 import { useReorderProductImages } from '../hooks/useReorderProductImages';
 import { useUploadProductImages } from '../hooks/useUploadProductImages';
 import { buildImageFormData } from '../utils/imageFormData';
+const MAX_IMAGES = 5;
 
 type Props = {
   productId: string;
@@ -20,11 +22,20 @@ type Props = {
 };
 
 export function ProductImageManager({ productId, images }: Props) {
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const uploadMutation = useUploadProductImages(productId);
   const deleteMutation = useDeleteProductImage(productId);
   const reorderMutation = useReorderProductImages(productId);
 
   async function handlePickImages() {
+    const remainingSlots = MAX_IMAGES - images.length;
+    if (remainingSlots <= 0) {
+      Alert.alert(
+        'Limit reached',
+        `You can upload up to ${MAX_IMAGES} images.`,
+      );
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsMultipleSelection: true,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -32,8 +43,24 @@ export function ProductImageManager({ productId, images }: Props) {
     });
 
     if (!result.canceled) {
-      const formData = buildImageFormData(result.assets);
-      uploadMutation.mutate(formData);
+      const selectedAssets = result.assets.slice(0, remainingSlots);
+      if (result.assets.length > remainingSlots) {
+        Alert.alert(
+          'Image limit',
+          `Only ${remainingSlots} more images can be added.`,
+        );
+      }
+      const formData = buildImageFormData(selectedAssets);
+      setUploadProgress(0);
+      uploadMutation.mutate(
+        {
+          formData,
+          onProgress: (p) => setUploadProgress(p),
+        },
+        {
+          onSettled: () => setUploadProgress(null),
+        },
+      );
     }
   }
 
@@ -50,12 +77,29 @@ export function ProductImageManager({ productId, images }: Props) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.addButton} onPress={handlePickImages}>
-        <Text style={styles.addText}>+ Add Images</Text>
+      <TouchableOpacity
+        style={[
+          styles.addButton,
+          images.length >= MAX_IMAGES && styles.disabled,
+        ]}
+        onPress={handlePickImages}
+        disabled={images.length >= MAX_IMAGES}
+      >
+        <Text style={styles.addText}>
+          {images.length >= MAX_IMAGES ? 'Image limit reached' : '+ Add Images'}
+        </Text>
       </TouchableOpacity>
 
+      {uploadProgress !== null && (
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressBar, { width: `${uploadProgress}%` }]} />
+          <Text style={styles.progressText}>Uploading… {uploadProgress}%</Text>
+        </View>
+      )}
+
       <Text style={styles.helperText}>
-        Tap ✕ to delete · Long press to reorder
+        Tap ✕ to delete · Long press to reorder · {images.length}/{MAX_IMAGES}{' '}
+        images used
       </Text>
 
       <DraggableFlatList
@@ -133,5 +177,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
     marginBottom: 8,
+  },
+  progressContainer: {
+    marginTop: 8,
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#007AFF',
+  },
+  progressText: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

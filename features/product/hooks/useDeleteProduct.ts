@@ -11,5 +11,9 @@ export function useDeleteProduct() {
       // Refresh product list after delete
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
+    onError: (error) => {
+      console.log('❌ Product Delete failed');
+      console.log(error);
+    },
   });
 }

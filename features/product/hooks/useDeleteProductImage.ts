@@ -13,5 +13,9 @@ export function useDeleteProductImage(productId: string) {
         queryKey: ['product', productId],
       });
     },
+    onError: (error) => {
+      console.log('❌ Image Delete failed');
+      console.log(error);
+    },
   });
 }

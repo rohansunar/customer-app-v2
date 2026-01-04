@@ -5,8 +5,13 @@ export function useUploadProductImages(productId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (formData: FormData) =>
-      productImageService.uploadImages(productId, formData),
+    mutationFn: ({
+      formData,
+      onProgress,
+    }: {
+      formData: FormData;
+      onProgress?: (p: number) => void;
+    }) => productImageService.uploadImages(productId, formData, onProgress),
 
     onSuccess: () => {
       // Refresh product data to get latest images
