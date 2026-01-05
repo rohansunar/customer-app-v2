@@ -8,6 +8,6 @@ export function useCreateProduct() {
     mutationFn: productService.createProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-    }
+    },
   });
 }

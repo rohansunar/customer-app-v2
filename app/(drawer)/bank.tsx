@@ -1,3 +1,5 @@
+import { showError, showSuccess } from '@/core/ui/toast';
+import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { BankAccountForm } from '@/features/bank/components/BankAccountForm';
 import { BankAccountItem } from '@/features/bank/components/BankAccountItem';
 import { useBankAccounts } from '@/features/bank/hooks/useBankAccount';
@@ -66,27 +68,28 @@ export default function BankScreen() {
       updateMutation.mutate(
         { id: selectedAccount.id, data: formData },
         {
-          onSuccess: () => {
+          onSuccess: (res) => {
+            showSuccess(
+              res?.data?.message || 'Bank account updated successfully',
+            );
             setIsModalVisible(false);
             setSelectedAccount(null);
+          },
+          onError: (error) => {
+            showError(getErrorMessage(error));
           },
         },
       );
     } else {
       createMutation.mutate(formData, {
-        onSuccess: () => {
+        onSuccess: (res) => {
+          showSuccess(
+            res?.data?.message || 'Bank account created successfully',
+          );
           setIsModalVisible(false);
         },
-      });
-    }
-  };
-
-  const handleDelete = () => {
-    if (selectedAccount) {
-      deleteMutation.mutate(selectedAccount.id, {
-        onSuccess: () => {
-          setIsModalVisible(false);
-          setSelectedAccount(null);
+        onError: (error) => {
+          showError(getErrorMessage(error));
         },
       });
     }
@@ -95,10 +98,26 @@ export default function BankScreen() {
   const handleCancel = () => {
     setIsModalVisible(false);
     setSelectedAccount(null);
+    setIsEditMode(false);
+  };
+
+  const handleDelete = (account: BankAccount) => {
+    deleteMutation.mutate(account.id, {
+      onSuccess: (res) => {
+        showSuccess(res?.data?.message || 'Bank account deleted successfully');
+      },
+      onError: (error) => {
+        showError(getErrorMessage(error));
+      },
+    });
   };
 
   const renderItem = ({ item }: { item: BankAccount }) => (
-    <BankAccountItem account={item} onPress={() => handleItemPress(item)} />
+    <BankAccountItem
+      account={item}
+      onPress={() => handleItemPress(item)}
+      onDelete={() => handleDelete(item)}
+    />
   );
 
   return (
@@ -131,18 +150,20 @@ export default function BankScreen() {
         animationType="slide"
         onRequestClose={handleCancel}
         transparent
+        presentationStyle="overFullScreen"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <TouchableOpacity style={styles.modalOverlay} onPress={handleCancel}>
+          <TouchableOpacity style={styles.modalContent} onPress={() => {}}>
+            <TouchableOpacity style={styles.closeButton} onPress={handleCancel}>
+              <Ionicons name="close" size={24} color="black" />
+            </TouchableOpacity>
             <BankAccountForm
               account={selectedAccount || undefined}
               onSave={handleSave}
-              onDelete={isEditMode ? handleDelete : undefined}
-              onCancel={handleCancel}
               isPending={createMutation.isPending || updateMutation.isPending}
             />
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -195,5 +216,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 4,
+    backgroundColor: 'white',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
 });

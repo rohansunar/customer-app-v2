@@ -48,7 +48,6 @@ export const addressService = {
       address: string;
     },
   ) {
-    console.log(data)
     return apiClient.put(`${API_ENDPOINTS.ADDRESS}/${id}`, data);
   },
 

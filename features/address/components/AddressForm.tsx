@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { AddressFormProps } from '../types';
 
@@ -76,7 +76,6 @@ export function AddressForm({
       address: fullAddress,
     });
   };
-
 
   const isEdit = !!address;
 
@@ -165,8 +164,13 @@ export function AddressForm({
         style={styles.input}
       />
 
-      <TouchableOpacity style={[styles.saveButton, isPending && styles.disabledButton]} onPress={isPending ? () => {} : handleSave}>
-        <Text style={styles.saveButtonText}>{isPending ? 'Saving...' : 'Save'}</Text>
+      <TouchableOpacity
+        style={[styles.saveButton, isPending && styles.disabledButton]}
+        onPress={isPending ? () => {} : handleSave}
+      >
+        <Text style={styles.saveButtonText}>
+          {isPending ? 'Saving...' : 'Save'}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );

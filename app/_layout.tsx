@@ -36,7 +36,7 @@ export default function RootLayout() {
   return (
     <AppProvider>
       <RootNavigator />
-      <Toast config={toastConfig} />
+      <Toast config={toastConfig} position="top"/>
       {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

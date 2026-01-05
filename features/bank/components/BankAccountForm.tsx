@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { BankAccount } from '../types';
 
 interface BankAccountFormProps {
@@ -10,16 +17,12 @@ interface BankAccountFormProps {
     ifscCode: string;
     bankName: string;
   }) => void;
-  onDelete?: () => void;
-  onCancel: () => void;
   isPending: boolean;
 }
 
 export function BankAccountForm({
   account,
   onSave,
-  onDelete,
-  onCancel,
   isPending,
 }: BankAccountFormProps) {
   const [accountHolderName, setAccountHolderName] = useState(
@@ -48,104 +51,130 @@ export function BankAccountForm({
     onSave({ accountHolderName, accountNumber, ifscCode, bankName });
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete this bank account?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: onDelete },
-      ],
-    );
-  };
-
   const isEdit = !!account;
 
   return (
-    <View style={styles.container}>
+    <View>
       <Text style={styles.title}>
         {isEdit ? 'Edit Bank Account' : 'Add Bank Account'}
       </Text>
 
-      <TextInput
-        placeholder="Account Holder Name"
-        value={accountHolderName}
-        onChangeText={setAccountHolderName}
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Account Number"
-        value={accountNumber}
-        onChangeText={setAccountNumber}
-        keyboardType="number-pad"
-        style={styles.input}
-        editable={!account?.is_verified}
-      />
-
-      <TextInput
-        placeholder="IFSC Code"
-        value={ifscCode}
-        onChangeText={setIfscCode}
-        autoCapitalize="characters"
-        style={styles.input}
-        editable={!account?.is_verified}
-      />
-
-      <TextInput
-        placeholder="Bank Name"
-        value={bankName}
-        onChangeText={setBankName}
-        style={styles.input}
-        editable={!account?.is_verified}
-      />
-
-      {account?.is_verified && (
-        <Text style={styles.note}>
-          Bank details are verified and cannot be edited.
-        </Text>
-      )}
-
-      <View style={styles.buttonContainer}>
-        <Button title="Cancel" onPress={onCancel} />
-        <Button
-          title={isPending ? 'Saving...' : 'Save'}
-          onPress={handleSave}
-          disabled={isPending}
+      <View style={styles.card}>
+        <Text style={styles.label}>Account Holder Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. John Doe"
+          value={accountHolderName}
+          onChangeText={setAccountHolderName}
         />
+
+        <Text style={styles.label}>Account Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. 1234567890"
+          value={accountNumber}
+          onChangeText={setAccountNumber}
+          keyboardType="number-pad"
+          editable={!account?.is_verified}
+        />
+
+        <Text style={styles.label}>IFSC Code</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. SBIN0001234"
+          value={ifscCode}
+          onChangeText={setIfscCode}
+          autoCapitalize="characters"
+          editable={!account?.is_verified}
+        />
+
+        <Text style={styles.label}>Bank Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. State Bank of India"
+          value={bankName}
+          onChangeText={setBankName}
+          editable={!account?.is_verified}
+        />
+
+        {account?.is_verified && (
+          <Text style={styles.note}>
+            Bank details are verified and cannot be edited.
+          </Text>
+        )}
       </View>
 
-      {isEdit && onDelete && (
-        <Button title="Delete" onPress={handleDelete} color="red" />
-      )}
+      <TouchableOpacity
+        style={[styles.saveButton, isPending && styles.disabled]}
+        onPress={handleSave}
+        disabled={isPending}
+      >
+        <Text style={styles.saveText}>
+          {isPending ? 'Saving...' : 'Save Bank Account'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
     marginBottom: 16,
+    color: '#111',
     textAlign: 'center',
   },
+
+  card: {
+    backgroundColor: '#FFF',
+    borderRadius: 14,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 6,
+    marginTop: 12,
+  },
+
   input: {
     borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
     padding: 12,
-    marginBottom: 12,
-    borderRadius: 4,
+    fontSize: 15,
+    backgroundColor: '#FFF',
   },
+
   note: {
     color: '#666',
-    marginBottom: 12,
+    marginTop: 12,
     textAlign: 'center',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 16,
+
+  saveButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  saveText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  disabled: {
+    opacity: 0.6,
   },
 });

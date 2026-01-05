@@ -46,7 +46,9 @@ export default function ProductDetailScreen() {
               { id, data: formData },
               {
                 onSuccess: (res) => {
-                  showSuccess(res?.data?.message || 'Product updated successfully');
+                  showSuccess(
+                    res?.data?.message || 'Product updated successfully',
+                  );
                 },
                 onError: (error) => {
                   showError(getErrorMessage(error));
