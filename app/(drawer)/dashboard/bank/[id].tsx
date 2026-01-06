@@ -8,12 +8,16 @@ import { useUpdateBankAccount } from '@/features/bank/hooks/useUpdateBankAccount
 
 export default function EditBankScreen() {
   const { id , bank } = useLocalSearchParams<{ id: string, bank: string }>();
-  const data = bank ? JSON.parse(bank) : null;
-
   const { mutate, isPending } = useUpdateBankAccount();
 
-  if (!bank) {
-    return <Text style={{ padding: 16 }}>Loading...</Text>;
+  if (!id) {
+    return <Text style={{ padding: 16 }}>Invalid bank account ID</Text>;
+  }
+
+  const data = bank ? JSON.parse(bank) : null;
+
+  if (!data) {
+    return <Text style={{ padding: 16 }}>Loading bank account...</Text>;
   }
 
   return (
@@ -31,7 +35,7 @@ export default function EditBankScreen() {
               {
                 onSuccess: (res) => {
                   showSuccess(res?.data?.message || 'Bank updated');
-                  router.replace('/bank');
+                  router.replace('/dashboard/bank');
                 },
                 onError: (error) => {
                   showError(getErrorMessage(error));

@@ -26,10 +26,9 @@ export default function OtpScreen() {
       { phone, otp },
       {
         onSuccess: () => {
-          router.replace('/dashboard');
+          router.replace('/(drawer)/dashboard');
         },
-        onError: (error) => {
-          console.log(error);
+        onError: () => {
           Alert.alert('Error', 'Invalid OTP. Please try again.');
         },
       },

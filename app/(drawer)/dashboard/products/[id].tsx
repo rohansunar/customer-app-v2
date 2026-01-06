@@ -13,7 +13,11 @@ export default function ProductDetailScreen() {
   const { data, isLoading } = useProduct(id);
   const { mutate, isPending } = useUpdateProduct();
 
-  if (isLoading || !data) return <Text>Loading...</Text>;
+  if (!id) {
+    return <Text style={{ padding: 16 }}>Invalid product ID</Text>;
+  }
+
+  if (isLoading || !data) return <Text>Loading...(Product)</Text>;
   if (!data.is_active) {
     return (
       <View style={{ padding: 16 }}>

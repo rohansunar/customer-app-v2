@@ -28,9 +28,9 @@ function RootNavigator() {
   return <Stack screenOptions={{ headerShown: false }}></Stack>;
 }
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+// export const unstable_settings = {
+//   anchor: '(drawer)',
+// };
 
 export default function RootLayout() {
   return (

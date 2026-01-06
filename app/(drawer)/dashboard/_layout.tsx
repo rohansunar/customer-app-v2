@@ -7,6 +7,7 @@ export default function DashboardTabsLayout() {
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName="index"
     >
       <Tabs.Screen
         name="products/[id]"
@@ -52,6 +53,17 @@ export default function DashboardTabsLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="earnings"
+        options={{
+          title: 'Earnings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="receipt-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
+    
   );
 }
