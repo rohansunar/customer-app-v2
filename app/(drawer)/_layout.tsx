@@ -16,7 +16,7 @@ export default function DrawerLayout() {
       <Drawer.Screen
         name="bank"
         options={{
-          drawerLabel:"Bank",
+          drawerLabel: 'Bank',
           title: 'Bank',
           drawerIcon: ({ color, size }) => (
             <Ionicons name="newspaper" size={size} color={color} />

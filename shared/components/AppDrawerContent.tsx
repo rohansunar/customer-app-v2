@@ -24,6 +24,19 @@ export function AppDrawerContent(props: any) {
           const route = props.state.routes[index];
           const isFocused = props.state.index === index;
 
+          if (routeName === 'dashboard') {
+            return (
+              <DrawerItem
+                key={route.key}
+                label={routeName.toString().toUpperCase()}
+                focused={isFocused}
+                onPress={() =>
+                  props.navigation.navigate('dashboard', { screen: 'index' })
+                }
+              />
+            );
+          }
+
           return (
             <DrawerItem
               key={route.key}

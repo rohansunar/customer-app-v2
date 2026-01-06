@@ -64,6 +64,5 @@ export default function DashboardTabsLayout() {
         }}
       />
     </Tabs>
-    
   );
 }

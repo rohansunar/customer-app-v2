@@ -12,8 +12,6 @@ export const options = {
 };
 
 export default function CreateBankScreen() {
-  
-
   const { mutate, isPending } = useCreateBankAccount();
 
   return (

@@ -7,7 +7,7 @@ import { BankAccountForm } from '@/features/bank/components/BankAccountForm';
 import { useUpdateBankAccount } from '@/features/bank/hooks/useUpdateBankAccount';
 
 export default function EditBankScreen() {
-  const { id , bank } = useLocalSearchParams<{ id: string, bank: string }>();
+  const { id, bank } = useLocalSearchParams<{ id: string; bank: string }>();
   const { mutate, isPending } = useUpdateBankAccount();
 
   if (!id) {
@@ -35,12 +35,12 @@ export default function EditBankScreen() {
               {
                 onSuccess: (res) => {
                   showSuccess(res?.data?.message || 'Bank updated');
-                  router.replace('/dashboard/bank');
+                  router.replace('/bank');
                 },
                 onError: (error) => {
                   showError(getErrorMessage(error));
                 },
-              }
+              },
             );
           }}
         />

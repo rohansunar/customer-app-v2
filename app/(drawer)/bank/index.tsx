@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 export default function BankScreen() {
@@ -54,20 +54,20 @@ export default function BankScreen() {
           data={accounts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-          <BankAccountItem
-            account={item}
-            onPress={() => 
-              router.push({
-                pathname: '/dashboard/bank/[id]',
-                params: {
-                  id: item.id,
-                  bank: JSON.stringify(item),
-                },
-              })
-            }
-            onDelete={() => handleDelete(item)}
-          />
-        )}
+            <BankAccountItem
+              account={item}
+              onPress={() =>
+                router.push({
+                  pathname: '/bank/[id]',
+                  params: {
+                    id: item.id,
+                    bank: JSON.stringify(item),
+                  },
+                })
+              }
+              onDelete={() => handleDelete(item)}
+            />
+          )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
@@ -78,10 +78,10 @@ export default function BankScreen() {
       )}
 
       {/* Add Bank Button */}
-      {accounts && accounts.length == 0  && (
+      {accounts && accounts.length == 0 && (
         <TouchableOpacity
           style={[styles.fab, { backgroundColor: '#007AFF' }]}
-          onPress={()=> router.push('/dashboard/bank/create')}
+          onPress={() => router.push('/bank/create')}
         >
           <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>

@@ -33,9 +33,7 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       {/* Header */}
       <Text style={styles.heading}>Dashboard</Text>
-      <Text style={styles.subHeading}>
-        Overview of your business
-      </Text>
+      <Text style={styles.subHeading}>Overview of your business</Text>
 
       {/* Cards */}
       <View style={styles.grid}>
@@ -49,16 +47,9 @@ export default function DashboardScreen() {
               onPress={() => router.push(item.route)}
             >
               <View
-                style={[
-                  styles.iconWrapper,
-                  { backgroundColor: item.color },
-                ]}
+                style={[styles.iconWrapper, { backgroundColor: item.color }]}
               >
-                <Ionicons
-                  name={item.icon as any}
-                  size={22}
-                  color="#FFF"
-                />
+                <Ionicons name={item.icon as any} size={22} color="#FFF" />
               </View>
 
               <Text style={styles.value}>{item.value}</Text>
