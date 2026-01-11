@@ -28,20 +28,6 @@ export function ProductCard({ product, onPress }: Props) {
         </Text>
 
         <Text style={styles.price}>₹ {product.price}</Text>
-
-        {/* STATUS */}
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: product.is_active ? '#E6F4EA' : '#FDECEC',
-            },
-          ]}
-        >
-          <Text style={[styles.statusText, { color: product.is_active ? '#34C759' : '#FF3B30' }]}>
-            {product.is_active ? 'Active' : 'Inactive'}
-          </Text>
-        </View>
       </View>
     </TouchableOpacity>
   );
@@ -87,16 +73,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     color: '#555',
-  },
-  statusBadge: {
-    marginTop: 6,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
   },
 });

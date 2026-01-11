@@ -4,7 +4,7 @@ import { Product } from '../types';
 
 export const productService = {
   async getProducts(): Promise<{ data: Product[] }> {
-     return apiClient.get(API_ENDPOINTS.PRODUCT).then((res) => res.data);
+    return apiClient.get(API_ENDPOINTS.PRODUCT).then((res) => res.data);
   },
 
   getProduct(id: string): Promise<Product> {

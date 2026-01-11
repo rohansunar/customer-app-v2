@@ -10,7 +10,8 @@ export default function ProductDetailScreen() {
     return <Text style={{ padding: 16 }}>Invalid product ID</Text>;
   }
 
-  if (isLoading || !data) return <Text style={{ padding: 16 }}>Loading...</Text>;
+  if (isLoading || !data)
+    return <Text style={{ padding: 16 }}>Loading...</Text>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -32,7 +33,12 @@ export default function ProductDetailScreen() {
         {data.description && (
           <Text style={styles.label}>Description: {data.description}</Text>
         )}
-        <Text style={[styles.label, { color: data.is_active ? '#34C759' : '#FF3B30' }]}>
+        <Text
+          style={[
+            styles.label,
+            { color: data.is_active ? '#34C759' : '#FF3B30' },
+          ]}
+        >
           Status: {data.is_active ? 'Active' : 'Inactive'}
         </Text>
       </View>

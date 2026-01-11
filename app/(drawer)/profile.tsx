@@ -1,13 +1,7 @@
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { useEffect, useState } from 'react';
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from 'react-native';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { IconSymbol } from '../../components/ui/icon-symbol';
 
 export default function ProfileScreen() {

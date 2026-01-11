@@ -103,16 +103,14 @@ export default function AddressScreen() {
   };
 
   const handleToggleDefault = (address: Address) => {
-    setDefaultMutation.mutate(address.id,
-      {
-        onSuccess: (res) => {
-          showSuccess(res?.data?.message || 'Address updated successfully');
-        },
-        onError: (error) => {
-          showError(getErrorMessage(error));
-        },
+    setDefaultMutation.mutate(address.id, {
+      onSuccess: (res) => {
+        showSuccess(res?.data?.message || 'Address updated successfully');
       },
-    );
+      onError: (error) => {
+        showError(getErrorMessage(error));
+      },
+    });
   };
 
   const renderItem = ({ item }: { item: Address }) => (

@@ -18,15 +18,6 @@ export default function DashboardTabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="products"
-        options={{
-          title: 'Products',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cube-outline" size={size} color={color} />
-          ),
-        }}
-      />
 
       <Tabs.Screen
         name="orders"
