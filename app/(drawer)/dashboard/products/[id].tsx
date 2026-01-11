@@ -1,70 +1,79 @@
-import { showError, showSuccess } from '@/core/ui/toast';
-import { getErrorMessage } from '@/core/utils/getErrorMessage';
-import { ProductForm } from '@/features/product/components/ProductForm';
-import { ProductImageManager } from '@/features/product/components/ProductImageManager';
 import { useProduct } from '@/features/product/hooks/useProduct';
-import { useUpdateProduct } from '@/features/product/hooks/useUpdateProduct';
 import { useLocalSearchParams } from 'expo-router';
-import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isLoading } = useProduct(id);
-  const { mutate, isPending } = useUpdateProduct();
 
   if (!id) {
     return <Text style={{ padding: 16 }}>Invalid product ID</Text>;
   }
 
-  if (isLoading || !data) return <Text>Loading...(Product)</Text>;
-  if (!data) {
-    return <Text>Order not found</Text>;
-  }
-  if (!data.is_active) {
-    return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ color: '#6B7280' }}>
-          This product is deleted. Restore it from the product list to edit.
+  if (isLoading || !data) return <Text style={{ padding: 16 }}>Loading...</Text>;
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text style={styles.title}>{data.name}</Text>
+
+      {/* Images */}
+      {data.images && data.images.length > 0 && (
+        <View style={styles.imagesContainer}>
+          {data.images.map((image, index) => (
+            <Image key={index} source={{ uri: image }} style={styles.image} />
+          ))}
+        </View>
+      )}
+
+      {/* Details */}
+      <View style={styles.details}>
+        <Text style={styles.label}>Price: ₹ {data.price}</Text>
+        <Text style={styles.label}>Category: {data.categoryId}</Text>
+        {data.description && (
+          <Text style={styles.label}>Description: {data.description}</Text>
+        )}
+        <Text style={[styles.label, { color: data.is_active ? '#34C759' : '#FF3B30' }]}>
+          Status: {data.is_active ? 'Active' : 'Inactive'}
         </Text>
       </View>
-    );
-  }
-  return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <KeyboardAwareScrollView
-        enableOnAndroid
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 16 }}
-      >
-        {/* <View style={{ padding: 16 }}> */}
-        {/* 🔹 IMAGE MANAGEMENT SECTION */}
-        <ProductImageManager productId={id} images={data.images ?? []} />
-
-        {/* 🔹 PRODUCT FORM */}
-        <ProductForm
-          product={data}
-          isPending={isPending}
-          onSubmit={(formData) =>
-            mutate(
-              { id, data: formData },
-              {
-                onSuccess: (res) => {
-                  showSuccess(
-                    res?.data?.message || 'Product updated successfully',
-                  );
-                },
-                onError: (error) => {
-                  showError(getErrorMessage(error));
-                },
-              },
-            )
-          }
-        />
-      </KeyboardAwareScrollView>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F7F7',
+  },
+  content: {
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111',
+    marginBottom: 16,
+  },
+  imagesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  details: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  label: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+});

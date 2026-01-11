@@ -1,7 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useDeleteProduct } from '../hooks/useDeleteProduct';
-import { useRestoreProduct } from '../hooks/useRestoreProduct';
 import { Product } from '../types';
 
 type Props = {
@@ -15,32 +12,24 @@ export function ProductCard({ product, onPress }: Props) {
       ? { uri: product.images[0] }
       : require('@/assets/images/product-placeholder.png');
 
-  const deleteMutation = useDeleteProduct();
-  const restoreMutation = useRestoreProduct();
-  const isDeleted = !product.is_active;
-
   return (
     <TouchableOpacity
-      style={[styles.card, isDeleted && styles.disabledCard]}
-      onPress={isDeleted ? undefined : onPress}
+      style={styles.card}
+      onPress={onPress}
       activeOpacity={0.85}
-      disabled={isDeleted}
     >
       {/* Product Image */}
       <Image source={imageUri} style={styles.image} />
 
       {/* Product Info */}
       <View style={styles.info}>
-        <Text
-          style={[styles.name, isDeleted && styles.disabledText]}
-          numberOfLines={1}
-        >
+        <Text style={styles.name} numberOfLines={1}>
           {product.name}
         </Text>
 
         <Text style={styles.price}>₹ {product.price}</Text>
 
-        {/* ACTION */}
+        {/* STATUS */}
         <View
           style={[
             styles.statusBadge,
@@ -49,17 +38,9 @@ export function ProductCard({ product, onPress }: Props) {
             },
           ]}
         >
-          {!isDeleted ? (
-            <TouchableOpacity onPress={() => deleteMutation.mutate(product.id)}>
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => restoreMutation.mutate(product.id)}
-            >
-              <Ionicons name="refresh-outline" size={20} color="#34C759" />
-            </TouchableOpacity>
-          )}
+          <Text style={[styles.statusText, { color: product.is_active ? '#34C759' : '#FF3B30' }]}>
+            {product.is_active ? 'Active' : 'Inactive'}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -113,5 +94,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

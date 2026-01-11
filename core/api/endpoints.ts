@@ -5,7 +5,5 @@ export const API_ENDPOINTS = {
   BANK: '/vendor/bank-accounts',
   ADDRESS: '/customer/addresses',
   CITIES: '/cities',
-  PRODUCT: '/products',
-  PRODUCT_IMAGE: '/products/image',
-  VENDOR_ORDER: '/vendor/orders',
+  PRODUCT: '/search/products',
 };

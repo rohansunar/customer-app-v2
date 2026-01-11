@@ -2,11 +2,10 @@ import { ProductCard } from '@/features/product/components/ProductCard';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { router } from 'expo-router';
 import {
-  Button,
   FlatList,
   RefreshControl,
   StyleSheet,
-  View,
+  View
 } from 'react-native';
 
 export default function ProductsTab() {
@@ -16,13 +15,8 @@ export default function ProductsTab() {
 
   return (
     <View style={styles.container}>
-      <Button
-        title="Add Product"
-        onPress={() => router.push('/dashboard/products/create')}
-      />
-
       <FlatList
-        data={data}
+        data={data?.data}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ProductCard
