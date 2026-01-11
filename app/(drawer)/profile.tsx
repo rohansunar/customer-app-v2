@@ -8,6 +8,7 @@ import {
   TextInput,
   View
 } from 'react-native';
+import { IconSymbol } from '../../components/ui/icon-symbol';
 
 export default function ProfileScreen() {
   // console.log('ProfileScreen render');
@@ -43,13 +44,20 @@ export default function ProfileScreen() {
     mutate({
       name,
       email,
-      // is_available_today: isAvailableToday,
     });
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
+
+      {/* Status */}
+      <Text>Status</Text>
+      <IconSymbol
+        name={data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'}
+        size={24}
+        color={data.isActive ? 'green' : 'red'}
+      />
 
       {/* Phone (disabled) */}
       <Text>Phone</Text>
@@ -76,14 +84,6 @@ export default function ProfileScreen() {
         placeholder="Enter your email"
         keyboardType="email-address"
         style={styles.input}
-      />
-
-      {/* Active status (disabled) */}
-      <Text>Status</Text>
-      <TextInput
-        value={data.isActive ? 'Active' : 'Inactive'}
-        editable={false}
-        style={styles.disabledInput}
       />
 
       <Button
