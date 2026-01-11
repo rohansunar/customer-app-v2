@@ -57,9 +57,6 @@ export default function AddressScreen() {
   };
 
   const handleSave = (formData: {
-    service_radius_m: number;
-    delivery_time_msg?: string;
-    street: string;
     cityId: string;
     state: string;
     zipCode: string;

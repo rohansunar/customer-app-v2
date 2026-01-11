@@ -1,12 +1,11 @@
 export const API_ENDPOINTS = {
-  REQUEST_OTP: '/auth/vendor/request-otp',
-  VERIFY_OTP: '/auth/vendor/verify-otp',
-  VENDOR_ME: '/vendor/me',
+  REQUEST_OTP: '/auth/customer/request-otp',
+  VERIFY_OTP: '/auth/customer/verify-otp',
+  CUSTOMER_ME: '/customer/me',
   BANK: '/vendor/bank-accounts',
-  ADDRESS: '/vendor/addresses',
+  ADDRESS: '/customer/addresses',
   CITIES: '/cities',
   PRODUCT: '/products',
   PRODUCT_IMAGE: '/products/image',
-  CATEGORIES: '/categories',
   VENDOR_ORDER: '/vendor/orders',
 };

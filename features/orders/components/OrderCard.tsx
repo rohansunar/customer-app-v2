@@ -24,8 +24,6 @@ const getStatusColor = (status: OrderStatus) => {
 };
 
 export default function OrderCard({ order, onPress }: Props) {
-  const imageUri = require('@/assets/images/product-placeholder.png');
-
   return (
     <TouchableOpacity
       style={styles.card}
@@ -64,7 +62,7 @@ export default function OrderCard({ order, onPress }: Props) {
         </View>
 
         {/* Additional Details */}
-        <Text style={styles.detail}>Items: {order.cart.cartItems.length}</Text>
+        {/* <Text style={styles.detail}>Items: {order.cart.cartItems.length}</Text> */}
         <Text style={styles.detail}>
           {order.address.address} • {order.address.pincode}
         </Text>

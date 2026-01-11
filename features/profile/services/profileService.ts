@@ -12,7 +12,7 @@ export const profileService = {
    * Get logged-in user's profile
    */
   async getProfile() {
-    const response = await apiClient.get(API_ENDPOINTS.VENDOR_ME);
+    const response = await apiClient.get(API_ENDPOINTS.CUSTOMER_ME);
     return response.data;
   },
 
@@ -20,7 +20,6 @@ export const profileService = {
    * Update editable profile fields
    */
   updateProfile(data: updateData) {
-    console.log('Update editable profile fields', data);
-    return apiClient.put(API_ENDPOINTS.VENDOR_ME, data);
+    return apiClient.put(API_ENDPOINTS.CUSTOMER_ME, data);
   },
 };

@@ -29,11 +29,11 @@ export default function OrderDetailsScreen() {
 
       <Text style={{ marginTop: 12, fontWeight: '500' }}>Items</Text>
 
-      {/* {data.cart.cartItems.map((item) => (
+      {data.cart.cartItems.map((item) => (
         <Text key={item.id}>
           {item.product.name} × {item.quantity}
         </Text>
-      ))} */}
+      ))}
     </View>
   );
 }
