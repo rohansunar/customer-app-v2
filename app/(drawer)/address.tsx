@@ -6,7 +6,7 @@ import { useAddresses } from '@/features/address/hooks/useAddresses';
 import { useCreateAddress } from '@/features/address/hooks/useCreateAddress';
 import { useDeleteAddress } from '@/features/address/hooks/useDeleteAddress';
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
-import { Address } from '@/features/address/types';
+import { Address, CreateAddressData } from '@/features/address/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -56,16 +56,7 @@ export default function AddressScreen() {
     setIsModalVisible(true);
   };
 
-  const handleSave = (formData: {
-    cityId: string;
-    state: string;
-    zipCode: string;
-    location: {
-      lat: number;
-      lng: number;
-    };
-    address: string;
-  }) => {
+  const handleSave = (formData: CreateAddressData) => {
     if (isEditMode && selectedAddress) {
       updateMutation.mutate(
         { id: selectedAddress.id, data: formData },
@@ -131,7 +122,7 @@ export default function AddressScreen() {
         />
       ) : (
         <View style={styles.centered}>
-          <Text>No addresses found</Text>
+          <Text>No addresses available</Text>
         </View>
       )}
 

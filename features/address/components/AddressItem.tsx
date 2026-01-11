@@ -9,40 +9,25 @@ interface AddressItemProps {
 }
 
 export function AddressItem({ address, onPress, onDelete }: AddressItemProps) {
-  {
-    {
-      address;
-    }
-  }
-  // Handle location if it's a stringified object
-  let locationObj: { lat: number; lng: number } | null = null;
-  if (address.location) {
-    if (typeof address.location === 'string') {
-      try {
-        locationObj = JSON.parse(address.location);
-      } catch {
-        // keep null
-      }
-    } else {
-      locationObj = address.location;
-    }
-  }
+  const displayLabel = address.isDefault ? `${address.label} (Primary)` : address.label;
 
   return (
     <TouchableOpacity
       style={[styles.container, { backgroundColor: '#fff' }]}
       onPress={onPress}
+      accessibilityLabel={`Address: ${displayLabel}, ${address.address}, ${address.city.name}, ${address.pincode}`}
     >
       <View style={styles.content}>
         <View style={styles.textContainer}>
           <Text style={[styles.title, { color: '#000' }]}>
-            {address.street}, {address.city}, {address.state}, {address.zipCode}
+            {displayLabel}
           </Text>
-          {locationObj && (
-            <Text style={[styles.coordinates, { color: '#000' }]}>
-              Lat: {locationObj.lat}, Lng: {locationObj.lng}
-            </Text>
-          )}
+          <Text style={[styles.address, { color: '#000' }]}>
+            {address.address}
+          </Text>
+          <Text style={[styles.details, { color: '#000' }]}>
+            {address.city.name}, {address.pincode}
+          </Text>
         </View>
         <View style={styles.iconContainer}>
           <Ionicons name="location-outline" size={20} color={'#000'} />
@@ -81,9 +66,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  coordinates: {
+  address: {
     fontSize: 14,
     marginTop: 4,
+  },
+  details: {
+    fontSize: 14,
+    marginTop: 2,
     opacity: 0.7,
   },
   iconContainer: {

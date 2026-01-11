@@ -1,5 +1,4 @@
 import { useCities } from '@/features/city/hooks/useCities';
-import { INDIAN_STATES } from '@/shared/constants/indianStates';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
@@ -7,10 +6,11 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { AddressFormProps } from '../types';
 
@@ -21,59 +21,33 @@ export function AddressForm({
   isPending,
 }: AddressFormProps) {
   const { data: cities, isLoading: isCitiesLoading } = useCities();
-  const [service_radius_m, setServiceRadiusM] = useState(
-    address?.service_radius_m?.toString() || '',
-  );
-  const [street, setStreet] = useState(address?.street || '');
-  const [cityId, setCityId] = useState(address?.cityId || '');
-  const [state, setState] = useState(address?.state || '');
-  const [zipCode, setZipCode] = useState(address?.zipCode || '');
-  const [lat, setLat] = useState(address?.location?.lat?.toString() || '');
-  const [lng, setLng] = useState(address?.location?.lng?.toString() || '');
-  const [fullAddress, setFullAddress] = useState(address?.address || '');
+  const [label, setLabel] = useState(address?.label || '');
+  const [addressText, setAddressText] = useState(address?.address || '');
+  const [pincode, setPincode] = useState(address?.pincode || '');
+  const [cityName, setCityName] = useState(address?.city?.name || '');
+  const [isDefault, setIsDefault] = useState(address?.isDefault || false);
 
   useEffect(() => {
     if (address) {
-      setServiceRadiusM(address.service_radius_m.toString());
-      setStreet(address.street);
-      setCityId(address.cityId);
-      setState(address.state);
-      setZipCode(address.zipCode);
-      setLat(address.location?.lat?.toString() || '');
-      setLng(address.location?.lng?.toString() || '');
-      setFullAddress(address.address);
+      setLabel(address.label);
+      setAddressText(address.address);
+      setPincode(address.pincode);
+      setCityName(address.city?.name || '');
+      setIsDefault(address.isDefault);
     }
   }, [address]);
 
   const handleSave = () => {
-    if (
-      !service_radius_m ||
-      !street ||
-      !cityId ||
-      !state ||
-      !zipCode ||
-      !lat ||
-      !lng ||
-      !fullAddress
-    ) {
+    if (!label || !addressText || !pincode || !cityName) {
       Alert.alert('Error', 'All fields are required');
       return;
     }
-    const radius = parseFloat(service_radius_m);
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lng);
-    if (isNaN(radius) || isNaN(latitude) || isNaN(longitude)) {
-      Alert.alert('Error', 'Invalid numeric values');
-      return;
-    }
     onSave({
-      service_radius_m: radius,
-      street,
-      cityId,
-      state,
-      zipCode,
-      location: { lat: latitude, lng: longitude },
-      address: fullAddress,
+      label,
+      address: addressText,
+      pincode,
+      city: { name: cityName },
+      isDefault,
     });
   };
 
@@ -91,78 +65,49 @@ export function AddressForm({
       </View>
 
       <TextInput
-        placeholder="Street"
-        value={street}
-        onChangeText={setStreet}
+        placeholder="Label"
+        value={label}
+        onChangeText={setLabel}
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Address"
+        value={addressText}
+        onChangeText={setAddressText}
+        multiline
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Pincode"
+        value={pincode}
+        onChangeText={setPincode}
+        keyboardType="numeric"
         style={styles.input}
       />
 
       <Text>City</Text>
       <View style={styles.pickerWrapper}>
         <Picker
-          selectedValue={cityId}
-          onValueChange={(value) => setCityId(value)}
+          selectedValue={cityName}
+          onValueChange={(value) => setCityName(value)}
         >
           <Picker.Item label="Select City" value="" />
 
           {cities?.map((city: any) => (
-            <Picker.Item key={city.id} label={city.name} value={city.id} />
+            <Picker.Item key={city.id} label={city.name} value={city.name} />
           ))}
         </Picker>
       </View>
 
-      <Text>State</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={state}
-          onValueChange={(value) => setState(value)}
-        >
-          <Picker.Item label="Select State" value="" />
-
-          {INDIAN_STATES.map((stateName) => (
-            <Picker.Item key={stateName} label={stateName} value={stateName} />
-          ))}
-        </Picker>
+      <View style={styles.switchContainer}>
+        <Text>Is Default</Text>
+        <Switch
+          value={isDefault}
+          onValueChange={setIsDefault}
+        />
       </View>
-
-      <TextInput
-        placeholder="Zip Code"
-        value={zipCode}
-        onChangeText={setZipCode}
-        style={[styles.input]}
-      />
-
-      <TextInput
-        placeholder="Latitude"
-        value={lat}
-        onChangeText={setLat}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Longitude"
-        value={lng}
-        onChangeText={setLng}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Full Address"
-        value={fullAddress}
-        onChangeText={setFullAddress}
-        multiline
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Service Radius (m)"
-        value={service_radius_m}
-        onChangeText={setServiceRadiusM}
-        keyboardType="numeric"
-        style={styles.input}
-      />
 
       <TouchableOpacity
         style={[styles.saveButton, isPending && styles.disabledButton]}
@@ -206,6 +151,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 4,
+    marginBottom: 12,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
   saveButton: {

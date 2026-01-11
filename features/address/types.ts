@@ -1,31 +1,19 @@
 export type Address = {
   id: string;
-  street: string;
-  cityId: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  location?: {
-    lat: number;
-    lng: number;
-  };
+  label: string;
   address: string;
-  createdAt: string;
+  pincode: string;
+  city: {
+    name: string;
+  };
+  isDefault: boolean;
 };
+
+export type CreateAddressData = Omit<Address, 'id'>;
 
 export interface AddressFormProps {
   address?: Address;
-  onSave: (data: {
-    street: string;
-    cityId: string;
-    state: string;
-    zipCode: string;
-    location: {
-      lat: number;
-      lng: number;
-    };
-    address: string;
-  }) => void;
+  onSave: (data: CreateAddressData) => void;
   onCancel: () => void;
   isPending: boolean;
 }
