@@ -38,16 +38,6 @@ export default function DashboardTabsLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="earnings"
-        options={{
-          title: 'Earnings',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="receipt-outline" size={size} color={color} />
-          ),
-        }}
-      />
-
       {/* HIDDEN ROUTES */}
       <Tabs.Screen name="products/[id]" options={{ href: null }} />
       <Tabs.Screen name="products/create" options={{ href: null }} />

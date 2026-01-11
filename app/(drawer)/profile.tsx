@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react';
 import {
   Button,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
-  View,
+  View
 } from 'react-native';
 
 export default function ProfileScreen() {
@@ -18,7 +17,6 @@ export default function ProfileScreen() {
   // Local editable state
   const [name, setName] = useState('');
   const [email, setEmail] = useState<string | null>(null);
-  const [isAvailableToday, setIsAvailableToday] = useState(false);
 
   // console.log('Data', data);
   // Populate form when profile loads
@@ -26,7 +24,6 @@ export default function ProfileScreen() {
     if (data) {
       setName(data.name ?? '');
       setEmail(data.email);
-      setIsAvailableToday(data.is_available_today);
     }
   }, [data]);
 
@@ -84,16 +81,10 @@ export default function ProfileScreen() {
       {/* Active status (disabled) */}
       <Text>Status</Text>
       <TextInput
-        value={data.is_active ? 'Active' : 'Inactive'}
+        value={data.isActive ? 'Active' : 'Inactive'}
         editable={false}
         style={styles.disabledInput}
       />
-
-      {/* Availability toggle */}
-      <View style={styles.switchRow}>
-        <Text>Available Today</Text>
-        <Switch value={isAvailableToday} onValueChange={setIsAvailableToday} />
-      </View>
 
       <Button
         title={isPending ? 'Saving...' : 'Save Changes'}
