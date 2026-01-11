@@ -1,3 +1,4 @@
+import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Product } from '../types';
 
@@ -7,10 +8,16 @@ type Props = {
 };
 
 export function ProductCard({ product, onPress }: Props) {
+  const addToCartMutation = useAddToCart();
+
   const imageUri =
     product.images && product.images.length > 0
       ? { uri: product.images[0] }
       : require('@/assets/images/product-placeholder.png');
+
+  const handleAddToCart = () => {
+    addToCartMutation.mutate({ productId: product.id, quantity: 1 });
+  };
 
   return (
     <TouchableOpacity
@@ -28,6 +35,10 @@ export function ProductCard({ product, onPress }: Props) {
         </Text>
 
         <Text style={styles.price}>₹ {product.price}</Text>
+
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+          <Text style={styles.addToCartText}>Add</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -73,5 +84,18 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     color: '#555',
+  },
+  addToCartButton: {
+    marginTop: 8,
+    backgroundColor: '#007bff',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  addToCartText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

@@ -15,10 +15,6 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Text style={styles.heading}>Products</Text>
-      <Text style={styles.subHeading}>Overview of your business</Text>
-
       {/* Products Section */}
       {isLoading ? (
         <ActivityIndicator size="large" color="#4F46E5" />
