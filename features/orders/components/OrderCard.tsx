@@ -37,8 +37,12 @@ export default function OrderCard({ order, onPress }: Props) {
             OrderID: #{order.orderNo}
           </Text>
           <View style={styles.dateTimeContainer}>
-            <Text style={styles.dateText}>{new Date(order.created_at).toLocaleDateString()}</Text>
-            <Text style={styles.timeText}>{new Date(order.created_at).toLocaleTimeString()}</Text>
+            <Text style={styles.dateText}>
+              {new Date(order.created_at).toLocaleDateString()}
+            </Text>
+            <Text style={styles.timeText}>
+              {new Date(order.created_at).toLocaleTimeString()}
+            </Text>
           </View>
         </View>
 

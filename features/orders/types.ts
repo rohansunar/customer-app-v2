@@ -40,7 +40,7 @@ export interface Order {
   created_at: string;
   cart: Cart;
   address: Address;
-  assigned_rider_phone:string;
+  assigned_rider_phone: string;
 }
 
 export interface OrdersResponse {

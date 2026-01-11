@@ -6,11 +6,10 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { AddressFormProps } from '../types';
 
@@ -24,30 +23,38 @@ export function AddressForm({
   const [label, setLabel] = useState(address?.label || '');
   const [addressText, setAddressText] = useState(address?.address || '');
   const [pincode, setPincode] = useState(address?.pincode || '');
-  const [cityName, setCityName] = useState(address?.city?.name || '');
-  const [isDefault, setIsDefault] = useState(address?.isDefault || false);
+  const [cityId, setCityId] = useState(address?.city?.id || '');
+  const [lng, setLng] = useState(address?.location?.lng?.toString() || '');
+  const [lat, setLat] = useState(address?.location?.lat?.toString() || '');
 
   useEffect(() => {
     if (address) {
       setLabel(address.label);
       setAddressText(address.address);
       setPincode(address.pincode);
-      setCityName(address.city?.name || '');
-      setIsDefault(address.isDefault);
+      setCityId(address.city?.id || '');
+      setLng(address.location?.lng?.toString() || '');
+      setLat(address.location?.lat?.toString() || '');
     }
   }, [address]);
 
   const handleSave = () => {
-    if (!label || !addressText || !pincode || !cityName) {
+    if (!label || !addressText || !pincode || !cityId || !lng || !lat) {
       Alert.alert('Error', 'All fields are required');
+      return;
+    }
+    const lngNum = parseFloat(lng);
+    const latNum = parseFloat(lat);
+    if (isNaN(lngNum) || isNaN(latNum)) {
+      Alert.alert('Error', 'Longitude and latitude must be valid numbers');
       return;
     }
     onSave({
       label,
       address: addressText,
       pincode,
-      city: { name: cityName },
-      isDefault,
+      cityId,
+      location: { lng: lngNum, lat: latNum },
     });
   };
 
@@ -64,12 +71,20 @@ export function AddressForm({
         </TouchableOpacity>
       </View>
 
-      <TextInput
-        placeholder="Label"
-        value={label}
-        onChangeText={setLabel}
-        style={styles.input}
-      />
+      <Text>Label</Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={label}
+          onValueChange={(value) => setLabel(value)}
+        >
+          <Picker.Item label="Select Label" value="" />
+          <Picker.Item label="Home" value="Home" />
+          <Picker.Item label="Office" value="Office" />
+          <Picker.Item label="Restaurant" value="Restaurant" />
+          <Picker.Item label="Shop" value="Shop" />
+          <Picker.Item label="Institution" value="Institution" />
+        </Picker>
+      </View>
 
       <TextInput
         placeholder="Address"
@@ -90,24 +105,32 @@ export function AddressForm({
       <Text>City</Text>
       <View style={styles.pickerWrapper}>
         <Picker
-          selectedValue={cityName}
-          onValueChange={(value) => setCityName(value)}
+          selectedValue={cityId}
+          onValueChange={(value) => setCityId(value)}
         >
           <Picker.Item label="Select City" value="" />
 
           {cities?.map((city: any) => (
-            <Picker.Item key={city.id} label={city.name} value={city.name} />
+            <Picker.Item key={city.id} label={city.name} value={city.id} />
           ))}
         </Picker>
       </View>
 
-      <View style={styles.switchContainer}>
-        <Text>Is Default</Text>
-        <Switch
-          value={isDefault}
-          onValueChange={setIsDefault}
-        />
-      </View>
+      <TextInput
+        placeholder="Longitude"
+        value={lng}
+        onChangeText={setLng}
+        keyboardType="numeric"
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Latitude"
+        value={lat}
+        onChangeText={setLat}
+        keyboardType="numeric"
+        style={styles.input}
+      />
 
       <TouchableOpacity
         style={[styles.saveButton, isPending && styles.disabledButton]}

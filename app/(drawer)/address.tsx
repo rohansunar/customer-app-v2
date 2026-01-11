@@ -5,6 +5,7 @@ import { AddressItem } from '@/features/address/components/AddressItem';
 import { useAddresses } from '@/features/address/hooks/useAddresses';
 import { useCreateAddress } from '@/features/address/hooks/useCreateAddress';
 import { useDeleteAddress } from '@/features/address/hooks/useDeleteAddress';
+import { useSetDefaultAddress } from '@/features/address/hooks/useSetDefaultAddress';
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
 import { Address, CreateAddressData } from '@/features/address/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,7 @@ export default function AddressScreen() {
   const { data: addresses, isLoading, error } = useAddresses();
   const createMutation = useCreateAddress();
   const updateMutation = useUpdateAddress();
+  const setDefaultMutation = useSetDefaultAddress();
   const deleteMutation = useDeleteAddress();
 
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -100,11 +102,25 @@ export default function AddressScreen() {
     setSelectedAddress(null);
   };
 
+  const handleToggleDefault = (address: Address) => {
+    setDefaultMutation.mutate(address.id,
+      {
+        onSuccess: (res) => {
+          showSuccess(res?.data?.message || 'Address updated successfully');
+        },
+        onError: (error) => {
+          showError(getErrorMessage(error));
+        },
+      },
+    );
+  };
+
   const renderItem = ({ item }: { item: Address }) => (
     <AddressItem
       address={item}
       onPress={() => handleItemPress(item)}
       onDelete={() => handleDeleteFromList(item.id)}
+      onToggleDefault={() => handleToggleDefault(item)}
     />
   );
 

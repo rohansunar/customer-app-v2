@@ -6,10 +6,18 @@ interface AddressItemProps {
   address: Address;
   onPress: () => void;
   onDelete?: () => void;
+  onToggleDefault?: () => void;
 }
 
-export function AddressItem({ address, onPress, onDelete }: AddressItemProps) {
-  const displayLabel = address.isDefault ? `${address.label} (Primary)` : address.label;
+export function AddressItem({
+  address,
+  onPress,
+  onDelete,
+  onToggleDefault,
+}: AddressItemProps) {
+  const displayLabel = address.isDefault
+    ? `${address.label} (Primary)`
+    : address.label;
 
   return (
     <TouchableOpacity
@@ -19,9 +27,7 @@ export function AddressItem({ address, onPress, onDelete }: AddressItemProps) {
     >
       <View style={styles.content}>
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: '#000' }]}>
-            {displayLabel}
-          </Text>
+          <Text style={[styles.title, { color: '#000' }]}>{displayLabel}</Text>
           <Text style={[styles.address, { color: '#000' }]}>
             {address.address}
           </Text>
@@ -31,6 +37,18 @@ export function AddressItem({ address, onPress, onDelete }: AddressItemProps) {
         </View>
         <View style={styles.iconContainer}>
           <Ionicons name="location-outline" size={20} color={'#000'} />
+          {onToggleDefault && (
+            <TouchableOpacity
+              onPress={onToggleDefault}
+              style={styles.toggleButton}
+            >
+              <Ionicons
+                name={address.isDefault ? 'star' : 'star-outline'}
+                size={20}
+                color={address.isDefault ? '#FFD700' : '#000'}
+              />
+            </TouchableOpacity>
+          )}
           {onDelete && (
             <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
               <Ionicons name="trash-outline" size={20} color={'red'} />
@@ -80,6 +98,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButton: {
+    marginLeft: 8,
+  },
+  toggleButton: {
     marginLeft: 8,
   },
 });

@@ -54,7 +54,6 @@ export default function DashboardTabsLayout() {
       <Tabs.Screen name="bank/create" options={{ href: null }} />
       <Tabs.Screen name="bank/[id]" options={{ href: null }} />
       <Tabs.Screen name="orders/[id]" options={{ href: null }} />
-
     </Tabs>
   );
 }

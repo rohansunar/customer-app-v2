@@ -31,4 +31,11 @@ export const addressService = {
   deleteAddress(id: string) {
     return apiClient.delete(`${API_ENDPOINTS.ADDRESS}/${id}`);
   },
+
+  /**
+   * Set address as default by ID
+   */
+  setDefaultAddress(id: string) {
+    return apiClient.put(`${API_ENDPOINTS.ADDRESS}/${id}/set-default`);
+  },
 };
