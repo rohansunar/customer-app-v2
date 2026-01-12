@@ -14,4 +14,12 @@ export const orderService = {
       .get(`${API_ENDPOINTS.CUSTOMER_ORDER}/${id}`)
       .then((res) => res.data);
   },
+
+  cancelOrder(id: string, cancelReason: string): Promise<any> {
+    return apiClient
+      .post(API_ENDPOINTS.CUSTOMER_ORDER_CANCEL.replace(':orderId', id), {
+        cancelReason,
+      })
+      .then((res) => res.data);
+  },
 };
