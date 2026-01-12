@@ -13,7 +13,7 @@ export default function CartButton({ totalItems }: CartButtonProps) {
     <View style={styles.cartContainer}>
       <TouchableOpacity
         style={styles.cartButton}
-        onPress={() => router.push('/cart')}
+        onPress={() => router.push('/dashboard/cart')}
       >
         <Text style={styles.cartText}>
           {totalItems} {totalItems === 1 ? 'item' : 'items'} added

@@ -17,15 +17,16 @@ export type CartItem = {
 };
 
 export type CartResponse = {
-  deliveryAddress: {
-    id: string;
-    label: string;
-    address: string;
-    city: string;
-    pincode: string;
-  };
-  cartItems: CartItem[];
-  totalItems: number;
-  subtotal: number;
-  grandTotal: number;
+   cartId: string;
+   deliveryAddress: {
+     id: string;
+     label: string;
+     address: string;
+     city: string;
+     pincode: string;
+   };
+   cartItems: CartItem[];
+   totalItems: number;
+   subtotal: number;
+   grandTotal: number;
 };

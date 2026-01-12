@@ -117,7 +117,7 @@ export function CartSummary() {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.checkoutButton]}
-          onPress={() => router.push('/dashboard/orders')}
+          onPress={() => router.push('/dashboard/payment')}
           accessibilityLabel="Proceed to Payment"
           accessibilityRole="button"
           accessibilityHint="Proceeds to the payment page"

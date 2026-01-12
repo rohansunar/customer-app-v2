@@ -10,12 +10,12 @@ export const cartService = {
     return apiClient.post(API_ENDPOINTS.CART, data);
   },
   /**
-    * Get cart
-    */
-  async getCart(): Promise<CartResponse> {
-    const response = await apiClient.get(API_ENDPOINTS.CART);
-    return response.data;
-  },
+     * Get cart
+     */
+   async getCart(): Promise<CartResponse> {
+     const response = await apiClient.get(API_ENDPOINTS.CART);
+     return response.data;
+   },
   /**
     * Delete cart item
     */
