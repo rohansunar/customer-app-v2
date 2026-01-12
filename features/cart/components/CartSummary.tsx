@@ -1,10 +1,10 @@
+import { router } from 'expo-router';
 import React from 'react';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Image,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,24 +13,15 @@ import {
 import { useCart } from '../hooks/useCart';
 import { CartItem } from '../types';
 
-type Props = {
-  visible: boolean;
-  onClose: () => void;
-};
-
-export function CartSummary({ visible, onClose }: Props) {
+export function CartSummary() {
   const { data, isLoading, error } = useCart();
 
   const cartItems = data?.cartItems || [];
 
-  const totalPrice = cartItems.reduce((sum, item) => {
-    return sum + item.price * item.quantity;
-  }, 0);
-
   const renderItem = ({ item }: { item: CartItem }) => {
     const imageUri =
-      item.product.images && item.product.images.length > 0
-        ? { uri: item.product.images[0] }
+      item.images && item.images.length > 0
+        ? { uri: item.images[0] }
         : require('@/assets/images/product-placeholder.png');
 
     return (
@@ -38,10 +29,15 @@ export function CartSummary({ visible, onClose }: Props) {
         <Image source={imageUri} style={styles.itemImage} />
         <View style={styles.itemDetails}>
           <Text style={styles.itemName} numberOfLines={1}>
-            {item.product.name}
+            {item.name}
+          </Text>
+          <Text style={styles.itemDescription} numberOfLines={2}>
+            {item.description}
           </Text>
           <Text style={styles.itemQty}>Qty: {item.quantity}</Text>
-          <Text style={styles.itemPrice}>₹ {item.price}</Text>
+          <Text style={styles.itemPrice}>Price: ₹ {item.price}</Text>
+          {item.deposit && <Text style={styles.itemDeposit}>Deposit: ₹ {item.deposit}</Text>}
+          <Text style={styles.itemTotalPrice}>Total: ₹ {item.totalPrice}</Text>
         </View>
       </View>
     );
@@ -82,6 +78,11 @@ export function CartSummary({ visible, onClose }: Props) {
 
     return (
       <View style={styles.content}>
+        <View style={styles.summaryContainer}>
+          <Text style={styles.summaryText}>Delivery Address:</Text>
+          <Text style={styles.addressText}>{data!.deliveryAddress.label}</Text>
+          <Text style={styles.addressText}>{data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}</Text>
+        </View>
         <FlatList
           data={cartItems}
           keyExtractor={(item) => item.id}
@@ -90,22 +91,17 @@ export function CartSummary({ visible, onClose }: Props) {
           contentContainerStyle={styles.listContainer}
         />
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total: ₹ {totalPrice.toFixed(2)}</Text>
+          <Text style={styles.totalText}>Total Items: {data!.totalItems}</Text>
+          <Text style={styles.totalText}>Subtotal: ₹ {data!.subtotal}</Text>
+          <Text style={styles.totalText}>Grand Total: ₹ {data!.grandTotal}</Text>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.viewCartButton]}
-            onPress={onClose}
-            accessibilityLabel="View full cart"
-          >
-            <Text style={styles.viewCartText}>View Full Cart</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             style={[styles.button, styles.checkoutButton]}
-            onPress={onClose}
-            accessibilityLabel="Proceed to checkout"
+            onPress={() => router.push('/dashboard/orders')}
+            accessibilityLabel="Proceed to Payment"
           >
-            <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+            <Text style={styles.checkoutText}>Proceed to Payment</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -113,44 +109,27 @@ export function CartSummary({ visible, onClose }: Props) {
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-      accessibilityLabel="Cart summary modal"
-    >
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Cart Summary</Text>
-            <TouchableOpacity
-              onPress={onClose}
-              style={styles.closeButton}
-              accessibilityLabel="Close cart summary"
-            >
-              <Text style={styles.closeText}>✕</Text>
-            </TouchableOpacity>
-          </View>
-          {renderContent()}
-        </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.push('/dashboard')}
+          style={styles.backButton}
+          accessibilityLabel="Back to dashboard"
+        >
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Cart Summary</Text>
+        <View style={styles.placeholder} />
       </View>
-    </Modal>
+      {renderContent()}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%',
-    minHeight: '50%',
   },
   header: {
     flexDirection: 'row',
@@ -164,13 +143,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#111',
+    textAlign: 'center',
+    flex: 1,
   },
-  closeButton: {
+  backButton: {
     padding: 4,
   },
-  closeText: {
-    fontSize: 18,
-    color: '#666',
+  backText: {
+    fontSize: 16,
+    color: '#007bff',
+  },
+  placeholder: {
+    width: 50,
   },
   center: {
     flex: 1,
@@ -242,6 +226,36 @@ const styles = StyleSheet.create({
     color: '#007bff',
     marginTop: 2,
   },
+  itemDescription: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  itemDeposit: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  itemTotalPrice: {
+    fontSize: 14,
+    color: '#007bff',
+    marginTop: 2,
+  },
+  summaryContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  summaryText: {
+    fontSize: 14,
+    color: '#111',
+    marginBottom: 4,
+  },
+  addressText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
   totalContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -264,13 +278,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
-  },
-  viewCartButton: {
-    backgroundColor: '#e0e0e0',
-  },
-  viewCartText: {
-    fontSize: 16,
-    color: '#111',
   },
   checkoutButton: {
     backgroundColor: '#007bff',

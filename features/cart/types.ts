@@ -1,4 +1,3 @@
-import { Product } from '../product/types';
 
 export type AddToCartData = {
   productId: string;
@@ -7,16 +6,26 @@ export type AddToCartData = {
 
 export type CartItem = {
   id: string;
+  productId: string;
+  name: string;
+  images: string[];
+  description: string;
   quantity: number;
-  price: number;
-  product: Product;
-};
-
-export type Cart = {
-  id: string;
-  cartItems: CartItem[];
+  price: string;
+  deposit: number | null;
+  totalPrice: number;
 };
 
 export type CartResponse = {
+  deliveryAddress: {
+    id: string;
+    label: string;
+    address: string;
+    city: string;
+    pincode: string;
+  };
   cartItems: CartItem[];
+  totalItems: number;
+  subtotal: number;
+  grandTotal: number;
 };

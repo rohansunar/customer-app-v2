@@ -4,10 +4,10 @@ import { Text, View } from 'react-native';
 
 export default function OrderDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { data, isLoading } = useOrder(id as string);
   if (!id) {
     return <Text style={{ padding: 16 }}>Invalid Order ID</Text>;
   }
-  const { data, isLoading } = useOrder(id);
 
   if (isLoading || !data) return <Text>Loading...(Order)</Text>;
 
