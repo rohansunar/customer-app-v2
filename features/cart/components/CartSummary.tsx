@@ -1,3 +1,5 @@
+import { showError, showSuccess } from '@/core/ui/toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -11,12 +13,25 @@ import {
   View,
 } from 'react-native';
 import { useCart } from '../hooks/useCart';
+import { cartService } from '../services/cartService';
 import { CartItem } from '../types';
 
 export function CartSummary() {
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useCart();
 
   const cartItems = data?.cartItems || [];
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => cartService.deleteCartItem(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      showSuccess('Item removed from cart');
+    },
+    onError: () => {
+      showError('Failed to remove item');
+    },
+  });
 
   const renderItem = ({ item }: { item: CartItem }) => {
     const imageUri =
@@ -39,6 +54,13 @@ export function CartSummary() {
           {item.deposit && <Text style={styles.itemDeposit}>Deposit: ₹ {item.deposit}</Text>}
           <Text style={styles.itemTotalPrice}>Total: ₹ {item.totalPrice}</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => deleteMutation.mutate(item.id)}
+          style={styles.deleteButton}
+          accessibilityLabel="Delete item"
+        >
+          <Text style={styles.deleteText}>✕</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -285,5 +307,12 @@ const styles = StyleSheet.create({
   checkoutText: {
     fontSize: 16,
     color: '#fff',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  deleteText: {
+    fontSize: 18,
+    color: '#d32f2f',
   },
 });
