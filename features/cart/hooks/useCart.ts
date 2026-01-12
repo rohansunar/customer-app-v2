@@ -6,5 +6,7 @@ export function useCart() {
   return useQuery({
     queryKey: ['cart'],
     queryFn: cartService.getCart,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }

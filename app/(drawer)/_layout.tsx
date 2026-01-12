@@ -14,7 +14,6 @@ export default function DrawerLayout() {
         }}
       >
         <Drawer.Screen name="dashboard" options={{ title: 'Dashboard' }} />
-        <Drawer.Screen name="cart" options={{ title: 'Cart' }} />
         <Drawer.Screen name="profile" options={{ title: 'Profile' }} />
         <Drawer.Screen name="address" options={{ title: 'Address' }} />
       </Drawer>

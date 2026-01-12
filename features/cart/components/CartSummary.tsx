@@ -1,39 +1,26 @@
-import { showError, showSuccess } from '@/core/ui/toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { useCart } from '../hooks/useCart';
-import { cartService } from '../services/cartService';
+import { useRemoveFromCart } from '../hooks/useRemoveFromCart';
 import { CartItem } from '../types';
 
 export function CartSummary() {
-  const queryClient = useQueryClient();
   const { data, isLoading, error } = useCart();
+  const removeFromCart = useRemoveFromCart();
 
   const cartItems = data?.cartItems || [];
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => cartService.deleteCartItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      showSuccess('Item removed from cart');
-    },
-    onError: () => {
-      showError('Failed to remove item');
-    },
-  });
-
-  const renderItem = ({ item }: { item: CartItem }) => {
+  const renderItem = useCallback(({ item }: { item: CartItem }) => {
     const imageUri =
       item.images && item.images.length > 0
         ? { uri: item.images[0] }
@@ -55,79 +42,97 @@ export function CartSummary() {
           <Text style={styles.itemTotalPrice}>Total: ₹ {item.totalPrice}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => deleteMutation.mutate(item.id)}
+          onPress={() => removeFromCart.mutate(item.id)}
           style={styles.deleteButton}
           accessibilityLabel="Delete item"
+          accessibilityRole="button"
+          accessibilityHint="Removes this item from the cart"
         >
-          <Text style={styles.deleteText}>✕</Text>
+          <Ionicons name="trash" size={18} color="#d32f2f" />
         </TouchableOpacity>
       </View>
     );
-  };
+  }, [removeFromCart.mutate]);
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#007bff" />
-          <Text style={styles.loadingText}>Loading cart...</Text>
-        </View>
-      );
-    }
+  // Loading state view
+  const renderLoadingView = (): React.ReactElement => (
+    <View style={styles.center}>
+      <ActivityIndicator size="large" color="#007bff" />
+      <Text style={styles.loadingText}>Loading cart...</Text>
+    </View>
+  );
 
-    if (error) {
-      return (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>Error loading cart</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => Alert.alert('Retry', 'Implement retry logic')}
-            accessibilityLabel="Retry loading cart"
-          >
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
+  // Empty cart state view
+  const renderEmptyView = (): React.ReactElement => (
+    <View style={styles.center}>
+      <Text style={styles.emptyText}>Your cart is empty</Text>
+      <TouchableOpacity
+        style={styles.retryButton}
+        onPress={() => router.push('/dashboard')}
+        accessibilityLabel="Go to Products"
+        accessibilityRole="button"
+        accessibilityHint="Navigates to the products page"
+      >
+        <Text style={styles.retryText}>Go to Products</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
-    if (cartItems.length === 0) {
-      return (
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>Your cart is empty</Text>
-        </View>
-      );
-    }
+  // Error state view
+  const renderErrorView = (): React.ReactElement => (
+    <View style={styles.center}>
+      <Text style={styles.errorText}>Error loading cart</Text>
+      <TouchableOpacity
+        style={styles.retryButton}
+        onPress={() => router.push('/dashboard')}
+        accessibilityLabel="Go to Products"
+        accessibilityRole="button"
+        accessibilityHint="Navigates to the products page"
+      >
+        <Text style={styles.retryText}>Go to Products</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
-    return (
-      <View style={styles.content}>
-        <View style={styles.summaryContainer}>
-          <Text style={styles.summaryText}>Delivery Address:</Text>
-          <Text style={styles.addressText}>{data!.deliveryAddress.label}</Text>
-          <Text style={styles.addressText}>{data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}</Text>
-        </View>
-        <FlatList
-          data={cartItems}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-        />
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total Items: {data!.totalItems}</Text>
-          <Text style={styles.totalText}>Subtotal: ₹ {data!.subtotal}</Text>
-          <Text style={styles.totalText}>Grand Total: ₹ {data!.grandTotal}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.checkoutButton]}
-            onPress={() => router.push('/dashboard/orders')}
-            accessibilityLabel="Proceed to Payment"
-          >
-            <Text style={styles.checkoutText}>Proceed to Payment</Text>
-          </TouchableOpacity>
-        </View>
+  // Main cart content view
+  const renderCartContent = (): React.ReactElement => (
+    <View style={styles.content}>
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryText}>Delivery Address:</Text>
+        <Text style={styles.addressText}>{data!.deliveryAddress.label}</Text>
+        <Text style={styles.addressText}>{data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}</Text>
       </View>
-    );
+      <FlatList
+        data={cartItems}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+      />
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>Total Items: {data!.totalItems}</Text>
+        <Text style={styles.totalText}>Subtotal: ₹ {data!.subtotal}</Text>
+        <Text style={styles.totalText}>Grand Total: ₹ {data!.grandTotal}</Text>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.checkoutButton]}
+          onPress={() => router.push('/dashboard/orders')}
+          accessibilityLabel="Proceed to Payment"
+          accessibilityRole="button"
+          accessibilityHint="Proceeds to the payment page"
+        >
+          <Text style={styles.checkoutText}>Proceed to Payment</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderContent = (): React.ReactElement => {
+    if (isLoading) return renderLoadingView();
+    if (error && cartItems.length > 0) return renderErrorView();
+    if (cartItems.length === 0) return renderEmptyView();
+    return renderCartContent();
   };
 
   return (
@@ -137,6 +142,8 @@ export function CartSummary() {
           onPress={() => router.push('/dashboard')}
           style={styles.backButton}
           accessibilityLabel="Back to dashboard"
+          accessibilityRole="button"
+          accessibilityHint="Go back to the dashboard"
         >
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
@@ -310,9 +317,5 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
-  },
-  deleteText: {
-    fontSize: 18,
-    color: '#d32f2f',
   },
 });

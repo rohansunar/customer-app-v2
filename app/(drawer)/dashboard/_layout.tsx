@@ -31,9 +31,6 @@ export default function DashboardTabsLayout() {
 
       {/* HIDDEN ROUTES */}
       <Tabs.Screen name="products/[id]" options={{ href: null }} />
-      <Tabs.Screen name="products/create" options={{ href: null }} />
-      <Tabs.Screen name="bank/create" options={{ href: null }} />
-      <Tabs.Screen name="bank/[id]" options={{ href: null }} />
       <Tabs.Screen name="orders/[id]" options={{ href: null }} />
     </Tabs>
   );
