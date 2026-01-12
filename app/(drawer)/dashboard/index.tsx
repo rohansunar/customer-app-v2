@@ -11,7 +11,7 @@ import {
   View
 } from 'react-native';
 
-import CartButton from '@/features/cart/CartButton';
+import CartButton from '@/features/cart/components/CartButton';
 
 /**
  * DashboardScreen component displays the list of products and cart summary.
