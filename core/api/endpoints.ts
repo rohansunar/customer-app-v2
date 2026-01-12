@@ -6,6 +6,6 @@ export const API_ENDPOINTS = {
   CITIES: '/cities',
   PRODUCT: '/search/products',
   CART: '/cart',
-  VENDOR_ORDER: '/customer/orders',
+  CUSTOMER_ORDER: '/customer/orders',
   PAYMENT: '/payments',
 };
