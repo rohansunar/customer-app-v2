@@ -24,4 +24,16 @@ export const orderService = {
       })
       .then((res) => res.data);
   },
+
+  submitSupportTicket(payload: {
+    orderNo: string;
+    subject: string;
+    message: string;
+  }): Promise<any> {
+    // Simulate API delay
+    return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => ({
+      success: true,
+      message: 'Support ticket submitted successfully',
+    }));
+  },
 };

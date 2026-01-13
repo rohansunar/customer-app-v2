@@ -35,6 +35,7 @@ export default function OrderHeader({ orderNo, createdAt }: OrderHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

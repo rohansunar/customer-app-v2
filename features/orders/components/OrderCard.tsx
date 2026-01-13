@@ -3,8 +3,14 @@ import { spacing } from '@/core/theme/spacing';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  Modal,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useCancelOrder } from '../hooks/useCancelOrder';
 import { Order } from '../types';
 import OrderCardSkeleton from './OrderCardSkeleton';
@@ -12,15 +18,42 @@ import OrderHeader from './sub-components/OrderHeader';
 import OrderModal from './sub-components/OrderModal';
 import OTPSegment from './sub-components/OTPSegment';
 import StatusBadge from './sub-components/StatusBadge';
+import SupportModal from './sub-components/SupportModal';
 
 interface Props {
   order?: Order;
   loading?: boolean;
 }
 
+interface SectionProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  children: React.ReactNode;
+}
+
+const OrderSection = ({ icon, title, children }: SectionProps) => (
+  <View style={styles.section}>
+    <View style={styles.sectionHeader}>
+      <Ionicons name={icon} size={16} color={colors.textSecondary} />
+      <Text
+        variant="s"
+        weight="semibold"
+        color={colors.textSecondary}
+        style={styles.sectionTitle}
+      >
+        {title}
+      </Text>
+    </View>
+    {children}
+  </View>
+);
+
 function OrderCardComponent({ order, loading }: Props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isSupportModalVisible, setIsSupportModalVisible] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
+  const menuAnchorRef = useRef<View>(null);
   const cancelOrderMutation = useCancelOrder();
 
   const otp = useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
@@ -30,13 +63,28 @@ function OrderCardComponent({ order, loading }: Props) {
     setIsModalVisible(true);
   }, []);
 
+  const handleContactPress = useCallback(() => {
+    setIsMenuVisible(false);
+    setIsSupportModalVisible(true);
+  }, []);
+
   const handleModalClose = useCallback(() => {
     setIsModalVisible(false);
   }, []);
 
   const toggleMenu = useCallback(() => {
-    setIsMenuVisible((prev) => !prev);
-  }, []);
+    if (isMenuVisible) {
+      setIsMenuVisible(false);
+    } else {
+      menuAnchorRef.current?.measureInWindow((_x, y, _width, height) => {
+        setMenuPosition({
+          top: y + height + 5,
+          right: spacing.m,
+        });
+        setIsMenuVisible(true);
+      });
+    }
+  }, [isMenuVisible]);
 
   const handleConfirmCancel = useCallback(
     (cancelReason: string) => {
@@ -74,6 +122,7 @@ function OrderCardComponent({ order, loading }: Props) {
       {canCancel && (
         <View style={styles.menuAnchor}>
           <TouchableOpacity
+            ref={menuAnchorRef}
             onPress={toggleMenu}
             style={styles.menuButton}
             activeOpacity={0.7}
@@ -85,48 +134,69 @@ function OrderCardComponent({ order, loading }: Props) {
             />
           </TouchableOpacity>
 
-          {isMenuVisible && (
-            <View style={styles.menuOverlay}>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleCancelPress}
-              >
-                <Ionicons
-                  name="close-circle-outline"
-                  size={18}
-                  color={colors.error}
-                />
-                <Text
-                  variant="s"
-                  color={colors.error}
-                  style={styles.menuItemText}
+          <Modal
+            visible={isMenuVisible}
+            transparent
+            animationType="none"
+            onRequestClose={() => setIsMenuVisible(false)}
+          >
+            <TouchableWithoutFeedback onPress={() => setIsMenuVisible(false)}>
+              <View style={styles.modalBackdrop}>
+                <View
+                  style={[
+                    styles.menuOverlay,
+                    {
+                      top: menuPosition.top,
+                      right: menuPosition.right,
+                    },
+                  ]}
                 >
-                  Cancel Order
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleCancelPress}
+                  >
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={18}
+                      color={colors.error}
+                    />
+                    <Text
+                      variant="s"
+                      color={colors.error}
+                      style={styles.menuItemText}
+                    >
+                      Cancel Order
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.menuDivider} />
+
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleContactPress}
+                  >
+                    <Ionicons
+                      name="chatbubble-ellipses-outline"
+                      size={18}
+                      color={colors.primary}
+                    />
+                    <Text
+                      variant="s"
+                      color={colors.primary}
+                      style={styles.menuItemText}
+                    >
+                      Contact Support
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
         </View>
       )}
 
       <View style={styles.content}>
-        {/* Delivery Address */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Ionicons
-              name="location-outline"
-              size={16}
-              color={colors.textSecondary}
-            />
-            <Text
-              variant="s"
-              weight="semibold"
-              color={colors.textSecondary}
-              style={styles.sectionTitle}
-            >
-              Delivery Address: {order.address.label}
-            </Text>
-          </View>
+        <OrderSection icon="location-outline" title={`Delivery Address: ${order.address.label}`}>
           <Text
             variant="xs"
             color={colors.textTertiary}
@@ -134,25 +204,9 @@ function OrderCardComponent({ order, loading }: Props) {
           >
             {order.address.address}, {order.address.pincode}
           </Text>
-        </View>
+        </OrderSection>
 
-        {/* Items List */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Ionicons
-              name="list-outline"
-              size={16}
-              color={colors.textSecondary}
-            />
-            <Text
-              variant="s"
-              weight="semibold"
-              color={colors.textSecondary}
-              style={styles.sectionTitle}
-            >
-              Items
-            </Text>
-          </View>
+        <OrderSection icon="list-outline" title="Items">
           {order.cart.cartItems.map((item) => (
             <View key={item.id} style={styles.itemRow}>
               <Text variant="xs" color={colors.textPrimary}>
@@ -163,7 +217,7 @@ function OrderCardComponent({ order, loading }: Props) {
               </Text>
             </View>
           ))}
-        </View>
+        </OrderSection>
 
         <View style={styles.footer}>
           <View>
@@ -185,6 +239,12 @@ function OrderCardComponent({ order, loading }: Props) {
         onClose={handleModalClose}
         onConfirm={handleConfirmCancel}
       />
+
+      <SupportModal
+        visible={isSupportModalVisible}
+        onClose={() => setIsSupportModalVisible(false)}
+        orderNo={order.orderNo}
+      />
     </Card>
   );
 }
@@ -201,7 +261,8 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    paddingRight: 40, // Space for menu button
     zIndex: 10,
   },
   menuAnchor: {
@@ -220,10 +281,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
   menuOverlay: {
     position: 'absolute',
-    top: 30,
-    right: 0,
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.m,
     padding: spacing.s,
@@ -231,11 +294,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 10,
     borderWidth: 1,
     borderColor: colors.border,
-    minWidth: 140,
-    zIndex: 100,
+    minWidth: 160,
   },
   menuItem: {
     flexDirection: 'row',
@@ -245,6 +307,11 @@ const styles = StyleSheet.create({
   menuItemText: {
     marginLeft: spacing.s,
     fontWeight: '500',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.s,
   },
   content: {
     marginTop: spacing.s,
