@@ -4,7 +4,6 @@ import { Text } from '@/core/ui/Text';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { ProductCard } from '@/features/product/components/ProductCard';
 import { useProducts } from '@/features/product/hooks/useProducts';
-import { router } from 'expo-router';
 import {
   ActivityIndicator,
   FlatList,
@@ -36,7 +35,6 @@ export default function DashboardScreen() {
           renderItem={({ item }) => (
             <ProductCard
               product={item}
-              onPress={() => router.push(`/dashboard/products/${item.id}`)}
             />
           )}
           contentContainerStyle={styles.list}

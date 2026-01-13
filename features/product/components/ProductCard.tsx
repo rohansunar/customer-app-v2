@@ -9,10 +9,9 @@ import { Product } from '../types';
 
 type Props = {
   product: Product;
-  onPress: () => void;
 };
 
-export function ProductCard({ product, onPress }: Props) {
+export function ProductCard({ product }: Props) {
   const addToCartMutation = useAddToCart();
 
   const imageUri =
@@ -27,7 +26,6 @@ export function ProductCard({ product, onPress }: Props) {
   return (
     <Card
       style={styles.card}
-      onTouchEnd={onPress} // Handling press on card if needed, though Button handles cart
     >
       <View style={styles.content}>
         {/* Product Image */}
