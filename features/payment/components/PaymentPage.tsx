@@ -25,10 +25,26 @@ export function PaymentPage() {
   const [selectedPaymentMode, setSelectedPaymentMode] =
     useState<PaymentMode | null>(null);
 
-  const paymentModes: { mode: PaymentMode; icon: keyof typeof Ionicons.glyphMap; description: string }[] = [
-    { mode: 'Online', icon: 'card-outline', description: 'Pay via Card, UPI or Netbanking' },
-    { mode: 'Cash', icon: 'cash-outline', description: 'Pay when your water arrives' },
-    { mode: 'Monthly', icon: 'calendar-outline', description: 'Add to your monthly bill' },
+  const paymentModes: {
+    mode: PaymentMode;
+    icon: keyof typeof Ionicons.glyphMap;
+    description: string;
+  }[] = [
+    {
+      mode: 'Online',
+      icon: 'card-outline',
+      description: 'Pay via Card, UPI or Netbanking',
+    },
+    {
+      mode: 'Cash',
+      icon: 'cash-outline',
+      description: 'Pay when your water arrives',
+    },
+    {
+      mode: 'Monthly',
+      icon: 'calendar-outline',
+      description: 'Add to your monthly bill',
+    },
   ];
 
   if (isLoading) {
@@ -68,7 +84,11 @@ export function PaymentPage() {
           Payment
         </Text>
         <View style={styles.headerIconButton}>
-          <Ionicons name="help-circle-outline" size={20} color={colors.textPrimary} />
+          <Ionicons
+            name="help-circle-outline"
+            size={20}
+            color={colors.textPrimary}
+          />
         </View>
       </View>
 
@@ -97,20 +117,30 @@ export function PaymentPage() {
               onPress={() => setSelectedPaymentMode(mode)}
               activeOpacity={0.7}
             >
-              <View style={[
-                styles.iconContainer,
-                selectedPaymentMode === mode && styles.selectedIconContainer
-              ]}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  selectedPaymentMode === mode && styles.selectedIconContainer,
+                ]}
+              >
                 <Ionicons
                   name={icon}
                   size={24}
-                  color={selectedPaymentMode === mode ? colors.primary : colors.textSecondary}
+                  color={
+                    selectedPaymentMode === mode
+                      ? colors.primary
+                      : colors.textSecondary
+                  }
                 />
               </View>
               <View style={styles.optionInfo}>
                 <Text
                   weight="semibold"
-                  color={selectedPaymentMode === mode ? colors.primary : colors.textPrimary}
+                  color={
+                    selectedPaymentMode === mode
+                      ? colors.primary
+                      : colors.textPrimary
+                  }
                 >
                   {mode}
                 </Text>
@@ -118,11 +148,15 @@ export function PaymentPage() {
                   {description}
                 </Text>
               </View>
-              <View style={[
-                styles.radioCircle,
-                selectedPaymentMode === mode && styles.selectedRadioCircle
-              ]}>
-                {selectedPaymentMode === mode && <View style={styles.radioInner} />}
+              <View
+                style={[
+                  styles.radioCircle,
+                  selectedPaymentMode === mode && styles.selectedRadioCircle,
+                ]}
+              >
+                {selectedPaymentMode === mode && (
+                  <View style={styles.radioInner} />
+                )}
               </View>
             </TouchableOpacity>
           ))}
@@ -131,7 +165,7 @@ export function PaymentPage() {
 
       <View style={styles.footer}>
         <Button
-          title={isPending ? "Processing..." : "Complete Payment"}
+          title={isPending ? 'Processing...' : 'Complete Payment'}
           onPress={() => handlePayment(selectedPaymentMode!)}
           disabled={!selectedPaymentMode || isPending}
           loading={isPending}

@@ -29,6 +29,16 @@ export default function DashboardTabsLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="subscriptions"
+        options={{
+          title: 'Subscriptions',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="repeat-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
       {/* HIDDEN ROUTES */}
       <Tabs.Screen name="payment" options={{ href: null }} />
       <Tabs.Screen name="cart" options={{ href: null }} />

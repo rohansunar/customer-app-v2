@@ -4,7 +4,8 @@ import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
-import React from 'react';
+import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Product } from '../types';
 import { ProductImageSlider } from './ProductImageSlider';
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export function ProductCard({ product }: Props) {
+  const [isSubscriptionModalVisible, setIsSubscriptionModalVisible] =
+    useState(false);
   const addToCartMutation = useAddToCart();
 
   const handleAddToCart = () => {
@@ -46,14 +49,29 @@ export function ProductCard({ product }: Props) {
           </Text>
         )}
 
-        <Button
-          title={addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
-          onPress={handleAddToCart}
-          variant="primary"
-          style={styles.addButton}
-          loading={addToCartMutation.isPending}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            title={addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
+            onPress={handleAddToCart}
+            variant="outline"
+            style={styles.cartButton}
+            loading={addToCartMutation.isPending}
+          />
+          <Button
+            title="Subscribe"
+            onPress={() => setIsSubscriptionModalVisible(true)}
+            variant="primary"
+            style={styles.subscribeButton}
+          />
+        </View>
       </View>
+
+      <SubscriptionModal
+        visible={isSubscriptionModalVisible}
+        onClose={() => setIsSubscriptionModalVisible(false)}
+        productId={product.id}
+        productName={product.name}
+      />
     </Card>
   );
 }
@@ -84,10 +102,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.m,
     lineHeight: 20,
   },
-  addButton: {
-    width: '100%',
-    height: 52,
-    borderRadius: spacing.radius.m,
-    paddingHorizontal: spacing.m,
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: spacing.s,
+  },
+  cartButton: {
+    flex: 1,
+    paddingVertical: spacing.s,
+  },
+  subscribeButton: {
+    flex: 1,
+    paddingVertical: spacing.s,
   },
 });

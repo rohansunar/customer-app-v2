@@ -31,10 +31,12 @@ export function CartSummary() {
           : require('@/assets/images/product-placeholder.png');
 
       return (
-        <View style={[
-          styles.itemContainer,
-          index === cartItems.length - 1 && styles.lastItem
-        ]}>
+        <View
+          style={[
+            styles.itemContainer,
+            index === cartItems.length - 1 && styles.lastItem,
+          ]}
+        >
           <Image source={imageUri} style={styles.itemImage} />
           <View style={styles.itemDetails}>
             <View style={styles.nameRow}>
@@ -46,7 +48,11 @@ export function CartSummary() {
                 style={styles.deleteButton}
                 hitSlop={8}
               >
-                <Ionicons name="trash-outline" size={18} color={colors.textTertiary} />
+                <Ionicons
+                  name="trash-outline"
+                  size={18}
+                  color={colors.textTertiary}
+                />
               </TouchableOpacity>
             </View>
 
@@ -103,7 +109,12 @@ export function CartSummary() {
     return (
       <View style={styles.center}>
         <Ionicons name="cart-outline" size={64} color={colors.textTertiary} />
-        <Text variant="l" weight="medium" color={colors.textSecondary} style={{ marginTop: spacing.m }}>
+        <Text
+          variant="l"
+          weight="medium"
+          color={colors.textSecondary}
+          style={{ marginTop: spacing.m }}
+        >
           Your cart is empty
         </Text>
         <Button
@@ -128,7 +139,11 @@ export function CartSummary() {
           My Cart
         </Text>
         <View style={styles.headerIconButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.textPrimary} />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={20}
+            color={colors.textPrimary}
+          />
         </View>
       </View>
 
@@ -142,16 +157,30 @@ export function CartSummary() {
           ListHeaderComponent={
             <View style={styles.addressSection}>
               <View style={styles.addressHeader}>
-                <Ionicons name="location-sharp" size={16} color={colors.primary} />
-                <Text variant="s" weight="bold" color={colors.textSecondary} style={{ marginLeft: 4 }}>
+                <Ionicons
+                  name="location-sharp"
+                  size={16}
+                  color={colors.primary}
+                />
+                <Text
+                  variant="s"
+                  weight="bold"
+                  color={colors.textSecondary}
+                  style={{ marginLeft: 4 }}
+                >
                   DELIVERING TO
                 </Text>
               </View>
               <View style={styles.addressContent}>
                 <View style={{ flex: 1 }}>
                   <Text weight="semibold">{data!.deliveryAddress.label}</Text>
-                  <Text variant="s" color={colors.textSecondary} numberOfLines={1}>
-                    {data!.deliveryAddress.address}, {data!.deliveryAddress.city}
+                  <Text
+                    variant="s"
+                    color={colors.textSecondary}
+                    numberOfLines={1}
+                  >
+                    {data!.deliveryAddress.address},{' '}
+                    {data!.deliveryAddress.city}
                   </Text>
                 </View>
               </View>
@@ -162,15 +191,25 @@ export function CartSummary() {
         <View style={styles.footer}>
           <View style={styles.priceSummary}>
             <View style={styles.summaryRow}>
-              <Text variant="s" color={colors.textSecondary}>Subtotal</Text>
-              <Text variant="s" weight="medium">₹{data!.subtotal}</Text>
+              <Text variant="s" color={colors.textSecondary}>
+                Subtotal
+              </Text>
+              <Text variant="s" weight="medium">
+                ₹{data!.subtotal}
+              </Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text variant="s" color={colors.textSecondary}>Delivery Fee</Text>
-              <Text variant="s" color={colors.success} weight="medium">FREE</Text>
+              <Text variant="s" color={colors.textSecondary}>
+                Delivery Fee
+              </Text>
+              <Text variant="s" color={colors.success} weight="medium">
+                FREE
+              </Text>
             </View>
             <View style={[styles.summaryRow, styles.grandTotalRow]}>
-              <Text weight="bold" variant="l">Total Amount</Text>
+              <Text weight="bold" variant="l">
+                Total Amount
+              </Text>
               <Text weight="bold" variant="l" color={colors.primary}>
                 ₹{data!.grandTotal}
               </Text>

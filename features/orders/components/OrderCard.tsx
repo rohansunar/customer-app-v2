@@ -73,8 +73,16 @@ function OrderCardComponent({ order, loading }: Props) {
 
       {canCancel && (
         <View style={styles.menuAnchor}>
-          <TouchableOpacity onPress={toggleMenu} style={styles.menuButton} activeOpacity={0.7}>
-            <Ionicons name="ellipsis-horizontal" size={18} color={colors.textSecondary} />
+          <TouchableOpacity
+            onPress={toggleMenu}
+            style={styles.menuButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name="ellipsis-horizontal"
+              size={18}
+              color={colors.textSecondary}
+            />
           </TouchableOpacity>
 
           {isMenuVisible && (
@@ -83,8 +91,16 @@ function OrderCardComponent({ order, loading }: Props) {
                 style={styles.menuItem}
                 onPress={handleCancelPress}
               >
-                <Ionicons name="close-circle-outline" size={18} color={colors.error} />
-                <Text variant="s" color={colors.error} style={styles.menuItemText}>
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+                <Text
+                  variant="s"
+                  color={colors.error}
+                  style={styles.menuItemText}
+                >
                   Cancel Order
                 </Text>
               </TouchableOpacity>
