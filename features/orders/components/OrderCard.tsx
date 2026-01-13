@@ -4,11 +4,10 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useCancelOrder } from '../hooks/useCancelOrder';
 import { Order } from '../types';
 import OrderCardSkeleton from './OrderCardSkeleton';
-import CancelButton from './sub-components/CancelButton';
 import OrderHeader from './sub-components/OrderHeader';
 import OrderModal from './sub-components/OrderModal';
 import OTPSegment from './sub-components/OTPSegment';
@@ -21,16 +20,22 @@ interface Props {
 
 function OrderCardComponent({ order, loading }: Props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const cancelOrderMutation = useCancelOrder();
 
   const otp = useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
 
   const handleCancelPress = useCallback(() => {
+    setIsMenuVisible(false);
     setIsModalVisible(true);
   }, []);
 
   const handleModalClose = useCallback(() => {
     setIsModalVisible(false);
+  }, []);
+
+  const toggleMenu = useCallback(() => {
+    setIsMenuVisible((prev) => !prev);
   }, []);
 
   const handleConfirmCancel = useCallback(
@@ -61,9 +66,32 @@ function OrderCardComponent({ order, loading }: Props) {
       style={styles.card}
       accessible={true}
       accessibilityLabel={`Order ${order.orderNo}, status ${order.status}, total ${order.total_amount}`}
-      accessibilityRole="button"
     >
-      <OrderHeader orderNo={order.orderNo} createdAt={order.created_at} />
+      <View style={styles.headerRow}>
+        <OrderHeader orderNo={order.orderNo} createdAt={order.created_at} />
+      </View>
+
+      {canCancel && (
+        <View style={styles.menuAnchor}>
+          <TouchableOpacity onPress={toggleMenu} style={styles.menuButton} activeOpacity={0.7}>
+            <Ionicons name="ellipsis-horizontal" size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          {isMenuVisible && (
+            <View style={styles.menuOverlay}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleCancelPress}
+              >
+                <Ionicons name="close-circle-outline" size={18} color={colors.error} />
+                <Text variant="s" color={colors.error} style={styles.menuItemText}>
+                  Cancel Order
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.content}>
         {/* Delivery Address */}
@@ -134,8 +162,6 @@ function OrderCardComponent({ order, loading }: Props) {
         </View>
 
         {order.status === 'OUT_FOR_DELIVERY' && <OTPSegment otp={otp} />}
-
-        {canCancel && <CancelButton onPress={handleCancelPress} />}
       </View>
 
       <OrderModal
@@ -155,6 +181,54 @@ const styles = StyleSheet.create({
     borderRadius: spacing.radius.l,
     borderWidth: 1,
     borderColor: colors.border,
+    zIndex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    zIndex: 10,
+  },
+  menuAnchor: {
+    position: 'absolute',
+    top: spacing.m,
+    right: spacing.m,
+    zIndex: 20,
+  },
+  menuButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 30,
+    right: 0,
+    backgroundColor: colors.surface,
+    borderRadius: spacing.radius.m,
+    padding: spacing.s,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: colors.border,
+    minWidth: 140,
+    zIndex: 100,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.s,
+  },
+  menuItemText: {
+    marginLeft: spacing.s,
+    fontWeight: '500',
   },
   content: {
     marginTop: spacing.s,

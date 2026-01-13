@@ -1,3 +1,7 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Text } from '@/core/ui/Text';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -5,7 +9,6 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -22,104 +25,119 @@ export function PaymentPage() {
   const [selectedPaymentMode, setSelectedPaymentMode] =
     useState<PaymentMode | null>(null);
 
-  const paymentModes: PaymentMode[] = ['Cash', 'Online', 'Monthly'];
+  const paymentModes: { mode: PaymentMode; icon: keyof typeof Ionicons.glyphMap; description: string }[] = [
+    { mode: 'Online', icon: 'card-outline', description: 'Pay via Card, UPI or Netbanking' },
+    { mode: 'Cash', icon: 'cash-outline', description: 'Pay when your water arrives' },
+    { mode: 'Monthly', icon: 'calendar-outline', description: 'Add to your monthly bill' },
+  ];
 
-  // Loading state view
-  const renderLoadingView = (): React.ReactElement => (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" color="#007bff" />
-      <Text style={styles.loadingText}>Loading cart...</Text>
-    </View>
-  );
-
-  // Error state view
-  const renderErrorView = (): React.ReactElement => (
-    <View style={styles.center}>
-      <Text style={styles.errorText}>Error loading cart</Text>
-      <TouchableOpacity
-        style={styles.retryButton}
-        onPress={() => router.push('/dashboard')}
-        accessibilityLabel="Go to Dashboard"
-        accessibilityRole="button"
-        accessibilityHint="Navigates to the dashboard"
-      >
-        <Text style={styles.retryText}>Go to Dashboard</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // Main payment content view
-  const renderPaymentContent = (): React.ReactElement => (
-    <View style={styles.content}>
-      <Text style={styles.instructionText}>Select Payment Mode:</Text>
-      <View style={styles.optionsContainer}>
-        {paymentModes.map((mode) => (
-          <TouchableOpacity
-            key={mode}
-            style={[
-              styles.optionButton,
-              selectedPaymentMode === mode && styles.selectedOption,
-            ]}
-            onPress={() => setSelectedPaymentMode(mode)}
-            accessibilityLabel={`Select ${mode} payment`}
-            accessibilityRole="button"
-            accessibilityHint={`Selects ${mode} as the payment mode`}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                selectedPaymentMode === mode && styles.selectedOptionText,
-              ]}
-            >
-              {mode}
-            </Text>
-          </TouchableOpacity>
-        ))}
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Loading details...</Text>
       </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.completeButton,
-            (!selectedPaymentMode || isPending) && styles.disabledButton,
-          ]}
-          onPress={() => handlePayment(selectedPaymentMode!)}
-          disabled={!selectedPaymentMode || isPending}
-          accessibilityLabel="Complete Payment"
-          accessibilityRole="button"
-          accessibilityHint="Processes the payment with selected mode"
-        >
-          {isPending ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.completeText}>Complete</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  }
 
-  const renderContent = (): React.ReactElement => {
-    if (isLoading) return renderLoadingView();
-    if (error) return renderErrorView();
-    return renderPaymentContent();
-  };
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
+        <Text style={styles.errorText}>Error loading payment details</Text>
+        <Button
+          title="Go to Dashboard"
+          onPress={() => router.push('/dashboard')}
+          variant="outline"
+          style={styles.retryButton}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.push('/dashboard')}
-          style={styles.backButton}
-          accessibilityLabel="Back to dashboard"
-          accessibilityRole="button"
-          accessibilityHint="Go back to the dashboard"
+          onPress={() => router.back()}
+          style={styles.headerIconButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#007bff" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Payment</Text>
-        <View style={styles.placeholder} />
+        <Text variant="l" weight="bold">
+          Payment
+        </Text>
+        <View style={styles.headerIconButton}>
+          <Ionicons name="help-circle-outline" size={20} color={colors.textPrimary} />
+        </View>
       </View>
-      {renderContent()}
+
+      <View style={styles.content}>
+        <View style={styles.summaryCard}>
+          <Text variant="s" color={colors.textSecondary} weight="bold">
+            AMOUNT TO PAY
+          </Text>
+          <Text variant="xl" weight="bold" color={colors.primary}>
+            ₹{data?.grandTotal}
+          </Text>
+        </View>
+
+        <Text variant="m" weight="semibold" style={styles.sectionTitle}>
+          Select Payment Method
+        </Text>
+
+        <View style={styles.optionsContainer}>
+          {paymentModes.map(({ mode, icon, description }) => (
+            <TouchableOpacity
+              key={mode}
+              style={[
+                styles.optionButton,
+                selectedPaymentMode === mode && styles.selectedOption,
+              ]}
+              onPress={() => setSelectedPaymentMode(mode)}
+              activeOpacity={0.7}
+            >
+              <View style={[
+                styles.iconContainer,
+                selectedPaymentMode === mode && styles.selectedIconContainer
+              ]}>
+                <Ionicons
+                  name={icon}
+                  size={24}
+                  color={selectedPaymentMode === mode ? colors.primary : colors.textSecondary}
+                />
+              </View>
+              <View style={styles.optionInfo}>
+                <Text
+                  weight="semibold"
+                  color={selectedPaymentMode === mode ? colors.primary : colors.textPrimary}
+                >
+                  {mode}
+                </Text>
+                <Text variant="xs" color={colors.textSecondary}>
+                  {description}
+                </Text>
+              </View>
+              <View style={[
+                styles.radioCircle,
+                selectedPaymentMode === mode && styles.selectedRadioCircle
+              ]}>
+                {selectedPaymentMode === mode && <View style={styles.radioInner} />}
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <Button
+          title={isPending ? "Processing..." : "Complete Payment"}
+          onPress={() => handlePayment(selectedPaymentMode!)}
+          disabled={!selectedPaymentMode || isPending}
+          loading={isPending}
+          style={styles.completeButton}
+        />
+      </View>
     </View>
   );
 }
@@ -127,103 +145,125 @@ export function PaymentPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: spacing.m,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.m,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111',
-    textAlign: 'center',
-    flex: 1,
-  },
-  backButton: {
-    padding: 4,
-  },
-  placeholder: {
-    width: 50,
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.l,
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
+    marginTop: spacing.s,
+    color: colors.textSecondary,
   },
   errorText: {
-    fontSize: 16,
-    color: '#d32f2f',
+    marginTop: spacing.s,
+    marginBottom: spacing.m,
+    color: colors.error,
     textAlign: 'center',
   },
   retryButton: {
-    marginTop: 10,
-    backgroundColor: '#007bff',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-  },
-  retryText: {
-    color: '#fff',
-    fontSize: 14,
+    minWidth: 180,
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: spacing.m,
   },
-  instructionText: {
-    fontSize: 16,
-    color: '#111',
-    marginBottom: 16,
+  summaryCard: {
+    backgroundColor: colors.surface,
+    padding: spacing.l,
+    borderRadius: spacing.radius.l,
+    alignItems: 'center',
+    marginBottom: spacing.l,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  sectionTitle: {
+    marginBottom: spacing.m,
+    color: colors.textPrimary,
   },
   optionsContainer: {
-    marginBottom: 32,
+    gap: spacing.s,
   },
   optionButton: {
-    padding: 16,
-    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.m,
+    backgroundColor: colors.surface,
+    borderRadius: spacing.radius.m,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    backgroundColor: '#f9f9f9',
+    borderColor: colors.border,
   },
   selectedOption: {
-    borderColor: '#007bff',
-    backgroundColor: '#e3f2fd',
+    borderColor: colors.primary,
+    backgroundColor: colors.surfaceHighlight,
   },
-  optionText: {
-    fontSize: 16,
-    color: '#111',
-    textAlign: 'center',
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.m,
   },
-  selectedOptionText: {
-    color: '#007bff',
-    fontWeight: 'bold',
+  selectedIconContainer: {
+    backgroundColor: colors.white,
   },
-  buttonContainer: {
-    paddingTop: 16,
+  optionInfo: {
+    flex: 1,
   },
-  completeButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    borderRadius: 8,
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  disabledButton: {
-    backgroundColor: '#ccc',
+  selectedRadioCircle: {
+    borderColor: colors.primary,
   },
-  completeText: {
-    fontSize: 16,
-    color: '#fff',
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary,
+  },
+  footer: {
+    padding: spacing.m,
+    paddingBottom: spacing.xl,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: spacing.radius.xl,
+    borderTopRightRadius: spacing.radius.xl,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  completeButton: {
+    height: 54,
   },
 });
