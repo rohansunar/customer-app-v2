@@ -35,10 +35,19 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
   const submitTicket = useSubmitSupportTicket();
 
   const handleSubmit = () => {
-    if (!message.trim()) return;
+    const trimmedMessage = message.trim();
+
+    // Validation: message must be at least 10 characters and max 1000
+    if (trimmedMessage.length < 10) {
+      return;
+    }
+
+    if (trimmedMessage.length > 1000) {
+      return;
+    }
 
     submitTicket.mutate(
-      { orderNo, subject, message },
+      { orderNo, subject, message: trimmedMessage },
       {
         onSuccess: () => {
           setMessage('');
@@ -108,7 +117,11 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
             <Button
               title={submitTicket.isPending ? 'Submitting...' : 'Send Message'}
               onPress={handleSubmit}
-              disabled={submitTicket.isPending || !message.trim()}
+              disabled={
+                submitTicket.isPending ||
+                message.trim().length < 10 ||
+                message.trim().length > 1000
+              }
               loading={submitTicket.isPending}
               style={styles.submitButton}
             />

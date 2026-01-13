@@ -1,5 +1,7 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
+import { statusColors } from '@/core/theme/statusColors';
+import { Badge } from '@/core/ui/Badge';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
@@ -57,20 +59,14 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               • {getFrequencyLabel()}
             </Text>
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              isActive ? styles.activeBadge : styles.pausedBadge,
-            ]}
-          >
-            <Text
-              variant="xs"
-              weight="bold"
-              color={isActive ? colors.primary : colors.textSecondary}
-            >
-              {isActive ? 'ACTIVE' : 'PAUSED'}
-            </Text>
-          </View>
+          <Badge
+            label={isActive ? 'ACTIVE' : 'PAUSED'}
+            backgroundColor={
+              isActive ? statusColors.ACTIVE.background : statusColors.PAUSED.background
+            }
+            textColor={isActive ? statusColors.ACTIVE.text : statusColors.PAUSED.text}
+            borderColor={isActive ? statusColors.ACTIVE.border : statusColors.PAUSED.border}
+          />
         </View>
 
         <View style={styles.divider} />
@@ -168,20 +164,6 @@ const styles = StyleSheet.create({
   },
   productInfo: {
     flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: spacing.s,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
-  },
-  activeBadge: {
-    borderColor: colors.primary,
-    backgroundColor: colors.surfaceHighlight,
-  },
-  pausedBadge: {
-    borderColor: colors.border,
-    backgroundColor: colors.background,
   },
   divider: {
     height: 1,
