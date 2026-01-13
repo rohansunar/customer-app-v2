@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 
 import CartButton from '@/features/cart/components/CartButton';
+import { ReferralBanner } from '@/features/promotion/components/ReferralBanner';
+import { ReferralModal } from '@/features/promotion/components/ReferralModal';
+import React, { useState } from 'react';
 
-export default function DashboardScreen() {
+export default function HomeScreen() {
   const {
     data,
     isLoading,
@@ -26,6 +29,7 @@ export default function DashboardScreen() {
     isFetchingNextPage,
   } = useProducts();
   const { data: cartData } = useCart();
+  const [isReferralModalVisible, setIsReferralModalVisible] = useState(false);
 
   const totalItems = cartData?.totalItems || 0;
 
@@ -59,6 +63,11 @@ export default function DashboardScreen() {
           data={products}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ProductCard product={item} />}
+          ListHeaderComponent={
+            <ReferralBanner
+              onPressItem={() => setIsReferralModalVisible(true)}
+            />
+          }
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           onEndReached={handleLoadMore}
@@ -74,6 +83,10 @@ export default function DashboardScreen() {
         />
       )}
       {totalItems > 0 && <CartButton totalItems={totalItems} />}
+      <ReferralModal
+        visible={isReferralModalVisible}
+        onClose={() => setIsReferralModalVisible(false)}
+      />
     </View>
   );
 }

@@ -20,7 +20,7 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen
-        name="dashboard"
+        name="home"
         options={{
           headerTitle: () => <HeaderAddressSelector />,
         }}

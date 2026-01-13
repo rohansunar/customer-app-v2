@@ -28,7 +28,7 @@ export function AppDrawerContent(props: any) {
           if (routeName === 'profile') return null;
 
           let label = routeName;
-          if (routeName === 'dashboard') label = 'Home';
+          if (routeName === 'home') label = 'Home';
 
           return (
             <DrawerItem
@@ -44,8 +44,8 @@ export function AppDrawerContent(props: any) {
               focused={isFocused}
               activeBackgroundColor={colors.surfaceHighlight}
               onPress={() => {
-                if (routeName === 'dashboard') {
-                  props.navigation.navigate('dashboard', { screen: 'index' });
+                if (routeName === 'home') {
+                  props.navigation.navigate('home', { screen: 'index' });
                 } else {
                   props.navigation.navigate(routeName);
                 }

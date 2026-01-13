@@ -62,8 +62,8 @@ export function PaymentPage() {
         <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
         <Text style={styles.errorText}>Error loading payment details</Text>
         <Button
-          title="Go to Dashboard"
-          onPress={() => router.push('/dashboard')}
+          title="Go to Home"
+          onPress={() => router.push('/home' as any)}
           variant="outline"
           style={styles.retryButton}
         />

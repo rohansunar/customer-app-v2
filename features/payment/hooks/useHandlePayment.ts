@@ -8,7 +8,7 @@ import { usePayment } from './usePayment';
 /**
  * Custom hook to handle payment processing with navigation and error handling.
  * Takes cartId as a parameter and returns a handlePayment function that accepts paymentMode and isPending.
- * On success, invalidates cart queries and navigates to '/dashboard/orders'.
+ * On success, invalidates cart queries and navigates to '/home/orders'.
  * On error, displays an error message.
  *
  * @param cartId - The ID of the cart for payment.
@@ -24,7 +24,7 @@ export function useHandlePayment(cartId: string) {
       {
         onSuccess: () => {
           queryClient.setQueryData(['cart'], null);
-          router.push('/dashboard/orders');
+          router.push('/home/orders' as any);
         },
         onError: (error) => {
           showError(getErrorMessage(error));

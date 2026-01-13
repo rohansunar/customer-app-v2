@@ -97,7 +97,7 @@ export function CartSummary() {
         <Text color={colors.error}>Error loading cart</Text>
         <Button
           title="Go to Products"
-          onPress={() => router.push('/dashboard')}
+          onPress={() => router.push('/home' as any)}
           variant="outline"
           style={styles.retryButton}
         />
@@ -119,7 +119,7 @@ export function CartSummary() {
         </Text>
         <Button
           title="Start Shopping"
-          onPress={() => router.push('/dashboard')}
+          onPress={() => router.push('/home' as any)}
           style={styles.retryButton}
         />
       </View>
@@ -218,7 +218,7 @@ export function CartSummary() {
 
           <Button
             title="Checkout"
-            onPress={() => router.push('/dashboard/payment')}
+            onPress={() => router.push('/home/payment' as any)}
             style={styles.checkoutButton}
           />
         </View>

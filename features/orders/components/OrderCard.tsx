@@ -196,7 +196,10 @@ function OrderCardComponent({ order, loading }: Props) {
       )}
 
       <View style={styles.content}>
-        <OrderSection icon="location-outline" title={`Delivery Address: ${order.address.label}`}>
+        <OrderSection
+          icon="location-outline"
+          title={`Delivery Address: ${order.address.label}`}
+        >
           <Text
             variant="xs"
             color={colors.textTertiary}

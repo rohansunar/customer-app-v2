@@ -43,7 +43,7 @@ export default function CartButton({ totalItems }: CartButtonProps) {
     >
       <TouchableOpacity
         style={styles.cartBar}
-        onPress={() => router.push('/dashboard/cart')}
+        onPress={() => router.push('/home/cart' as any)}
         activeOpacity={0.8}
       >
         <View style={styles.leftContent}>

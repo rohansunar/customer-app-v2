@@ -118,7 +118,7 @@ export function SubscriptionModal({
       createSubscription.mutate(payload, {
         onSuccess: () => {
           onClose();
-          router.push('/(drawer)/dashboard/subscriptions');
+          router.push('/(drawer)/home/subscriptions' as any);
         },
       });
     }
