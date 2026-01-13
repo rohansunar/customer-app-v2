@@ -3,12 +3,12 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
+import { showError } from '@/core/ui/toast';
 import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -42,14 +42,30 @@ export function AddressForm({
   }, [address]);
 
   const handleSave = () => {
-    if (!label || !addressText || !pincode || !cityId || !lng || !lat) {
-      Alert.alert('Error', 'All fields are required');
+    if (!label) {
+      showError('Please select an address type');
+      return;
+    }
+    if (!addressText) {
+      showError('Please enter your full address');
+      return;
+    }
+    if (!pincode) {
+      showError('Please enter your pincode');
+      return;
+    }
+    if (!cityId) {
+      showError('Please select a city');
+      return;
+    }
+    if (!lng || !lat) {
+      showError('Location coordinates are required');
       return;
     }
     const lngNum = parseFloat(lng);
     const latNum = parseFloat(lat);
     if (isNaN(lngNum) || isNaN(latNum)) {
-      Alert.alert('Error', 'Longitude and latitude must be valid numbers');
+      showError('Invalid coordinates provided');
       return;
     }
     onSave({
@@ -77,18 +93,25 @@ export function AddressForm({
       <Text variant="s" color={colors.textSecondary} style={styles.label}>
         Address Type
       </Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={label}
-          onValueChange={(value) => setLabel(value)}
-        >
-          <Picker.Item label="Select Label" value="" />
-          <Picker.Item label="Home" value="Home" />
-          <Picker.Item label="Office" value="Office" />
-          <Picker.Item label="Restaurant" value="Restaurant" />
-          <Picker.Item label="Shop" value="Shop" />
-          <Picker.Item label="Institution" value="Institution" />
-        </Picker>
+      <View style={styles.tabsContainer}>
+        {['Home', 'Office', 'Restaurant', 'Shop', 'Institution'].map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.tab,
+              label === type && styles.activeTab,
+            ]}
+            onPress={() => setLabel(type)}
+          >
+            <Text
+              variant="s"
+              weight={label === type ? 'bold' : 'medium'}
+              color={label === type ? colors.white : colors.textSecondary}
+            >
+              {type}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <Input
@@ -163,6 +186,24 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: spacing.xs,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: spacing.m,
+    gap: spacing.s,
+  },
+  tab: {
+    paddingHorizontal: spacing.m,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.circle,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  activeTab: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   pickerWrapper: {
     borderWidth: 1,

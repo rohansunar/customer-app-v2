@@ -1,35 +1,36 @@
 import { colors } from '@/core/theme/colors';
-import { AppDrawerContent } from '@/shared/components/AppDrawerContent';
+import { HeaderAddressSelector } from '@/shared/components/HeaderAddressSelector';
 import { HeaderAvatar } from '@/shared/components/HeaderAvatar';
 import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
-import { Drawer } from 'expo-router/drawer';
+import { Stack } from 'expo-router';
 
-export default function DrawerLayout() {
+export default function AppLayout() {
   useAuthGuard();
 
   return (
-    <>
-      <Drawer
-        drawerContent={(props) => <AppDrawerContent {...props} />}
-        screenOptions={{
-          headerShown: true,
-          headerStyle: {
-            backgroundColor: colors.primary,
-          },
-          headerTintColor: colors.surface,
-          headerRight: () => <HeaderAvatar />,
+    <Stack
+      screenOptions={{
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: colors.primary,
+        },
+        headerTintColor: colors.surface,
+        headerTitleAlign: 'left',
+        headerRight: () => <HeaderAvatar />,
+      }}
+    >
+      <Stack.Screen
+        name="dashboard"
+        options={{
+          headerTitle: () => <HeaderAddressSelector />,
         }}
-      >
-        <Drawer.Screen name="dashboard" options={{ title: 'Water App' }} />
-        <Drawer.Screen
-          name="profile"
-          options={{
-            title: 'My Profile',
-            drawerItemStyle: { display: 'none' },
-          }}
-        />
-        <Drawer.Screen name="address" options={{ title: 'Addresses' }} />
-      </Drawer>
-    </>
+      />
+      <Stack.Screen
+        name="profile"
+        options={{
+          title: 'My Profile',
+        }}
+      />
+    </Stack>
   );
 }
