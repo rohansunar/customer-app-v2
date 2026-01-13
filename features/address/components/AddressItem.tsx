@@ -2,6 +2,7 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
+import React, { memo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Address } from '../types';
 
@@ -12,12 +13,12 @@ interface AddressItemProps {
   onDelete: () => void;
 }
 
-export function AddressItem({
+export const AddressItem = memo(({
   address,
   onPress,
   onEdit,
   onDelete,
-}: AddressItemProps) {
+}: AddressItemProps) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -63,7 +64,7 @@ export function AddressItem({
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -1,7 +1,7 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
-import { showError } from '@/core/ui/toast';
+import { showError, showSuccess } from '@/core/ui/toast';
 import { toastConfig } from '@/core/ui/toastConfig';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { AddressForm } from '@/features/address/components/AddressForm';
@@ -13,7 +13,7 @@ import { useSetDefaultAddress } from '@/features/address/hooks/useSetDefaultAddr
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
 import { Address, CreateAddressData } from '@/features/address/types';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     FlatList,
     Modal,
@@ -38,57 +38,81 @@ export function AddressPickerModal({ isVisible, onClose }: AddressPickerModalPro
     const [showForm, setShowForm] = useState(false);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
-    const handleSetDefault = (id: string) => {
+    const handleSetDefault = useCallback((id: string) => {
         setDefaultMutation.mutate(id, {
             onSuccess: () => {
-                onClose();
-            },
-        });
-    };
-
-    const handleAddAddress = () => {
-        setEditingAddress(null);
-        setShowForm(true);
-    };
-
-    const handleEdit = (address: Address) => {
-        setEditingAddress(address);
-        setShowForm(true);
-    };
-
-    const handleSaveAddress = (formData: CreateAddressData) => {
-        const mutation = editingAddress ? updateMutation : createMutation;
-        const mutationParams = editingAddress
-            ? { id: editingAddress.id, data: formData }
-            : formData;
-
-        // @ts-ignore - mutation.mutate type mismatch is handled by params logic
-        mutation.mutate(mutationParams as any, {
-            onSuccess: () => {
-                setShowForm(false);
-                setEditingAddress(null);
+                showSuccess('Location updated');
                 onClose();
             },
             onError: (error) => {
                 showError(getErrorMessage(error));
             },
         });
-    };
+    }, [setDefaultMutation, onClose]);
 
-    const renderItem = ({ item }: { item: Address }) => (
+    const handleAddAddress = useCallback(() => {
+        setEditingAddress(null);
+        setShowForm(true);
+    }, []);
+
+    const handleEdit = useCallback((address: Address) => {
+        setEditingAddress(address);
+        setShowForm(true);
+    }, []);
+
+    const handleDelete = useCallback((id: string) => {
+        deleteMutation.mutate(id, {
+            onSuccess: () => {
+                showSuccess('Address deleted');
+            },
+            onError: (error) => {
+                showError(getErrorMessage(error));
+            },
+        });
+    }, [deleteMutation]);
+
+    const handleSaveAddress = useCallback((formData: CreateAddressData) => {
+        if (editingAddress) {
+            updateMutation.mutate({ id: editingAddress.id, data: formData }, {
+                onSuccess: () => {
+                    showSuccess('Address updated');
+                    setShowForm(false);
+                    setEditingAddress(null);
+                    onClose();
+                },
+                onError: (error) => {
+                    showError(getErrorMessage(error));
+                },
+            });
+        } else {
+            createMutation.mutate(formData, {
+                onSuccess: () => {
+                    showSuccess('Address added');
+                    setShowForm(false);
+                    setEditingAddress(null);
+                    onClose();
+                },
+                onError: (error) => {
+                    showError(getErrorMessage(error));
+                },
+            });
+        }
+    }, [editingAddress, updateMutation, createMutation, onClose]);
+
+    const renderItem = useCallback(({ item }: { item: Address }) => (
         <AddressItem
             address={item}
             onPress={() => handleSetDefault(item.id)}
             onEdit={() => handleEdit(item)}
-            onDelete={() => deleteMutation.mutate(item.id)}
+            onDelete={() => handleDelete(item.id)}
         />
-    );
+    ), [handleSetDefault, handleEdit, handleDelete]);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
         setShowForm(false);
         setEditingAddress(null);
         onClose();
-    };
+    }, [onClose]);
 
     return (
         <Modal visible={isVisible} animationType="slide" transparent>

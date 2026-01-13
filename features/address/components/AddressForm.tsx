@@ -133,12 +133,13 @@ export function AddressForm({
       <Text variant="s" color={colors.textSecondary} style={styles.label}>
         City
       </Text>
-      <View style={styles.pickerWrapper}>
+      <View style={[styles.pickerWrapper, isCitiesLoading && styles.disabledPicker]}>
         <Picker
           selectedValue={cityId}
           onValueChange={(value) => setCityId(value)}
+          enabled={!isCitiesLoading}
         >
-          <Picker.Item label="Select City" value="" />
+          <Picker.Item label={isCitiesLoading ? "Loading Cities..." : "Select City"} value="" />
           {cities?.map((city: any) => (
             <Picker.Item key={city.id} label={city.name} value={city.id} />
           ))}
@@ -210,6 +211,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: spacing.radius.m,
     marginBottom: spacing.m,
+  },
+  disabledPicker: {
+    opacity: 0.5,
+    backgroundColor: colors.border,
   },
   saveButton: {
     marginTop: spacing.m,
