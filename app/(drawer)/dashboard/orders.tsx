@@ -4,7 +4,13 @@ import { Text } from '@/core/ui/Text';
 import OrderCard from '@/features/orders/components/OrderCard';
 import { useOrders } from '@/features/orders/hooks/useOrders';
 import React, { useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 /**
  * OrdersTab component displays a list of orders with pull-to-refresh functionality.
@@ -15,13 +21,9 @@ export default function OrdersTab() {
 
   const historyStatuses = ['DELIVERED', 'CANCELLED'];
 
-  const {
-    data,
-    isLoading,
-    refetch,
-    isFetching,
-    error,
-  } = useOrders(activeTab === 'ACTIVE' ? undefined : historyStatuses);
+  const { data, isLoading, refetch, isFetching, error } = useOrders(
+    activeTab === 'ACTIVE' ? undefined : historyStatuses,
+  );
 
   const renderContent = () => {
     if (isLoading) {
@@ -78,7 +80,9 @@ export default function OrdersTab() {
         >
           <Text
             weight={activeTab === 'ACTIVE' ? 'bold' : 'medium'}
-            color={activeTab === 'ACTIVE' ? colors.primary : colors.textSecondary}
+            color={
+              activeTab === 'ACTIVE' ? colors.primary : colors.textSecondary
+            }
           >
             Active
           </Text>
@@ -89,7 +93,9 @@ export default function OrdersTab() {
         >
           <Text
             weight={activeTab === 'HISTORY' ? 'bold' : 'medium'}
-            color={activeTab === 'HISTORY' ? colors.primary : colors.textSecondary}
+            color={
+              activeTab === 'HISTORY' ? colors.primary : colors.textSecondary
+            }
           >
             History
           </Text>

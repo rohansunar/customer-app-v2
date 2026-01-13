@@ -3,13 +3,17 @@ import { API_ENDPOINTS } from '@/core/api/endpoints';
 import { Product } from '../types';
 
 export const productService = {
-  async getProducts(): Promise<{ data: Product[] }> {
-    return apiClient.get(API_ENDPOINTS.PRODUCT).then((res) => res.data);
-  },
-
-  getProduct(id: string): Promise<Product> {
+  async getProducts(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: Product[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     return apiClient
-      .get(`${API_ENDPOINTS.PRODUCT}/${id}`)
+      .get(API_ENDPOINTS.PRODUCT, { params: { page, limit } })
       .then((res) => res.data);
   },
 };

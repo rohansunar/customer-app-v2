@@ -15,10 +15,36 @@ import {
 import CartButton from '@/features/cart/components/CartButton';
 
 export default function DashboardScreen() {
-  const { data, isLoading, refetch, isFetching, error } = useProducts();
+  const {
+    data,
+    isLoading,
+    refetch,
+    isFetching,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useProducts();
   const { data: cartData } = useCart();
 
   const totalItems = cartData?.totalItems || 0;
+
+  const products = data?.pages.flatMap((page) => page.data) || [];
+
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={colors.primary} />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -30,14 +56,17 @@ export default function DashboardScreen() {
         </Text>
       ) : (
         <FlatList
-          data={data?.data}
+          data={products}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ProductCard product={item} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching}
+              refreshing={isFetching && !isFetchingNextPage}
               onRefresh={refetch}
               tintColor={colors.primary}
             />
@@ -61,5 +90,9 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: spacing.m,
     paddingBottom: 100, // Space for cart button
+  },
+  footerLoader: {
+    paddingVertical: spacing.m,
+    alignItems: 'center',
   },
 });

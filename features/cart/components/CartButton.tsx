@@ -3,15 +3,44 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface CartButtonProps {
   totalItems: number;
 }
 
 export default function CartButton({ totalItems }: CartButtonProps) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (totalItems > 0) {
+      // Pop animation
+      Animated.sequence([
+        Animated.spring(scaleAnim, {
+          toValue: 1.1,
+          useNativeDriver: true,
+          speed: 20,
+          bounciness: 12,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          speed: 20,
+        }),
+      ]).start();
+    }
+  }, [totalItems]);
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
+    >
       <TouchableOpacity
         style={styles.cartBar}
         onPress={() => router.push('/dashboard/cart')}
@@ -40,7 +69,7 @@ export default function CartButton({ totalItems }: CartButtonProps) {
           />
         </View>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 

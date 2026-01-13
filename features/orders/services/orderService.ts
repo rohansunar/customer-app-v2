@@ -4,7 +4,8 @@ import { Order, OrdersResponse } from '../types';
 
 export const orderService = {
   getOrders(statuses?: string[]): Promise<OrdersResponse> {
-    const params = statuses && statuses.length > 0 ? { status: statuses.join(',') } : {};
+    const params =
+      statuses && statuses.length > 0 ? { status: statuses.join(',') } : {};
     return apiClient
       .get(`${API_ENDPOINTS.CUSTOMER_ORDER}`, { params })
       .then((res) => res.data);
