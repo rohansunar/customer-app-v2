@@ -1,3 +1,8 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Input } from '@/core/ui/Input';
+import { Text } from '@/core/ui/Text';
 import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -6,8 +11,6 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -61,17 +64,19 @@ export function AddressForm({
   const isEdit = !!address;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>
+        <Text variant="l" weight="bold">
           {isEdit ? 'Edit Address' : 'Add Address'}
         </Text>
         <TouchableOpacity onPress={onCancel}>
-          <Ionicons name="close" size={24} color="black" />
+          <Ionicons name="close" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
-      <Text>Label</Text>
+      <Text variant="s" color={colors.textSecondary} style={styles.label}>
+        Address Type
+      </Text>
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={label}
@@ -86,115 +91,86 @@ export function AddressForm({
         </Picker>
       </View>
 
-      <TextInput
-        placeholder="Address"
+      <Input
+        label="Full Address (Street, Building, etc)"
         value={addressText}
         onChangeText={setAddressText}
         multiline
-        style={styles.input}
+        placeholder="e.g. 123 Main St"
       />
 
-      <TextInput
-        placeholder="Pincode"
+      <Input
+        label="Pincode"
         value={pincode}
         onChangeText={setPincode}
         keyboardType="numeric"
-        style={styles.input}
+        placeholder="e.g. 560001"
       />
 
-      <Text>City</Text>
+      <Text variant="s" color={colors.textSecondary} style={styles.label}>
+        City
+      </Text>
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={cityId}
           onValueChange={(value) => setCityId(value)}
         >
           <Picker.Item label="Select City" value="" />
-
           {cities?.map((city: any) => (
             <Picker.Item key={city.id} label={city.name} value={city.id} />
           ))}
         </Picker>
       </View>
 
-      <TextInput
-        placeholder="Longitude"
+      <Input
+        label="Longitude"
         value={lng}
         onChangeText={setLng}
         keyboardType="numeric"
-        style={styles.input}
+        placeholder="Enter Longitude"
       />
 
-      <TextInput
-        placeholder="Latitude"
+      <Input
+        label="Latitude"
         value={lat}
         onChangeText={setLat}
         keyboardType="numeric"
-        style={styles.input}
+        placeholder="Enter Latitude"
       />
 
-      <TouchableOpacity
-        style={[styles.saveButton, isPending && styles.disabledButton]}
-        onPress={isPending ? () => {} : handleSave}
-      >
-        <Text style={styles.saveButtonText}>
-          {isPending ? 'Saving...' : 'Save'}
-        </Text>
-      </TouchableOpacity>
+      <Button
+        title={isPending ? 'Saving...' : 'Save'}
+        onPress={handleSave}
+        loading={isPending}
+        style={styles.saveButton}
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-    color: 'black',
+  content: {
+    padding: spacing.l,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.l,
   },
-  input: {
-    borderWidth: 1,
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 4,
-    color: 'black',
-    borderColor: 'gray',
+  label: {
+    marginBottom: spacing.xs,
   },
   pickerWrapper: {
     borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 4,
-    marginBottom: 12,
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: spacing.radius.m,
+    marginBottom: spacing.m,
   },
   saveButton: {
-    backgroundColor: '#007AFF',
-    padding: 12,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  disabledButton: {
-    opacity: 0.5,
+    marginTop: spacing.m,
   },
 });

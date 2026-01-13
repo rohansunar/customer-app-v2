@@ -1,7 +1,12 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { typography } from '@/core/theme/typography';
+import { Button } from '@/core/ui/Button';
+import { Text } from '@/core/ui/Text';
 import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, Button, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 
 export default function OtpScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
@@ -36,25 +41,20 @@ export default function OtpScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-      }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
     >
-      <Text style={{ fontSize: 18, marginBottom: 20, textAlign: 'center' }}>
-        Enter OTP sent to {phone}
-      </Text>
+      <View style={styles.header}>
+        <Text variant="xl" weight="bold" color={colors.primary} centered>
+          Enter Verification Code
+        </Text>
+        <Text variant="s" color={colors.textSecondary} centered style={styles.subtitle}>
+          We sent a code to {phone}
+        </Text>
+      </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginBottom: 30,
-        }}
-      >
+      <View style={styles.inputContainer}>
         {otpDigits.map((digit, index) => (
           <TextInput
             key={index}
@@ -79,27 +79,54 @@ export default function OtpScreen() {
             }}
             keyboardType="numeric"
             maxLength={1}
-            style={{
-              width: 50,
-              height: 50,
-              borderWidth: 2,
-              borderColor: '#ccc',
-              borderRadius: 8,
-              textAlign: 'center',
-              fontSize: 24,
-              marginHorizontal: 5,
-              backgroundColor: '#f9f9f9',
-            }}
+            style={styles.otpInput}
             autoFocus={index === 0}
           />
         ))}
       </View>
 
       <Button
-        title={isPending ? 'Verifying...' : 'Verify OTP'}
+        title={isPending ? 'Verifying...' : 'Verify'}
         onPress={handleVerifyOtp}
-        disabled={isPending}
+        loading={isPending}
+        style={styles.button}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: spacing.l,
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  header: {
+    marginBottom: spacing.xl,
+  },
+  subtitle: {
+    marginTop: spacing.s,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: spacing.xl,
+    gap: spacing.s,
+  },
+  otpInput: {
+    width: 45,
+    height: 55,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: spacing.radius.m,
+    textAlign: 'center',
+    fontSize: typography.size.l,
+    color: colors.textPrimary,
+    backgroundColor: colors.surface,
+    elevation: 1,
+  },
+  button: {
+    marginTop: spacing.s,
+  },
+});

@@ -1,21 +1,25 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Card } from '@/core/ui/Card';
+import { Text } from '@/core/ui/Text';
 import { useProduct } from '@/features/product/hooks/useProduct';
 import { useLocalSearchParams } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data, isLoading } = useProduct(id);
 
   if (!id) {
-    return <Text style={{ padding: 16 }}>Invalid product ID</Text>;
+    return <View style={styles.centered}><Text>Invalid product ID</Text></View>;
   }
 
   if (isLoading || !data)
-    return <Text style={{ padding: 16 }}>Loading...</Text>;
+    return <View style={styles.centered}><Text>Loading...</Text></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{data.name}</Text>
+      <Text variant="xl" weight="bold" style={styles.title}>{data.name}</Text>
 
       {/* Images */}
       {data.images && data.images.length > 0 && (
@@ -27,21 +31,26 @@ export default function ProductDetailScreen() {
       )}
 
       {/* Details */}
-      <View style={styles.details}>
-        <Text style={styles.label}>Price: ₹ {data.price}</Text>
-        <Text style={styles.label}>Category: {data.categoryId}</Text>
+      <Card style={styles.details}>
+        <View style={styles.row}>
+          <Text variant="l" weight="bold" color={colors.primary}>₹ {data.price}</Text>
+          <View style={[styles.badge, { backgroundColor: data.is_active ? colors.success + '20' : colors.error + '20' }]}>
+            <Text variant="s" color={data.is_active ? colors.success : colors.error} weight="medium">
+              {data.is_active ? 'Active' : 'Inactive'}
+            </Text>
+          </View>
+        </View>
+
+        <Text variant="s" color={colors.textSecondary} style={styles.sectionTitle}>Category</Text>
+        <Text style={styles.value}>{data.categoryId}</Text>
+
         {data.description && (
-          <Text style={styles.label}>Description: {data.description}</Text>
+          <>
+            <Text variant="s" color={colors.textSecondary} style={styles.sectionTitle}>Description</Text>
+            <Text style={styles.value}>{data.description}</Text>
+          </>
         )}
-        <Text
-          style={[
-            styles.label,
-            { color: data.is_active ? '#34C759' : '#FF3B30' },
-          ]}
-        >
-          Status: {data.is_active ? 'Active' : 'Inactive'}
-        </Text>
-      </View>
+      </Card>
     </ScrollView>
   );
 }
@@ -49,37 +58,51 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: colors.background,
   },
   content: {
-    padding: 16,
+    padding: spacing.l,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111',
-    marginBottom: 16,
+    marginBottom: spacing.m,
   },
   imagesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    marginBottom: spacing.l,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 8,
-    marginBottom: 8,
+    width: 120,
+    height: 120,
+    borderRadius: spacing.radius.m,
+    marginRight: spacing.s,
+    marginBottom: spacing.s,
+    backgroundColor: colors.surface,
   },
   details: {
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
+    padding: spacing.l,
   },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 8,
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.l,
+  },
+  badge: {
+    paddingHorizontal: spacing.s,
+    paddingVertical: spacing.xs,
+    borderRadius: spacing.radius.s,
+  },
+  sectionTitle: {
+    marginTop: spacing.m,
+    marginBottom: spacing.xs,
+  },
+  value: {
+    lineHeight: 24,
   },
 });

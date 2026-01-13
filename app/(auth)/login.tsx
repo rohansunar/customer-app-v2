@@ -1,45 +1,32 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Input } from '@/core/ui/Input';
+import { Text } from '@/core/ui/Text';
 import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
 import { isValidPhone } from '@/shared/utils/phoneValidator';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import {
-  Alert,
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
-/**
- * LoginScreen component for user authentication via phone number.
- * Allows users to enter their phone number and request an OTP.
- */
 export default function LoginScreen() {
-  const [digits, setDigits] = useState(Array(10).fill(''));
-  const [scaleAnim] = useState(new Animated.Value(1));
+  const [phone, setPhone] = useState('');
   const { mutate, isPending } = useRequestOtp();
-  const refs = Array(10)
-    .fill(null)
-    .map(() => useRef<TextInput>(null));
 
-  /**
-   * Handles the OTP request by validating and trimming the phone number,
-   * then triggering the mutation to send OTP.
-   */
   function handleRequestOtp() {
-    const phone = digits.join('');
-    if (!isValidPhone(phone)) {
-      Alert.alert('Invalid Phone', 'Please enter a valid phone number.');
+    // Basic cleanup
+    const cleanPhone = phone.trim();
+
+    if (!isValidPhone(cleanPhone)) {
+      Alert.alert('Invalid Phone', 'Please enter a valid 10-digit phone number.');
       return;
     }
 
-    mutate(phone, {
+    mutate(cleanPhone, {
       onSuccess: () => {
         router.push({
           pathname: '/otp',
-          params: { phone },
+          params: { phone: cleanPhone },
         });
       },
       onError: (error) => {
@@ -52,119 +39,71 @@ export default function LoginScreen() {
     });
   }
 
-  function handleDigitChange(index: number, text: string) {
-    if (!/^\d$/.test(text) && text !== '') return;
-    const newDigits = [...digits];
-    newDigits[index] = text;
-    setDigits(newDigits);
-    if (text && index < 9) {
-      refs[index + 1].current?.focus();
-    }
-  }
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Enter Phone Number</Text>
-
-      <View style={styles.inputContainer}>
-        {digits.map((digit, index) => (
-          <TextInput
-            key={index}
-            ref={refs[index]}
-            style={styles.digitInput}
-            value={digit}
-            onChangeText={(text) => handleDigitChange(index, text)}
-            keyboardType="numeric"
-            maxLength={1}
-            autoFocus={index === 0}
-            accessibilityLabel={`Digit ${index + 1} input field`}
-          />
-        ))}
-      </View>
-
-      <Animated.View
-        style={[styles.buttonContainer, { transform: [{ scale: scaleAnim }] }]}
-      >
-        <Pressable
-          onPress={handleRequestOtp}
-          onPressIn={() =>
-            Animated.spring(scaleAnim, {
-              toValue: 0.95,
-              useNativeDriver: true,
-            }).start()
-          }
-          onPressOut={() =>
-            Animated.spring(scaleAnim, {
-              toValue: 1,
-              useNativeDriver: true,
-            }).start()
-          }
-          disabled={isPending}
-          style={styles.button}
-          accessibilityLabel="Send OTP button"
-        >
-          <Text style={styles.buttonText}>
-            {isPending ? 'Sending OTP...' : 'Send OTP'}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text variant="xl" weight="bold" color={colors.primary} centered>
+            Welcome Back
           </Text>
-        </Pressable>
-      </Animated.View>
-    </View>
+          <Text variant="m" color={colors.textSecondary} centered style={styles.subtitle}>
+            Enter your phone number to continue
+          </Text>
+        </View>
+
+        <View style={styles.form}>
+          <Input
+            label="Phone Number"
+            placeholder="9876543210"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            maxLength={10}
+            autoFocus
+          />
+
+          <Button
+            title={isPending ? 'Sending...' : 'Send OTP'}
+            onPress={handleRequestOtp}
+            loading={isPending}
+            style={styles.button}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    padding: spacing.l,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 30,
-    textAlign: 'center',
-    color: '#333',
-    fontWeight: '600',
+  header: {
+    marginBottom: spacing.xl,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
-    marginBottom: 30,
+  subtitle: {
+    marginTop: spacing.s,
   },
-  digitInput: {
-    width: 35,
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    textAlign: 'center',
-    fontSize: 18,
+  form: {
+    backgroundColor: colors.surface,
+    padding: spacing.l,
+    borderRadius: spacing.radius.l,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  buttonContainer: {
-    width: '80%',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 4,
   },
   button: {
-    padding: 15,
-    backgroundColor: '#007bff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    marginTop: spacing.m,
   },
 });

@@ -1,5 +1,10 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Card } from '@/core/ui/Card';
+import { Text } from '@/core/ui/Text';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { Product } from '../types';
 
 type Props = {
@@ -20,82 +25,64 @@ export function ProductCard({ product, onPress }: Props) {
   };
 
   return (
-    <TouchableOpacity
+    <Card
       style={styles.card}
-      onPress={onPress}
-      activeOpacity={0.85}
+      onTouchEnd={onPress} // Handling press on card if needed, though Button handles cart
     >
-      {/* Product Image */}
-      <Image source={imageUri} style={styles.image} />
+      <View style={styles.content}>
+        {/* Product Image */}
+        <Image source={imageUri} style={styles.image} />
 
-      {/* Product Info */}
-      <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>
-          {product.name}
-        </Text>
+        {/* Product Info */}
+        <View style={styles.info}>
+          <Text variant="m" weight="semibold" numberOfLines={1}>
+            {product.name}
+          </Text>
 
-        <Text style={styles.price}>₹ {product.price}</Text>
+          <Text variant="s" color={colors.textSecondary} style={styles.price}>
+            ₹ {product.price}
+          </Text>
 
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartText}>Add</Text>
-        </TouchableOpacity>
+          <Button
+            title="Add"
+            onPress={handleAddToCart}
+            variant="primary"
+            style={styles.addToCartButton}
+            textStyle={{ fontSize: 12 }}
+          />
+        </View>
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    marginBottom: spacing.m,
+    padding: spacing.s,
+  },
+  content: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    elevation: 2, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  disabledCard: {
-    opacity: 0.5,
-  },
-  disabledText: {
-    textDecorationLine: 'line-through',
-    color: '#6B7280',
+    alignItems: 'center',
   },
   image: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
+    width: 80,
+    height: 80,
+    borderRadius: spacing.radius.m,
+    backgroundColor: colors.background,
   },
   info: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111',
+    marginLeft: spacing.m,
   },
   price: {
-    marginTop: 4,
-    fontSize: 14,
-    color: '#555',
+    marginTop: spacing.xs,
+    marginBottom: spacing.s,
   },
   addToCartButton: {
-    marginTop: 8,
-    backgroundColor: '#007bff',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.m,
+    minHeight: 32,
     alignSelf: 'flex-start',
-  },
-  addToCartText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
   },
 });

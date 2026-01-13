@@ -1,11 +1,15 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Input } from '@/core/ui/Input';
+import { Text } from '@/core/ui/Text';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconSymbol } from '../../components/ui/icon-symbol';
 
 export default function ProfileScreen() {
-  // console.log('ProfileScreen render');
   const { data, isLoading, error } = useProfile();
   const { mutate, isPending } = useUpdateProfile();
 
@@ -13,7 +17,6 @@ export default function ProfileScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState<string | null>(null);
 
-  // console.log('Data', data);
   // Populate form when profile loads
   useEffect(() => {
     if (data) {
@@ -23,15 +26,27 @@ export default function ProfileScreen() {
   }, [data]);
 
   if (isLoading) {
-    return <Text>Loading profile...</Text>;
+    return (
+      <View style={styles.centered}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>Error loading profile: {error.message}</Text>;
+    return (
+      <View style={styles.centered}>
+        <Text color={colors.error}>Error loading profile: {error.message}</Text>
+      </View>
+    );
   }
 
   if (!data) {
-    return <Text>No profile data available.</Text>;
+    return (
+      <View style={styles.centered}>
+        <Text>No profile data available.</Text>
+      </View>
+    );
   }
 
   function handleSave() {
@@ -42,79 +57,103 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text variant="xl" weight="bold" color={colors.primary}>Profile</Text>
+      </View>
 
-      {/* Status */}
-      <Text>Status</Text>
-      <IconSymbol
-        name={data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'}
-        size={24}
-        color={data.isActive ? 'green' : 'red'}
-      />
+      <View style={styles.card}>
+        {/* Status */}
+        <View style={styles.row}>
+          <Text weight="medium">Account Status</Text>
+          <View style={styles.statusBadge}>
+            <IconSymbol
+              name={data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'}
+              size={20}
+              color={data.isActive ? colors.success : colors.error}
+            />
+            <Text
+              variant="s"
+              color={data.isActive ? colors.success : colors.error}
+              style={{ marginLeft: spacing.xs }}
+            >
+              {data.isActive ? 'Active' : 'Inactive'}
+            </Text>
+          </View>
+        </View>
 
-      {/* Phone (disabled) */}
-      <Text>Phone</Text>
-      <TextInput
-        value={data.phone}
-        editable={false}
-        style={styles.disabledInput}
-      />
+        {/* Phone (disabled) */}
+        <Input
+          label="Phone Number"
+          value={data.phone}
+          editable={false}
+          selectTextOnFocus={false}
+          style={{ backgroundColor: colors.background }} // Visually disabled
+        />
 
-      {/* Name */}
-      <Text>Name</Text>
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        placeholder="Enter your name"
-        style={styles.input}
-      />
+        {/* Name */}
+        <Input
+          label="Full Name"
+          value={name}
+          onChangeText={setName}
+          placeholder="Enter your name"
+        />
 
-      {/* Email */}
-      <Text>Email</Text>
-      <TextInput
-        value={email ?? ''}
-        onChangeText={setEmail}
-        placeholder="Enter your email"
-        keyboardType="email-address"
-        style={styles.input}
-      />
+        {/* Email */}
+        <Input
+          label="Email Address"
+          value={email ?? ''}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+          keyboardType="email-address"
+        />
 
-      <Button
-        title={isPending ? 'Saving...' : 'Save Changes'}
-        onPress={handleSave}
-        disabled={isPending}
-      />
-    </View>
+        <Button
+          title={isPending ? 'Saving...' : 'Save Changes'}
+          onPress={handleSave}
+          loading={isPending}
+          style={styles.button}
+        />
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    flex: 1,
+    padding: spacing.m,
+    backgroundColor: colors.background,
   },
-  title: {
-    fontSize: 20,
-    marginBottom: 16,
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 12,
+  header: {
+    marginBottom: spacing.l,
   },
-  disabledInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 8,
-    marginBottom: 12,
-    backgroundColor: '#f5f5f5',
-    color: '#666',
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: spacing.radius.l,
+    padding: spacing.l,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  switchRow: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 16,
+    marginBottom: spacing.l,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  button: {
+    marginTop: spacing.m,
   },
 });

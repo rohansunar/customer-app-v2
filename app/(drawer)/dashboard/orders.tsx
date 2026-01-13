@@ -1,7 +1,10 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
 import OrderCard from '@/features/orders/components/OrderCard';
 import { useOrders } from '@/features/orders/hooks/useOrders';
 import { router } from 'expo-router';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
 /**
  * OrdersTab component displays a list of orders with pull-to-refresh functionality.
@@ -21,7 +24,7 @@ export default function OrdersTab() {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Text>Error loading orders</Text>
+        <Text color={colors.error}>Error loading orders</Text>
       </View>
     );
   }
@@ -40,7 +43,7 @@ export default function OrdersTab() {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+          <RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={colors.primary} />
         }
       />
     </View>
@@ -49,12 +52,12 @@ export default function OrdersTab() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#F7F7F7',
+    padding: spacing.m,
+    backgroundColor: colors.background,
     flex: 1,
   },
   list: {
-    paddingTop: 12,
+    paddingTop: spacing.s,
   },
   centered: {
     flex: 1,

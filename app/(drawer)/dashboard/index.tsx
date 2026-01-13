@@ -1,3 +1,6 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { ProductCard } from '@/features/product/components/ProductCard';
 import { useProducts } from '@/features/product/hooks/useProducts';
@@ -7,15 +10,11 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
-  Text,
   View
 } from 'react-native';
 
 import CartButton from '@/features/cart/components/CartButton';
 
-/**
- * DashboardScreen component displays the list of products and cart summary.
- */
 export default function DashboardScreen() {
   const { data, isLoading, refetch, isFetching, error } = useProducts();
   const { data: cartData } = useCart();
@@ -24,11 +23,10 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Products Section */}
       {isLoading ? (
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color={colors.primary} />
       ) : error ? (
-        <Text style={styles.errorText}>Error loading products</Text>
+        <Text color={colors.error} centered style={styles.errorText}>Error loading products</Text>
       ) : (
         <FlatList
           data={data?.data}
@@ -42,7 +40,7 @@ export default function DashboardScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+            <RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={colors.primary} />
           }
         />
       )}
@@ -54,17 +52,14 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
-    padding: 10,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.m,
   },
-
   errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 20,
+    marginTop: spacing.xl,
   },
-
   list: {
-    paddingTop: 12,
+    paddingTop: spacing.m,
+    paddingBottom: 100, // Space for cart button
   },
 });

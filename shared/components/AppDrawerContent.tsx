@@ -1,7 +1,10 @@
 import { useAuth } from '@/core/providers/AuthProvider';
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export function AppDrawerContent(props: any) {
   const { logout } = useAuth();
@@ -12,57 +15,87 @@ export function AppDrawerContent(props: any) {
   }
 
   return (
-    <DrawerContentScrollView {...props}>
-      {/* Default navigation items */}
-      {props.state.routeNames.map(
-        (
-          routeName:
-            | string
-            | ((props: { focused: boolean; color: string }) => React.ReactNode),
-          index: string | number,
-        ) => {
-          const route = props.state.routes[index];
-          const isFocused = props.state.index === index;
+    <DrawerContentScrollView {...props} contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <Text variant="xl" weight="bold" color={colors.primary}>
+          Water App
+        </Text>
+        <Text variant="s" color={colors.textSecondary}>
+          Premium Water Delivery
+        </Text>
+      </View>
 
-          if (routeName === 'dashboard') {
+      <View style={styles.itemsContainer}>
+        {props.state.routeNames.map(
+          (routeName: string, index: number) => {
+            const route = props.state.routes[index];
+            const isFocused = props.state.index === index;
+
+            // Skip hidden items if needed, or map names
+            let label = routeName;
+            if (routeName === 'dashboard') label = 'Home';
+
             return (
               <DrawerItem
                 key={route.key}
-                label={routeName.toString().toUpperCase()}
+                label={({ color }) => (
+                  <Text weight={isFocused ? "bold" : "medium"} color={isFocused ? colors.primary : colors.textPrimary}>
+                    {label.charAt(0).toUpperCase() + label.slice(1)}
+                  </Text>
+                )}
                 focused={isFocused}
-                onPress={() =>
-                  props.navigation.navigate('dashboard', { screen: 'index' })
-                }
+                activeBackgroundColor={colors.surfaceHighlight}
+                onPress={() => {
+                  if (routeName === 'dashboard') {
+                    props.navigation.navigate('dashboard', { screen: 'index' });
+                  } else {
+                    props.navigation.navigate(routeName);
+                  }
+                }}
+                style={styles.item}
               />
             );
           }
+        )}
+      </View>
 
-          return (
-            <DrawerItem
-              key={route.key}
-              label={routeName.toString().toUpperCase()}
-              focused={isFocused}
-              onPress={() => props.navigation.navigate(routeName)}
-            />
-          );
-        },
-      )}
-
-      {/* Divider */}
-      <View
-        style={{
-          height: 1,
-          backgroundColor: '#e0e0e0',
-          marginVertical: 12,
-        }}
-      />
-
-      {/* Logout */}
-      <DrawerItem
-        label="Logout"
-        labelStyle={{ color: 'red' }}
-        onPress={handleLogout}
-      />
+      <View style={styles.footer}>
+        <View style={styles.divider} />
+        <DrawerItem
+          label={({ color }) => (
+            <Text weight="medium" color={colors.error}>Logout</Text>
+          )}
+          onPress={handleLogout}
+          style={styles.item}
+        />
+      </View>
     </DrawerContentScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: spacing.l,
+  },
+  header: {
+    paddingHorizontal: spacing.l,
+    marginBottom: spacing.l,
+  },
+  itemsContainer: {
+    flex: 1,
+  },
+  item: {
+    borderRadius: spacing.radius.m,
+    marginHorizontal: spacing.m,
+  },
+  footer: {
+    marginTop: spacing.xl,
+    marginBottom: spacing.l,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.l,
+    marginBottom: spacing.s,
+  },
+});

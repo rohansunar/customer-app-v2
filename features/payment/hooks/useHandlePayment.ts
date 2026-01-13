@@ -23,7 +23,7 @@ export function useHandlePayment(cartId: string) {
       { cartId, paymentMode },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['cart'] });
+          queryClient.setQueryData(['cart'], null);
           router.push('/dashboard/orders');
         },
         onError: (error) => {

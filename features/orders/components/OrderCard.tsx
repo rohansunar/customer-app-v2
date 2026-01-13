@@ -1,9 +1,12 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Card } from '@/core/ui/Card';
+import { Text } from '@/core/ui/Text';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useCancelOrder } from '../hooks/useCancelOrder';
 import { Order } from '../types';
 import OrderCardSkeleton from './OrderCardSkeleton';
-import { orderCardStyles } from './styles';
 import CancelButton from './sub-components/CancelButton';
 import OrderHeader from './sub-components/OrderHeader';
 import OrderModal from './sub-components/OrderModal';
@@ -43,19 +46,20 @@ function OrderCardComponent({ order, loading, onPress }: Props) {
   const canCancel = order.status !== 'CANCELLED' && order.status !== 'DELIVERED';
 
   return (
-    <TouchableOpacity
-      style={orderCardStyles.card}
-      onPress={onPress}
-      activeOpacity={0.7}
+    <Card
+      style={styles.card}
+      onTouchEnd={onPress}
       accessible={true}
       accessibilityLabel={`Order ${order.orderNo}, status ${order.status}, total ${order.total_amount}`}
       accessibilityRole="button"
     >
       {/* Order Info */}
-      <View style={orderCardStyles.info}>
+      <View style={styles.info}>
         <OrderHeader orderNo={order.orderNo} createdAt={order.created_at} />
 
-        <Text style={orderCardStyles.price}>Total Amount: ₹ {order.total_amount}</Text>
+        <Text variant="s" color={colors.textSecondary} style={styles.price}>
+          Total Amount: ₹ {order.total_amount}
+        </Text>
 
         <StatusBadge status={order.status} />
 
@@ -69,8 +73,22 @@ function OrderCardComponent({ order, loading, onPress }: Props) {
         onClose={handleModalClose}
         onConfirm={handleConfirmCancel}
       />
-    </TouchableOpacity>
+    </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    marginBottom: spacing.m,
+    padding: spacing.m,
+  },
+  info: {
+    flex: 1,
+  },
+  price: {
+    marginTop: spacing.s,
+    marginBottom: spacing.s,
+  },
+});
 
 export default React.memo(OrderCardComponent);

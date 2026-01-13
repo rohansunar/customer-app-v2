@@ -1,3 +1,8 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
+import { Card } from '@/core/ui/Card';
+import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useCallback } from 'react';
@@ -6,7 +11,6 @@ import {
   FlatList,
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -27,130 +31,106 @@ export function CartSummary() {
         : require('@/assets/images/product-placeholder.png');
 
     return (
-      <View style={styles.itemContainer}>
+      <Card
+        style={styles.itemContainer}
+        accessible={true}
+        accessibilityLabel={`Cart item: ${item.name}, qty ${item.quantity}, price ${item.price}`}
+      >
         <Image source={imageUri} style={styles.itemImage} />
         <View style={styles.itemDetails}>
-          <Text style={styles.itemName} numberOfLines={1}>
+          <Text weight="semibold" numberOfLines={1}>
             {item.name}
           </Text>
-          <Text style={styles.itemDescription} numberOfLines={2}>
+          <Text variant="s" color={colors.textSecondary} numberOfLines={2} style={styles.itemDescription}>
             {item.description}
           </Text>
-          <Text style={styles.itemQty}>Qty: {item.quantity}</Text>
-          <Text style={styles.itemPrice}>Price: ₹ {item.price}</Text>
-          {item.deposit && <Text style={styles.itemDeposit}>Deposit: ₹ {item.deposit}</Text>}
-          <Text style={styles.itemTotalPrice}>Total: ₹ {item.totalPrice}</Text>
+          <View style={styles.row}>
+            <Text variant="s">Qty: {item.quantity}</Text>
+            <Text variant="s" color={colors.primary} weight="semibold">₹ {item.totalPrice}</Text>
+          </View>
         </View>
         <TouchableOpacity
           onPress={() => removeFromCart.mutate(item.id)}
           style={styles.deleteButton}
-          accessibilityLabel="Delete item"
-          accessibilityRole="button"
-          accessibilityHint="Removes this item from the cart"
+          hitSlop={8}
         >
-          <Ionicons name="trash" size={18} color="#d32f2f" />
+          <Ionicons name="trash-outline" size={20} color={colors.error} />
         </TouchableOpacity>
-      </View>
+      </Card>
     );
   }, [removeFromCart.mutate]);
 
-  // Loading state view
-  const renderLoadingView = (): React.ReactElement => (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" color="#007bff" />
-      <Text style={styles.loadingText}>Loading cart...</Text>
-    </View>
-  );
-
-  // Empty cart state view
-  const renderEmptyView = (): React.ReactElement => (
-    <View style={styles.center}>
-      <Text style={styles.emptyText}>Your cart is empty</Text>
-      <TouchableOpacity
-        style={styles.retryButton}
-        onPress={() => router.push('/dashboard')}
-        accessibilityLabel="Go to Products"
-        accessibilityRole="button"
-        accessibilityHint="Navigates to the products page"
-      >
-        <Text style={styles.retryText}>Go to Products</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // Error state view
-  const renderErrorView = (): React.ReactElement => (
-    <View style={styles.center}>
-      <Text style={styles.errorText}>Error loading cart</Text>
-      <TouchableOpacity
-        style={styles.retryButton}
-        onPress={() => router.push('/dashboard')}
-        accessibilityLabel="Go to Products"
-        accessibilityRole="button"
-        accessibilityHint="Navigates to the products page"
-      >
-        <Text style={styles.retryText}>Go to Products</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // Main cart content view
-  const renderCartContent = (): React.ReactElement => (
-    <View style={styles.content}>
-      <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>Delivery Address:</Text>
-        <Text style={styles.addressText}>{data!.deliveryAddress.label}</Text>
-        <Text style={styles.addressText}>{data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}</Text>
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Loading cart...</Text>
       </View>
-      <FlatList
-        data={cartItems}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>Total Items: {data!.totalItems}</Text>
-        <Text style={styles.totalText}>Subtotal: ₹ {data!.subtotal}</Text>
-        <Text style={styles.totalText}>Grand Total: ₹ {data!.grandTotal}</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.checkoutButton]}
-          onPress={() => router.push('/dashboard/payment')}
-          accessibilityLabel="Proceed to Payment"
-          accessibilityRole="button"
-          accessibilityHint="Proceeds to the payment page"
-        >
-          <Text style={styles.checkoutText}>Proceed to Payment</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  }
 
-  const renderContent = (): React.ReactElement => {
-    if (isLoading) return renderLoadingView();
-    if (error && cartItems.length > 0) return renderErrorView();
-    if (cartItems.length === 0) return renderEmptyView();
-    return renderCartContent();
-  };
+  if (error && cartItems.length > 0) {
+    return (
+      <View style={styles.center}>
+        <Text color={colors.error}>Error loading cart</Text>
+        <Button title="Go to Products" onPress={() => router.push('/dashboard')} variant="outline" style={styles.retryButton} />
+      </View>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Text variant="l" weight="medium" color={colors.textSecondary}>Your cart is empty</Text>
+        <Button title="Start Shopping" onPress={() => router.push('/dashboard')} style={styles.retryButton} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.push('/dashboard')}
-          style={styles.backButton}
-          accessibilityLabel="Back to dashboard"
-          accessibilityRole="button"
-          accessibilityHint="Go back to the dashboard"
-        >
-          <Text style={styles.backText}>Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Cart Summary</Text>
-        <View style={styles.placeholder} />
+        <Text variant="l" weight="bold">Cart Summary</Text>
+        <View style={{ width: 24 }} />
       </View>
-      {renderContent()}
+
+      <View style={styles.content}>
+        <View style={styles.summaryContainer}>
+          <Text variant="s" color={colors.textSecondary}>Delivery Address</Text>
+          <Text weight="medium">{data!.deliveryAddress.label}</Text>
+          <Text variant="s" color={colors.textSecondary}>
+            {data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}
+          </Text>
+        </View>
+
+        <FlatList
+          data={cartItems}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+        />
+
+        <View style={styles.footer}>
+          <View style={styles.totalRow}>
+            <Text color={colors.textSecondary}>Subtotal</Text>
+            <Text>₹ {data!.subtotal}</Text>
+          </View>
+          <View style={[styles.totalRow, styles.grandTotal]}>
+            <Text weight="bold" variant="l">Grand Total</Text>
+            <Text weight="bold" variant="l" color={colors.primary}>₹ {data!.grandTotal}</Text>
+          </View>
+
+          <Button
+            title="Proceed to Payment"
+            onPress={() => router.push('/dashboard/payment')}
+            style={styles.checkoutButton}
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -158,164 +138,85 @@ export function CartSummary() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111',
-    textAlign: 'center',
-    flex: 1,
+    padding: spacing.m,
+    backgroundColor: colors.surface,
   },
   backButton: {
-    padding: 4,
-  },
-  backText: {
-    fontSize: 16,
-    color: '#007bff',
-  },
-  placeholder: {
-    width: 50,
+    padding: spacing.xs,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.l,
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#d32f2f',
-    textAlign: 'center',
+    marginTop: spacing.s,
   },
   retryButton: {
-    marginTop: 10,
-    backgroundColor: '#007bff',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-  },
-  retryText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    marginTop: spacing.m,
   },
   content: {
     flex: 1,
   },
+  summaryContainer: {
+    padding: spacing.m,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.s,
+  },
   listContainer: {
-    padding: 16,
+    padding: spacing.m,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    padding: 8,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+    marginBottom: spacing.m,
+    padding: spacing.s,
   },
   itemImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 6,
-    marginRight: 12,
+    width: 60,
+    height: 60,
+    borderRadius: spacing.radius.m,
+    marginRight: spacing.m,
+    backgroundColor: colors.background,
   },
   itemDetails: {
     flex: 1,
   },
-  itemName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111',
-  },
-  itemQty: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: '#007bff',
-    marginTop: 2,
-  },
   itemDescription: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
+    marginVertical: 2,
   },
-  itemDeposit: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  itemTotalPrice: {
-    fontSize: 14,
-    color: '#007bff',
-    marginTop: 2,
-  },
-  summaryContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  summaryText: {
-    fontSize: 14,
-    color: '#111',
-    marginBottom: 4,
-  },
-  addressText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 2,
-  },
-  totalContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    alignItems: 'flex-end',
-  },
-  totalText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111',
-  },
-  buttonContainer: {
+  row: {
     flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  checkoutButton: {
-    backgroundColor: '#007bff',
-  },
-  checkoutText: {
-    fontSize: 16,
-    color: '#fff',
+    marginTop: spacing.xs,
+    paddingRight: spacing.s,
   },
   deleteButton: {
-    padding: 8,
+    padding: spacing.s,
+  },
+  footer: {
+    padding: spacing.m,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.s,
+  },
+  grandTotal: {
+    marginBottom: spacing.m,
+  },
+  checkoutButton: {
+    width: '100%',
   },
 });

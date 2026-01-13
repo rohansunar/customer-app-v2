@@ -1,3 +1,6 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
 import { showError, showSuccess } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { AddressForm } from '@/features/address/components/AddressForm';
@@ -14,7 +17,6 @@ import {
   FlatList,
   Modal,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -41,7 +43,7 @@ export default function AddressScreen() {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Text>Error loading addresses: {error.message}</Text>
+        <Text color={colors.error}>Error loading addresses: {error.message}</Text>
       </View>
     );
   }
@@ -124,8 +126,6 @@ export default function AddressScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Addresses</Text>
-
       {addresses && addresses.length > 0 ? (
         <FlatList
           data={addresses}
@@ -136,12 +136,12 @@ export default function AddressScreen() {
         />
       ) : (
         <View style={styles.centered}>
-          <Text>No addresses available</Text>
+          <Text color={colors.textSecondary}>No addresses available</Text>
         </View>
       )}
 
       <TouchableOpacity
-        style={[styles.fab, { backgroundColor: '#007AFF' }]}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
         onPress={handleAddPress}
       >
         <Ionicons name="add" size={24} color="white" />
@@ -156,7 +156,7 @@ export default function AddressScreen() {
         <TouchableOpacity style={styles.modalOverlay} onPress={handleCancel}>
           <TouchableOpacity
             style={styles.modalContent}
-            onPress={() => {}}
+            onPress={() => { }}
             activeOpacity={1}
           >
             <AddressForm
@@ -175,6 +175,7 @@ export default function AddressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   centered: {
     flex: 1,
@@ -189,6 +190,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: 80, // Space for FAB
+    paddingTop: spacing.s,
   },
   fab: {
     position: 'absolute',
@@ -214,12 +216,13 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     maxHeight: '80%',
-    borderRadius: 8,
-    backgroundColor: 'white',
+    borderRadius: spacing.radius.l,
+    backgroundColor: colors.surface,
     elevation: 5,
-    shadowColor: '#0e64e6ff',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    overflow: 'hidden',
   },
 });

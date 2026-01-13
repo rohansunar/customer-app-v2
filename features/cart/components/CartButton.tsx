@@ -1,47 +1,82 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-/**
- * CartButton component for displaying the cart summary and navigation.
- */
 interface CartButtonProps {
   totalItems: number;
 }
 
 export default function CartButton({ totalItems }: CartButtonProps) {
   return (
-    <View style={styles.cartContainer}>
+    <View style={styles.container}>
       <TouchableOpacity
-        style={styles.cartButton}
+        style={styles.cartBar}
         onPress={() => router.push('/dashboard/cart')}
+        activeOpacity={0.8}
       >
-        <Text style={styles.cartText}>
-          {totalItems} {totalItems === 1 ? 'item' : 'items'} added
-        </Text>
+        <View style={styles.leftContent}>
+          <View style={styles.badge}>
+            <Text variant="s" color={colors.white} weight="bold">
+              {totalItems}
+            </Text>
+          </View>
+          <Text variant="m" color={colors.white} weight="semibold">
+            {totalItems === 1 ? 'Item' : 'Items'} added
+          </Text>
+        </View>
+
+        <View style={styles.rightContent}>
+          <Text variant="m" color={colors.white} weight="bold">
+            View Cart
+          </Text>
+          <Ionicons name="arrow-forward" size={18} color={colors.white} style={styles.icon} />
+        </View>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cartContainer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    backgroundColor: '#fff',
+  container: {
+    position: 'absolute',
+    bottom: spacing.m,
+    left: spacing.m,
+    right: spacing.m,
+    zIndex: 100,
   },
-
-  cartButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+  cartBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.m,
+    paddingHorizontal: spacing.l,
+    borderRadius: spacing.radius.xl,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  leftContent: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-
-  cartText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  badge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: spacing.radius.s,
+    paddingHorizontal: spacing.s,
+    paddingVertical: 2,
+    marginRight: spacing.s,
+  },
+  rightContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginLeft: spacing.xs,
   },
 });
