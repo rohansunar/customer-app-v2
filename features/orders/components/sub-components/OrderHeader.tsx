@@ -1,4 +1,8 @@
-import { Text, View } from 'react-native';
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 interface OrderHeaderProps {
   orderNo: string;
@@ -6,55 +10,34 @@ interface OrderHeaderProps {
 }
 
 export default function OrderHeader({ orderNo, createdAt }: OrderHeaderProps) {
-  const formattedDate = new Date(createdAt).toLocaleDateString();
-  const formattedTime = new Date(createdAt).toLocaleTimeString();
+  const dateObj = new Date(createdAt);
+  const formattedDate = dateObj.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const formattedTime = dateObj.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 6,
-      }}
-    >
-      <Text
-        style={{
-          fontSize: 16,
-          fontWeight: '600',
-          color: '#111',
-          fontFamily: 'Inter',
-        }}
-        numberOfLines={1}
-      >
-        OrderID: #{orderNo}
+    <View style={styles.container}>
+      <Text variant="m" weight="bold" color={colors.textPrimary}>
+        #{orderNo}
       </Text>
-      <View
-        style={{
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 12,
-            color: '#666',
-            fontFamily: 'Inter',
-          }}
-        >
-          {formattedDate}
-        </Text>
-        <Text
-          style={{
-            fontSize: 12,
-            color: '#666',
-            marginTop: 2,
-            fontFamily: 'Inter',
-          }}
-        >
-          {formattedTime}
-        </Text>
-      </View>
+      <Text variant="xs" color={colors.textSecondary}>
+        {formattedDate} • {formattedTime}
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.s,
+  },
+});

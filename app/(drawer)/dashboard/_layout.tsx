@@ -33,7 +33,6 @@ export default function DashboardTabsLayout() {
       <Tabs.Screen name="payment" options={{ href: null }} />
       <Tabs.Screen name="cart" options={{ href: null }} />
       <Tabs.Screen name="products/[id]" options={{ href: null }} />
-      <Tabs.Screen name="orders/[id]" options={{ href: null }} />
     </Tabs>
   );
 }

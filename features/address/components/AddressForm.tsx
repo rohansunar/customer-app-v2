@@ -8,12 +8,7 @@ import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { AddressFormProps } from '../types';
 
 export function AddressForm({
@@ -97,10 +92,7 @@ export function AddressForm({
         {['Home', 'Office', 'Restaurant', 'Shop', 'Institution'].map((type) => (
           <TouchableOpacity
             key={type}
-            style={[
-              styles.tab,
-              label === type && styles.activeTab,
-            ]}
+            style={[styles.tab, label === type && styles.activeTab]}
             onPress={() => setLabel(type)}
           >
             <Text
@@ -133,13 +125,18 @@ export function AddressForm({
       <Text variant="s" color={colors.textSecondary} style={styles.label}>
         City
       </Text>
-      <View style={[styles.pickerWrapper, isCitiesLoading && styles.disabledPicker]}>
+      <View
+        style={[styles.pickerWrapper, isCitiesLoading && styles.disabledPicker]}
+      >
         <Picker
           selectedValue={cityId}
           onValueChange={(value) => setCityId(value)}
           enabled={!isCitiesLoading}
         >
-          <Picker.Item label={isCitiesLoading ? "Loading Cities..." : "Select City"} value="" />
+          <Picker.Item
+            label={isCitiesLoading ? 'Loading Cities...' : 'Select City'}
+            value=""
+          />
           {cities?.map((city: any) => (
             <Picker.Item key={city.id} label={city.name} value={city.id} />
           ))}

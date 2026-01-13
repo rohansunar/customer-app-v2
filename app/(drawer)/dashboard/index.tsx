@@ -32,11 +32,7 @@ export default function DashboardScreen() {
         <FlatList
           data={data?.data}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ProductCard
-              product={item}
-            />
-          )}
+          renderItem={({ item }) => <ProductCard product={item} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={

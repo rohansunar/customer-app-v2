@@ -24,9 +24,7 @@ export function ProductCard({ product }: Props) {
   };
 
   return (
-    <Card
-      style={styles.card}
-    >
+    <Card style={styles.card}>
       <View style={styles.content}>
         {/* Product Image */}
         <Image source={imageUri} style={styles.image} />

@@ -1,6 +1,10 @@
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
+import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { useState } from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface OrderModalProps {
   visible: boolean;
@@ -17,103 +21,56 @@ export default function OrderModal({
 
   const handleConfirm = () => {
     onConfirm(cancelReason);
-    onClose();
   };
 
   return (
     <Modal
       visible={visible}
       transparent={true}
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}
     >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: '#fff',
-            padding: 20,
-            borderRadius: 16,
-            width: '80%',
-          }}
-        >
+      <View style={styles.overlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+            <Ionicons name="close" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+
           <Text
-            style={{
-              fontSize: 18,
-              fontWeight: '600',
-              marginBottom: 16,
-              textAlign: 'center',
-              fontFamily: 'Inter',
-            }}
+            variant="l"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.title}
           >
             Cancel Order
           </Text>
-          <Picker
-            selectedValue={cancelReason}
-            onValueChange={(itemValue) => setCancelReason(itemValue)}
-            style={{
-              height: 50,
-              marginBottom: 16,
-            }}
+          <Text
+            variant="s"
+            color={colors.textSecondary}
+            style={styles.subtitle}
           >
-            <Picker.Item label="Changed my mind" value="Changed my mind" />
-            <Picker.Item label="Wrong item" value="Wrong item" />
-            <Picker.Item label="Delivery delay" value="Delivery delay" />
-            <Picker.Item label="Other" value="Other" />
-          </Picker>
+            Please select a reason for cancelling your order:
+          </Text>
+
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={cancelReason}
+              onValueChange={(itemValue) => setCancelReason(itemValue)}
+            >
+              <Picker.Item label="Changed my mind" value="Changed my mind" />
+              <Picker.Item label="Wrong item" value="Wrong item" />
+              <Picker.Item label="Delivery delay" value="Delivery delay" />
+              <Picker.Item label="Other" value="Other" />
+            </Picker>
+          </View>
+
           <TouchableOpacity
-            style={{
-              backgroundColor: '#dc3545',
-              paddingVertical: 10,
-              borderRadius: 8,
-              marginBottom: 8,
-            }}
+            style={styles.confirmButton}
             onPress={handleConfirm}
-            activeOpacity={0.7}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Confirm cancel order"
+            activeOpacity={0.8}
           >
-            <Text
-              style={{
-                color: '#fff',
-                textAlign: 'center',
-                fontSize: 16,
-                fontWeight: '600',
-                fontFamily: 'Inter',
-              }}
-            >
-              Confirm Cancel
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#6c757d',
-              paddingVertical: 10,
-              borderRadius: 8,
-            }}
-            onPress={onClose}
-            activeOpacity={0.7}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Close modal"
-          >
-            <Text
-              style={{
-                color: '#fff',
-                textAlign: 'center',
-                fontSize: 16,
-                fontWeight: '600',
-                fontFamily: 'Inter',
-              }}
-            >
-              Close
+            <Text variant="m" weight="bold" color={colors.surface}>
+              Confirm Cancellation
             </Text>
           </TouchableOpacity>
         </View>
@@ -121,3 +78,52 @@ export default function OrderModal({
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    padding: spacing.l,
+    borderRadius: spacing.radius.l,
+    width: '85%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    position: 'relative',
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: spacing.m,
+    right: spacing.m,
+    zIndex: 1,
+  },
+  title: {
+    marginBottom: spacing.s,
+    textAlign: 'center',
+    marginTop: spacing.s,
+  },
+  subtitle: {
+    marginBottom: spacing.m,
+    textAlign: 'center',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: spacing.radius.m,
+    marginBottom: spacing.l,
+    backgroundColor: colors.background,
+  },
+  confirmButton: {
+    backgroundColor: colors.error,
+    paddingVertical: spacing.m,
+    borderRadius: spacing.radius.m,
+    alignItems: 'center',
+  },
+});

@@ -1,4 +1,8 @@
-import { Text, TouchableOpacity } from 'react-native';
+import { colors } from '@/core/theme/colors';
+import { spacing } from '@/core/theme/spacing';
+import { Text } from '@/core/ui/Text';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
 interface CancelButtonProps {
   onPress: () => void;
@@ -7,14 +11,7 @@ interface CancelButtonProps {
 export default function CancelButton({ onPress }: CancelButtonProps) {
   return (
     <TouchableOpacity
-      style={{
-        marginTop: 12,
-        backgroundColor: '#dc3545',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 8,
-        alignSelf: 'flex-start',
-      }}
+      style={styles.button}
       onPress={onPress}
       activeOpacity={0.7}
       accessible={true}
@@ -22,16 +19,25 @@ export default function CancelButton({ onPress }: CancelButtonProps) {
       accessibilityLabel="Cancel order"
       accessibilityHint="Opens a modal to select cancellation reason"
     >
-      <Text
-        style={{
-          color: '#fff',
-          fontSize: 14,
-          fontWeight: '600',
-          fontFamily: 'Inter',
-        }}
-      >
+      <Text variant="s" weight="bold" color={colors.surface}>
         Cancel Order
       </Text>
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    marginTop: spacing.m,
+    backgroundColor: colors.error,
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.m,
+    alignSelf: 'flex-start',
+    shadowColor: colors.error,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+});

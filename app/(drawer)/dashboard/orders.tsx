@@ -3,7 +3,6 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import OrderCard from '@/features/orders/components/OrderCard';
 import { useOrders } from '@/features/orders/hooks/useOrders';
-import { router } from 'expo-router';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
 /**
@@ -37,7 +36,6 @@ export default function OrdersTab() {
         renderItem={({ item }) => (
           <OrderCard
             order={item}
-            onPress={() => router.push(`/dashboard/orders/${item.id}`)}
           />
         )}
         contentContainerStyle={styles.list}
