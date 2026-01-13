@@ -32,6 +32,8 @@ export function AppDrawerContent(props: any) {
             const isFocused = props.state.index === index;
 
             // Skip hidden items if needed, or map names
+            if (routeName === 'profile') return null;
+
             let label = routeName;
             if (routeName === 'dashboard') label = 'Home';
 
