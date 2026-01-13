@@ -1,3 +1,4 @@
+import { useAuth } from '@/core/providers/AuthProvider';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
@@ -5,13 +6,15 @@ import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { IconSymbol } from '../../components/ui/icon-symbol';
 
 export default function ProfileScreen() {
   const { data, isLoading, error } = useProfile();
   const { mutate, isPending } = useUpdateProfile();
+  const { logout } = useAuth();
 
   // Local editable state
   const [name, setName] = useState('');
@@ -24,6 +27,11 @@ export default function ProfileScreen() {
       setEmail(data.email);
     }
   }, [data]);
+
+  async function handleLogout() {
+    await logout();
+    router.replace('/login');
+  }
 
   if (isLoading) {
     return (
@@ -62,6 +70,11 @@ export default function ProfileScreen() {
         <Text variant="xl" weight="bold" color={colors.primary}>
           Profile
         </Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Text color={colors.error} weight="bold">
+            Logout
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.card}>
@@ -135,6 +148,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: spacing.l,
   },
   card: {

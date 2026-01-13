@@ -1,19 +1,10 @@
-import { useAuth } from '@/core/providers/AuthProvider';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 export function AppDrawerContent(props: any) {
-  const { logout } = useAuth();
-
-  async function handleLogout() {
-    await logout();
-    router.replace('/login');
-  }
-
   return (
     <DrawerContentScrollView
       {...props}
@@ -63,19 +54,6 @@ export function AppDrawerContent(props: any) {
             />
           );
         })}
-      </View>
-
-      <View style={styles.footer}>
-        <View style={styles.divider} />
-        <DrawerItem
-          label={({ color }) => (
-            <Text weight="medium" color={colors.error}>
-              Logout
-            </Text>
-          )}
-          onPress={handleLogout}
-          style={styles.item}
-        />
       </View>
     </DrawerContentScrollView>
   );
