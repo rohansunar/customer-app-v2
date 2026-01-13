@@ -59,7 +59,9 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text variant="xl" weight="bold" color={colors.primary}>Profile</Text>
+        <Text variant="xl" weight="bold" color={colors.primary}>
+          Profile
+        </Text>
       </View>
 
       <View style={styles.card}>
@@ -68,7 +70,9 @@ export default function ProfileScreen() {
           <Text weight="medium">Account Status</Text>
           <View style={styles.statusBadge}>
             <IconSymbol
-              name={data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'}
+              name={
+                data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'
+              }
               size={20}
               color={data.isActive ? colors.success : colors.error}
             />

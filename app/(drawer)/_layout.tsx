@@ -25,7 +25,7 @@ export default function DrawerLayout() {
           name="profile"
           options={{
             title: 'My Profile',
-            drawerItemStyle: { display: 'none' }
+            drawerItemStyle: { display: 'none' },
           }}
         />
         <Drawer.Screen name="address" options={{ title: 'Addresses' }} />

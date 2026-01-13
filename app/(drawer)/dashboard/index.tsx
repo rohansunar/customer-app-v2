@@ -10,7 +10,7 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 
 import CartButton from '@/features/cart/components/CartButton';
@@ -26,7 +26,9 @@ export default function DashboardScreen() {
       {isLoading ? (
         <ActivityIndicator size="large" color={colors.primary} />
       ) : error ? (
-        <Text color={colors.error} centered style={styles.errorText}>Error loading products</Text>
+        <Text color={colors.error} centered style={styles.errorText}>
+          Error loading products
+        </Text>
       ) : (
         <FlatList
           data={data?.data}
@@ -40,7 +42,11 @@ export default function DashboardScreen() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={colors.primary} />
+            <RefreshControl
+              refreshing={isFetching}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+            />
           }
         />
       )}

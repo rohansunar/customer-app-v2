@@ -7,7 +7,14 @@ import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
 import { isValidPhone } from '@/shared/utils/phoneValidator';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
@@ -18,7 +25,10 @@ export default function LoginScreen() {
     const cleanPhone = phone.trim();
 
     if (!isValidPhone(cleanPhone)) {
-      Alert.alert('Invalid Phone', 'Please enter a valid 10-digit phone number.');
+      Alert.alert(
+        'Invalid Phone',
+        'Please enter a valid 10-digit phone number.',
+      );
       return;
     }
 
@@ -49,7 +59,12 @@ export default function LoginScreen() {
           <Text variant="xl" weight="bold" color={colors.primary} centered>
             Welcome Back
           </Text>
-          <Text variant="m" color={colors.textSecondary} centered style={styles.subtitle}>
+          <Text
+            variant="m"
+            color={colors.textSecondary}
+            centered
+            style={styles.subtitle}
+          >
             Enter your phone number to continue
           </Text>
         </View>

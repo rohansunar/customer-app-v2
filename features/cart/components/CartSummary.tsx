@@ -12,7 +12,7 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { useCart } from '../hooks/useCart';
 import { useRemoveFromCart } from '../hooks/useRemoveFromCart';
@@ -24,41 +24,51 @@ export function CartSummary() {
 
   const cartItems = data?.cartItems || [];
 
-  const renderItem = useCallback(({ item }: { item: CartItem }) => {
-    const imageUri =
-      item.images && item.images.length > 0
-        ? { uri: item.images[0] }
-        : require('@/assets/images/product-placeholder.png');
+  const renderItem = useCallback(
+    ({ item }: { item: CartItem }) => {
+      const imageUri =
+        item.images && item.images.length > 0
+          ? { uri: item.images[0] }
+          : require('@/assets/images/product-placeholder.png');
 
-    return (
-      <Card
-        style={styles.itemContainer}
-        accessible={true}
-        accessibilityLabel={`Cart item: ${item.name}, qty ${item.quantity}, price ${item.price}`}
-      >
-        <Image source={imageUri} style={styles.itemImage} />
-        <View style={styles.itemDetails}>
-          <Text weight="semibold" numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text variant="s" color={colors.textSecondary} numberOfLines={2} style={styles.itemDescription}>
-            {item.description}
-          </Text>
-          <View style={styles.row}>
-            <Text variant="s">Qty: {item.quantity}</Text>
-            <Text variant="s" color={colors.primary} weight="semibold">₹ {item.totalPrice}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          onPress={() => removeFromCart.mutate(item.id)}
-          style={styles.deleteButton}
-          hitSlop={8}
+      return (
+        <Card
+          style={styles.itemContainer}
+          accessible={true}
+          accessibilityLabel={`Cart item: ${item.name}, qty ${item.quantity}, price ${item.price}`}
         >
-          <Ionicons name="trash-outline" size={20} color={colors.error} />
-        </TouchableOpacity>
-      </Card>
-    );
-  }, [removeFromCart.mutate]);
+          <Image source={imageUri} style={styles.itemImage} />
+          <View style={styles.itemDetails}>
+            <Text weight="semibold" numberOfLines={1}>
+              {item.name}
+            </Text>
+            <Text
+              variant="s"
+              color={colors.textSecondary}
+              numberOfLines={2}
+              style={styles.itemDescription}
+            >
+              {item.description}
+            </Text>
+            <View style={styles.row}>
+              <Text variant="s">Qty: {item.quantity}</Text>
+              <Text variant="s" color={colors.primary} weight="semibold">
+                ₹ {item.totalPrice}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={() => removeFromCart.mutate(item.id)}
+            style={styles.deleteButton}
+            hitSlop={8}
+          >
+            <Ionicons name="trash-outline" size={20} color={colors.error} />
+          </TouchableOpacity>
+        </Card>
+      );
+    },
+    [removeFromCart.mutate],
+  );
 
   if (isLoading) {
     return (
@@ -73,7 +83,12 @@ export function CartSummary() {
     return (
       <View style={styles.center}>
         <Text color={colors.error}>Error loading cart</Text>
-        <Button title="Go to Products" onPress={() => router.push('/dashboard')} variant="outline" style={styles.retryButton} />
+        <Button
+          title="Go to Products"
+          onPress={() => router.push('/dashboard')}
+          variant="outline"
+          style={styles.retryButton}
+        />
       </View>
     );
   }
@@ -81,8 +96,14 @@ export function CartSummary() {
   if (cartItems.length === 0) {
     return (
       <View style={styles.center}>
-        <Text variant="l" weight="medium" color={colors.textSecondary}>Your cart is empty</Text>
-        <Button title="Start Shopping" onPress={() => router.push('/dashboard')} style={styles.retryButton} />
+        <Text variant="l" weight="medium" color={colors.textSecondary}>
+          Your cart is empty
+        </Text>
+        <Button
+          title="Start Shopping"
+          onPress={() => router.push('/dashboard')}
+          style={styles.retryButton}
+        />
       </View>
     );
   }
@@ -90,19 +111,27 @@ export function CartSummary() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text variant="l" weight="bold">Cart Summary</Text>
+        <Text variant="l" weight="bold">
+          Cart Summary
+        </Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.summaryContainer}>
-          <Text variant="s" color={colors.textSecondary}>Delivery Address</Text>
+          <Text variant="s" color={colors.textSecondary}>
+            Delivery Address
+          </Text>
           <Text weight="medium">{data!.deliveryAddress.label}</Text>
           <Text variant="s" color={colors.textSecondary}>
-            {data!.deliveryAddress.address}, {data!.deliveryAddress.city} - {data!.deliveryAddress.pincode}
+            {data!.deliveryAddress.address}, {data!.deliveryAddress.city} -{' '}
+            {data!.deliveryAddress.pincode}
           </Text>
         </View>
 
@@ -120,8 +149,12 @@ export function CartSummary() {
             <Text>₹ {data!.subtotal}</Text>
           </View>
           <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text weight="bold" variant="l">Grand Total</Text>
-            <Text weight="bold" variant="l" color={colors.primary}>₹ {data!.grandTotal}</Text>
+            <Text weight="bold" variant="l">
+              Grand Total
+            </Text>
+            <Text weight="bold" variant="l" color={colors.primary}>
+              ₹ {data!.grandTotal}
+            </Text>
           </View>
 
           <Button

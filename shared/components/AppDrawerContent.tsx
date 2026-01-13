@@ -15,7 +15,10 @@ export function AppDrawerContent(props: any) {
   }
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.container}>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.header}>
         <Text variant="xl" weight="bold" color={colors.primary}>
           Water App
@@ -26,46 +29,49 @@ export function AppDrawerContent(props: any) {
       </View>
 
       <View style={styles.itemsContainer}>
-        {props.state.routeNames.map(
-          (routeName: string, index: number) => {
-            const route = props.state.routes[index];
-            const isFocused = props.state.index === index;
+        {props.state.routeNames.map((routeName: string, index: number) => {
+          const route = props.state.routes[index];
+          const isFocused = props.state.index === index;
 
-            // Skip hidden items if needed, or map names
-            if (routeName === 'profile') return null;
+          // Skip hidden items if needed, or map names
+          if (routeName === 'profile') return null;
 
-            let label = routeName;
-            if (routeName === 'dashboard') label = 'Home';
+          let label = routeName;
+          if (routeName === 'dashboard') label = 'Home';
 
-            return (
-              <DrawerItem
-                key={route.key}
-                label={({ color }) => (
-                  <Text weight={isFocused ? "bold" : "medium"} color={isFocused ? colors.primary : colors.textPrimary}>
-                    {label.charAt(0).toUpperCase() + label.slice(1)}
-                  </Text>
-                )}
-                focused={isFocused}
-                activeBackgroundColor={colors.surfaceHighlight}
-                onPress={() => {
-                  if (routeName === 'dashboard') {
-                    props.navigation.navigate('dashboard', { screen: 'index' });
-                  } else {
-                    props.navigation.navigate(routeName);
-                  }
-                }}
-                style={styles.item}
-              />
-            );
-          }
-        )}
+          return (
+            <DrawerItem
+              key={route.key}
+              label={({ color }) => (
+                <Text
+                  weight={isFocused ? 'bold' : 'medium'}
+                  color={isFocused ? colors.primary : colors.textPrimary}
+                >
+                  {label.charAt(0).toUpperCase() + label.slice(1)}
+                </Text>
+              )}
+              focused={isFocused}
+              activeBackgroundColor={colors.surfaceHighlight}
+              onPress={() => {
+                if (routeName === 'dashboard') {
+                  props.navigation.navigate('dashboard', { screen: 'index' });
+                } else {
+                  props.navigation.navigate(routeName);
+                }
+              }}
+              style={styles.item}
+            />
+          );
+        })}
       </View>
 
       <View style={styles.footer}>
         <View style={styles.divider} />
         <DrawerItem
           label={({ color }) => (
-            <Text weight="medium" color={colors.error}>Logout</Text>
+            <Text weight="medium" color={colors.error}>
+              Logout
+            </Text>
           )}
           onPress={handleLogout}
           style={styles.item}

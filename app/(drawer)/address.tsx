@@ -43,7 +43,9 @@ export default function AddressScreen() {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Text color={colors.error}>Error loading addresses: {error.message}</Text>
+        <Text color={colors.error}>
+          Error loading addresses: {error.message}
+        </Text>
       </View>
     );
   }
@@ -156,7 +158,7 @@ export default function AddressScreen() {
         <TouchableOpacity style={styles.modalOverlay} onPress={handleCancel}>
           <TouchableOpacity
             style={styles.modalContent}
-            onPress={() => { }}
+            onPress={() => {}}
             activeOpacity={1}
           >
             <AddressForm

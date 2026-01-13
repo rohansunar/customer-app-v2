@@ -10,12 +10,14 @@ export default function OrderHeader({ orderNo, createdAt }: OrderHeaderProps) {
   const formattedTime = new Date(createdAt).toLocaleTimeString();
 
   return (
-    <View style={{
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: 6,
-    }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 6,
+      }}
+    >
       <Text
         style={{
           fontSize: 16,
@@ -27,23 +29,29 @@ export default function OrderHeader({ orderNo, createdAt }: OrderHeaderProps) {
       >
         OrderID: #{orderNo}
       </Text>
-      <View style={{
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-      }}>
-        <Text style={{
-          fontSize: 12,
-          color: '#666',
-          fontFamily: 'Inter',
-        }}>
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 12,
+            color: '#666',
+            fontFamily: 'Inter',
+          }}
+        >
           {formattedDate}
         </Text>
-        <Text style={{
-          fontSize: 12,
-          color: '#666',
-          marginTop: 2,
-          fontFamily: 'Inter',
-        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: '#666',
+            marginTop: 2,
+            fontFamily: 'Inter',
+          }}
+        >
           {formattedTime}
         </Text>
       </View>

@@ -22,12 +22,14 @@ export default function CancelButton({ onPress }: CancelButtonProps) {
       accessibilityLabel="Cancel order"
       accessibilityHint="Opens a modal to select cancellation reason"
     >
-      <Text style={{
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-        fontFamily: 'Inter',
-      }}>
+      <Text
+        style={{
+          color: '#fff',
+          fontSize: 14,
+          fontWeight: '600',
+          fontFamily: 'Inter',
+        }}
+      >
         Cancel Order
       </Text>
     </TouchableOpacity>

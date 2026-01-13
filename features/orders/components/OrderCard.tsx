@@ -33,17 +33,21 @@ function OrderCardComponent({ order, loading, onPress }: Props) {
     setIsModalVisible(false);
   }, []);
 
-  const handleConfirmCancel = useCallback((cancelReason: string) => {
-    if (order) {
-      cancelOrderMutation.mutate({ orderId: order.id, cancelReason });
-    }
-  }, [cancelOrderMutation, order]);
+  const handleConfirmCancel = useCallback(
+    (cancelReason: string) => {
+      if (order) {
+        cancelOrderMutation.mutate({ orderId: order.id, cancelReason });
+      }
+    },
+    [cancelOrderMutation, order],
+  );
 
   if (loading || !order) {
     return <OrderCardSkeleton />;
   }
 
-  const canCancel = order.status !== 'CANCELLED' && order.status !== 'DELIVERED';
+  const canCancel =
+    order.status !== 'CANCELLED' && order.status !== 'DELIVERED';
 
   return (
     <Card

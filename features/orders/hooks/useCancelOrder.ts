@@ -13,8 +13,13 @@ export function useCancelOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ orderId, cancelReason }: { orderId: string; cancelReason: string }) =>
-      orderService.cancelOrder(orderId, cancelReason),
+    mutationFn: ({
+      orderId,
+      cancelReason,
+    }: {
+      orderId: string;
+      cancelReason: string;
+    }) => orderService.cancelOrder(orderId, cancelReason),
     onSuccess: () => {
       showSuccess('Order cancelled successfully');
       queryClient.invalidateQueries({ queryKey: ['orders'] });

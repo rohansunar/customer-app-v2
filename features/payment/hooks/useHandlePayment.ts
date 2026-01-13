@@ -29,7 +29,7 @@ export function useHandlePayment(cartId: string) {
         onError: (error) => {
           showError(getErrorMessage(error));
         },
-      }
+      },
     );
   };
 

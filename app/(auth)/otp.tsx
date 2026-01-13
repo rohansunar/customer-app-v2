@@ -6,7 +6,14 @@ import { Text } from '@/core/ui/Text';
 import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 
 export default function OtpScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
@@ -49,7 +56,12 @@ export default function OtpScreen() {
         <Text variant="xl" weight="bold" color={colors.primary} centered>
           Enter Verification Code
         </Text>
-        <Text variant="s" color={colors.textSecondary} centered style={styles.subtitle}>
+        <Text
+          variant="s"
+          color={colors.textSecondary}
+          centered
+          style={styles.subtitle}
+        >
           We sent a code to {phone}
         </Text>
       </View>

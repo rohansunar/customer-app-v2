@@ -32,7 +32,9 @@ export function AddressItem({
     >
       <View style={styles.content}>
         <View style={styles.textContainer}>
-          <Text weight="semibold" variant="m">{displayLabel}</Text>
+          <Text weight="semibold" variant="m">
+            {displayLabel}
+          </Text>
           <Text variant="s" color={colors.textSecondary} style={styles.address}>
             {address.address}
           </Text>

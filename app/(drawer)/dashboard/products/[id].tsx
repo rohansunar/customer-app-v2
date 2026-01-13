@@ -11,15 +11,25 @@ export default function ProductDetailScreen() {
   const { data, isLoading } = useProduct(id);
 
   if (!id) {
-    return <View style={styles.centered}><Text>Invalid product ID</Text></View>;
+    return (
+      <View style={styles.centered}>
+        <Text>Invalid product ID</Text>
+      </View>
+    );
   }
 
   if (isLoading || !data)
-    return <View style={styles.centered}><Text>Loading...</Text></View>;
+    return (
+      <View style={styles.centered}>
+        <Text>Loading...</Text>
+      </View>
+    );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="xl" weight="bold" style={styles.title}>{data.name}</Text>
+      <Text variant="xl" weight="bold" style={styles.title}>
+        {data.name}
+      </Text>
 
       {/* Images */}
       {data.images && data.images.length > 0 && (
@@ -33,20 +43,47 @@ export default function ProductDetailScreen() {
       {/* Details */}
       <Card style={styles.details}>
         <View style={styles.row}>
-          <Text variant="l" weight="bold" color={colors.primary}>₹ {data.price}</Text>
-          <View style={[styles.badge, { backgroundColor: data.is_active ? colors.success + '20' : colors.error + '20' }]}>
-            <Text variant="s" color={data.is_active ? colors.success : colors.error} weight="medium">
+          <Text variant="l" weight="bold" color={colors.primary}>
+            ₹ {data.price}
+          </Text>
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor: data.is_active
+                  ? colors.success + '20'
+                  : colors.error + '20',
+              },
+            ]}
+          >
+            <Text
+              variant="s"
+              color={data.is_active ? colors.success : colors.error}
+              weight="medium"
+            >
               {data.is_active ? 'Active' : 'Inactive'}
             </Text>
           </View>
         </View>
 
-        <Text variant="s" color={colors.textSecondary} style={styles.sectionTitle}>Category</Text>
+        <Text
+          variant="s"
+          color={colors.textSecondary}
+          style={styles.sectionTitle}
+        >
+          Category
+        </Text>
         <Text style={styles.value}>{data.categoryId}</Text>
 
         {data.description && (
           <>
-            <Text variant="s" color={colors.textSecondary} style={styles.sectionTitle}>Description</Text>
+            <Text
+              variant="s"
+              color={colors.textSecondary}
+              style={styles.sectionTitle}
+            >
+              Description
+            </Text>
             <Text style={styles.value}>{data.description}</Text>
           </>
         )}

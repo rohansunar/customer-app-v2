@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { useHandlePayment } from '../hooks/useHandlePayment';
 import { PaymentMode } from '../types';
@@ -17,9 +17,10 @@ import { PaymentMode } from '../types';
  * It displays payment options with visual selection indicators and handles payment processing.
  */
 export function PaymentPage() {
-   const { data, isLoading, error } = useCart();
-   const { handlePayment, isPending } = useHandlePayment(data?.cartId || '');
-   const [selectedPaymentMode, setSelectedPaymentMode] = useState<PaymentMode | null>(null);
+  const { data, isLoading, error } = useCart();
+  const { handlePayment, isPending } = useHandlePayment(data?.cartId || '');
+  const [selectedPaymentMode, setSelectedPaymentMode] =
+    useState<PaymentMode | null>(null);
 
   const paymentModes: PaymentMode[] = ['Cash', 'Online', 'Monthly'];
 

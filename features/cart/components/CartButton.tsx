@@ -32,7 +32,12 @@ export default function CartButton({ totalItems }: CartButtonProps) {
           <Text variant="m" color={colors.white} weight="bold">
             View Cart
           </Text>
-          <Ionicons name="arrow-forward" size={18} color={colors.white} style={styles.icon} />
+          <Ionicons
+            name="arrow-forward"
+            size={18}
+            color={colors.white}
+            style={styles.icon}
+          />
         </View>
       </TouchableOpacity>
     </View>

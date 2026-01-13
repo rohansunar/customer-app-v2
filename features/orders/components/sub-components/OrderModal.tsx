@@ -8,7 +8,11 @@ interface OrderModalProps {
   onConfirm: (reason: string) => void;
 }
 
-export default function OrderModal({ visible, onClose, onConfirm }: OrderModalProps) {
+export default function OrderModal({
+  visible,
+  onClose,
+  onConfirm,
+}: OrderModalProps) {
   const [cancelReason, setCancelReason] = useState('Changed my mind');
 
   const handleConfirm = () => {
@@ -23,25 +27,31 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-      }}>
-        <View style={{
-          backgroundColor: '#fff',
-          padding: 20,
-          borderRadius: 16,
-          width: '80%',
-        }}>
-          <Text style={{
-            fontSize: 18,
-            fontWeight: '600',
-            marginBottom: 16,
-            textAlign: 'center',
-            fontFamily: 'Inter',
-          }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: '#fff',
+            padding: 20,
+            borderRadius: 16,
+            width: '80%',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '600',
+              marginBottom: 16,
+              textAlign: 'center',
+              fontFamily: 'Inter',
+            }}
+          >
             Cancel Order
           </Text>
           <Picker
@@ -70,13 +80,15 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
             accessibilityRole="button"
             accessibilityLabel="Confirm cancel order"
           >
-            <Text style={{
-              color: '#fff',
-              textAlign: 'center',
-              fontSize: 16,
-              fontWeight: '600',
-              fontFamily: 'Inter',
-            }}>
+            <Text
+              style={{
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 16,
+                fontWeight: '600',
+                fontFamily: 'Inter',
+              }}
+            >
               Confirm Cancel
             </Text>
           </TouchableOpacity>
@@ -92,13 +104,15 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
             accessibilityRole="button"
             accessibilityLabel="Close modal"
           >
-            <Text style={{
-              color: '#fff',
-              textAlign: 'center',
-              fontSize: 16,
-              fontWeight: '600',
-              fontFamily: 'Inter',
-            }}>
+            <Text
+              style={{
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 16,
+                fontWeight: '600',
+                fontFamily: 'Inter',
+              }}
+            >
               Close
             </Text>
           </TouchableOpacity>
