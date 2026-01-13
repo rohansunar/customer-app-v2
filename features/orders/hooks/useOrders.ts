@@ -2,9 +2,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { orderService } from '../services/orderService';
 
-export function useOrders() {
+export function useOrders(statuses?: string[]) {
   return useQuery({
-    queryKey: ['orders'],
-    queryFn: orderService.getOrders,
+    queryKey: ['orders', statuses],
+    queryFn: () => orderService.getOrders(statuses),
   });
 }

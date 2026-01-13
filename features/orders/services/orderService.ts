@@ -3,9 +3,10 @@ import { API_ENDPOINTS } from '@/core/api/endpoints';
 import { Order, OrdersResponse } from '../types';
 
 export const orderService = {
-  getOrders(): Promise<OrdersResponse> {
+  getOrders(statuses?: string[]): Promise<OrdersResponse> {
+    const params = statuses && statuses.length > 0 ? { status: statuses.join(',') } : {};
     return apiClient
-      .get(`${API_ENDPOINTS.CUSTOMER_ORDER}`)
+      .get(`${API_ENDPOINTS.CUSTOMER_ORDER}`, { params })
       .then((res) => res.data);
   },
 
