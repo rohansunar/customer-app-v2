@@ -10,7 +10,6 @@ import { authService } from '../services/authService';
 export function useRequestOtp() {
   return useMutation({
     mutationFn: (phone: string) => {
-      // console.log('useRequestOtp mutationFn called with phone:', phone);
       return authService.requestOtp(phone);
     },
   });
