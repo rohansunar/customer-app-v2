@@ -62,10 +62,16 @@ export function SubscriptionCard({ subscription, productName }: Props) {
           <Badge
             label={isActive ? 'ACTIVE' : 'PAUSED'}
             backgroundColor={
-              isActive ? statusColors.ACTIVE.background : statusColors.PAUSED.background
+              isActive
+                ? statusColors.ACTIVE.background
+                : statusColors.PAUSED.background
             }
-            textColor={isActive ? statusColors.ACTIVE.text : statusColors.PAUSED.text}
-            borderColor={isActive ? statusColors.ACTIVE.border : statusColors.PAUSED.border}
+            textColor={
+              isActive ? statusColors.ACTIVE.text : statusColors.PAUSED.text
+            }
+            borderColor={
+              isActive ? statusColors.ACTIVE.border : statusColors.PAUSED.border
+            }
           />
         </View>
 

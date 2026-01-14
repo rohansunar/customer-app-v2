@@ -8,7 +8,10 @@ interface StatusBadgeProps {
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const styles = statusColors[status] || { background: '#F0F0F0', text: '#333' };
+  const styles = statusColors[status] || {
+    background: '#F0F0F0',
+    text: '#333',
+  };
 
   return (
     <Badge
