@@ -70,7 +70,7 @@ export function AddressPickerModal({
     (id: string) => {
       deleteMutation.mutate(id, {
         onSuccess: () => {
-          showSuccess('Address deleted');
+          // showSuccess('Address deleted');
         },
         onError: (error) => {
           showError(getErrorMessage(error));
