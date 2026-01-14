@@ -15,24 +15,22 @@ export function ReferralBanner({ onPressItem }: Props) {
   return (
     <Card style={styles.container}>
       <View style={styles.content}>
-        <View style={styles.textSection}>
+        <Ionicons name="gift" size={32} color={colors.white} opacity={0.3} />
+        <View style={styles.textContainer}>
           <Text variant="s" weight="bold" color={colors.white}>
             Refer & Get 2 Free Jars!
           </Text>
           <Text variant="xs" color={colors.white} style={styles.subtitle}>
             Invite friends and earn rewards.
           </Text>
-          <Button
-            title="Invite Now"
-            onPress={onPressItem}
-            variant="ghost"
-            style={styles.ctaButton}
-            textStyle={styles.ctaText}
-          />
         </View>
-        <View style={styles.iconSection}>
-          <Ionicons name="gift" size={32} color={colors.white} opacity={0.3} />
-        </View>
+        <Button
+          title="Invite Now"
+          onPress={onPressItem}
+          variant="ghost"
+          style={styles.ctaButton}
+          textStyle={styles.ctaText}
+        />
       </View>
     </Card>
   );
@@ -46,36 +44,36 @@ const styles = StyleSheet.create({
     padding: 0,
     borderWidth: 0,
   },
+
   content: {
     flexDirection: 'row',
     padding: spacing.s,
     alignItems: 'center',
   },
-  textSection: {
-    flex: 2,
+
+  textContainer: {
+    flex: 1,
+    marginLeft: spacing.m,
   },
+
   subtitle: {
     marginTop: 0,
     marginBottom: spacing.xs,
     lineHeight: 14,
     opacity: 0.9,
   },
+
   ctaButton: {
     backgroundColor: colors.white,
     paddingVertical: 4,
     paddingHorizontal: spacing.m,
     borderRadius: spacing.radius.s,
-    alignSelf: 'flex-start',
     minHeight: 28,
   },
+
   ctaText: {
     color: colors.primary,
     fontWeight: 'bold',
     fontSize: 12,
-  },
-  iconSection: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
   },
 });
