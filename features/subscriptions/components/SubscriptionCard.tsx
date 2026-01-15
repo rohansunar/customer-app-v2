@@ -141,7 +141,6 @@ export function SubscriptionCard({ subscription, productName }: Props) {
       <SubscriptionModal
         visible={isEditVisible}
         onClose={() => setIsEditVisible(false)}
-        productId={subscription.productId}
         productName={productName}
         existingSubscription={subscription}
       />

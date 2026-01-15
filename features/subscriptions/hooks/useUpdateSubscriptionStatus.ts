@@ -1,6 +1,5 @@
-import { showError } from '@/core/ui/toast';
+import { showError, showSuccess } from '@/core/ui/toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import Toast from 'react-native-toast-message';
 import { subscriptionService } from '../services/subscriptionService';
 
 /**
@@ -14,12 +13,7 @@ export function useUpdateSubscriptionStatus() {
       subscriptionService.updateSubscriptionStatus(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-
-      Toast.show({
-        type: 'success',
-        text1: `Subscription ${data.status === 'ACTIVE' ? 'Resumed' : 'Paused'}`,
-        text2: `Your subscription has been successfully ${data.status === 'ACTIVE' ? 'resumed' : 'paused'}.`,
-      });
+      showSuccess(`Subscription ${data.status === 'ACTIVE' ? 'Resumed' : 'Paused'}`);
     },
     onError: (error) => {
       console.log('Subscription update failed:', error);

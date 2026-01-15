@@ -22,7 +22,6 @@ import { CalendarPicker } from './CalendarPicker';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  productId: string;
   productName: string;
   existingSubscription?: Subscription;
 }
@@ -40,7 +39,6 @@ const DAYS: DayOfWeek[] = [
 export function SubscriptionModal({
   visible,
   onClose,
-  productId,
   productName,
   existingSubscription,
 }: Props) {
@@ -55,7 +53,6 @@ export function SubscriptionModal({
 
   const handleSave = () => {
     const payload: SubscriptionRequest = {
-      productId,
       frequency: form.state.frequency,
       start_date: form.state.selectedDate.toISOString().split('T')[0],
       custom_days:
