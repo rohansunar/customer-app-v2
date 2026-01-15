@@ -14,7 +14,11 @@ import { AddressMapSectionProps } from '../types';
  * @param lng - Longitude for map center
  * @param onRegionChange - Callback for map region changes
  */
-export function AddressMapSection({ lat, lng, onRegionChange }: AddressMapSectionProps) {
+export function AddressMapSection({
+  lat,
+  lng,
+  onRegionChange,
+}: AddressMapSectionProps) {
   const hasValidCoordinates = lat !== 0 && lng !== 0;
 
   if (!hasValidCoordinates) {

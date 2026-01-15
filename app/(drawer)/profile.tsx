@@ -44,7 +44,23 @@ export default function ProfileScreen() {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Text color={colors.error}>Error loading profile: {error.message}</Text>
+        <Text
+          variant="xl"
+          weight="bold"
+          color={colors.error}
+          style={styles.errorTitle}
+        >
+          Error Loading Profile
+        </Text>
+        <Text color={colors.error} style={styles.errorMessage}>
+          We encountered an issue while loading your profile. Please try logging
+          out and logging back in.
+        </Text>
+        <Button
+          title="Logout"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+        />
       </View>
     );
   }
@@ -52,7 +68,23 @@ export default function ProfileScreen() {
   if (!data) {
     return (
       <View style={styles.centered}>
-        <Text>No profile data available.</Text>
+        <Text
+          variant="xl"
+          weight="bold"
+          color={colors.primary}
+          style={styles.emptyTitle}
+        >
+          No Profile Data Available
+        </Text>
+        <Text color={colors.textSecondary} style={styles.emptyMessage}>
+          It seems your profile data is not available. Please try logging out
+          and logging back in.
+        </Text>
+        <Button
+          title="Logout"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+        />
       </View>
     );
   }
@@ -146,6 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: spacing.l,
   },
   header: {
     flexDirection: 'row',
@@ -175,5 +208,27 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.m,
+  },
+  errorTitle: {
+    marginBottom: spacing.s,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    marginBottom: spacing.xl,
+    textAlign: 'center',
+    maxWidth: '80%',
+  },
+  emptyTitle: {
+    marginBottom: spacing.s,
+    textAlign: 'center',
+  },
+  emptyMessage: {
+    marginBottom: spacing.xl,
+    textAlign: 'center',
+    maxWidth: '80%',
+  },
+  logoutButton: {
+    marginTop: spacing.l,
+    width: '60%',
   },
 });

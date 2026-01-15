@@ -1,24 +1,33 @@
-export type SubscriptionType = 'DAILY' | 'ALTERNATE' | 'CUSTOM';
+export type SubscriptionType = 'DAILY' | 'ALTERNATIVE_DAYS' | 'CUSTOM_DAYS';
 
 export type DayOfWeek =
-  | 'Monday'
-  | 'Tuesday'
-  | 'Wednesday'
-  | 'Thursday'
-  | 'Friday'
-  | 'Saturday'
-  | 'Sunday';
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
 
 export interface SubscriptionRequest {
   productId: string;
-  type: SubscriptionType;
-  customDays?: DayOfWeek[];
-  startDate: string;
+  frequency: SubscriptionType;
+  custom_days?: DayOfWeek[];
+  start_date: string;
   quantity: number;
 }
 
 export interface Subscription extends SubscriptionRequest {
   id: string;
-  status: 'ACTIVE' | 'CANCELLED';
+  status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
+  next_delivery_date: string;
+}
+
+export interface PaginatedSubscriptionsResponse {
+  subscriptions: Subscription[];
+  limit: number;
+  page: number;
+  totalPages: number;
+  totalSubscriptions: number;
 }

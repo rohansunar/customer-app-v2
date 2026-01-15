@@ -1,89 +1,56 @@
-import { Subscription, SubscriptionRequest } from '../types';
+import { apiClient } from '@/core/api/client';
+import { API_ENDPOINTS } from '@/core/api/endpoints';
+import {
+  PaginatedSubscriptionsResponse,
+  Subscription,
+  SubscriptionRequest,
+} from '../types';
 
-/**
- * Mock data for subscriptions.
- */
-let mockSubscriptions: Subscription[] = [
-  {
-    id: 'sub_1',
-    productId: 'prod_1',
-    type: 'DAILY',
-    quantity: 1,
-    startDate: '2024-01-15',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'sub_2',
-    productId: 'prod_2',
-    type: 'ALTERNATE',
-    quantity: 2,
-    startDate: '2024-01-16',
-    status: 'ACTIVE',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-/**
- * Mock service for handling subscription-related API calls.
- */
 export const subscriptionService = {
   /**
-   * Mock creating a new subscription.
+   * Creating a new subscription.
    */
   createSubscription: async (
     request: SubscriptionRequest,
   ): Promise<Subscription> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log('newSubscription', request);
 
-    // Mock response
-    const newSubscription: Subscription = {
-      id: Math.random().toString(36).substring(7),
-      ...request,
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString(),
-    };
-
-    mockSubscriptions = [newSubscription, ...mockSubscriptions];
-    return newSubscription;
+    return apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
   },
 
   /**
-   * Mock fetching all subscriptions.
+   * Fetch all subscriptions with pagination.
    */
-  getSubscriptions: async (): Promise<Subscription[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return [...mockSubscriptions];
+  getSubscriptions: async (
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedSubscriptionsResponse> => {
+    const response = await apiClient.get(API_ENDPOINTS.SUBSCRIPTION, {
+      params: { page, limit },
+    });
+    return response.data;
   },
 
   /**
-   * Mock updating subscription status.
+   * Update subscription status.
    */
-  updateSubscriptionStatus: async (
-    id: string,
-    status: 'ACTIVE' | 'CANCELLED',
-  ): Promise<Subscription> => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const index = mockSubscriptions.findIndex((s) => s.id === id);
-    if (index === -1) throw new Error('Subscription not found');
-
-    mockSubscriptions[index] = { ...mockSubscriptions[index], status };
-    return mockSubscriptions[index];
+  updateSubscriptionStatus: async (id: string): Promise<Subscription> => {
+    return await apiClient.post(`${API_ENDPOINTS.SUBSCRIPTION}/${id}/toggle`);
   },
 
   /**
-   * Mock updating product subscription details.
+   * Update subscription details.
    */
   updateSubscription: async (
     id: string,
     request: Partial<SubscriptionRequest>,
   ): Promise<Subscription> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const index = mockSubscriptions.findIndex((s) => s.id === id);
-    if (index === -1) throw new Error('Subscription not found');
-
-    mockSubscriptions[index] = { ...mockSubscriptions[index], ...request };
-    return mockSubscriptions[index];
+    return await apiClient.put(`${API_ENDPOINTS.SUBSCRIPTION}/${id}`, request);
+  },
+  /**
+   * Delete subscription details.
+   */
+  deleteSubscription: async (id: string): Promise<Subscription> => {
+    return await apiClient.delete(`${API_ENDPOINTS.SUBSCRIPTION}/${id}`);
   },
 };

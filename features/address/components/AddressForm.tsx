@@ -4,7 +4,13 @@ import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useMapInteractions } from '../hooks/useMapInteractions';
@@ -53,7 +59,7 @@ export function AddressForm({
     formState.setState,
     address,
     formState.addressText,
-    formState.pincode
+    formState.pincode,
   );
 
   // Validation
@@ -143,10 +149,7 @@ export function AddressForm({
       />
 
       {/* Address Tabs */}
-      <AddressTabs
-        label={formState.label}
-        onLabelChange={formState.setLabel}
-      />
+      <AddressTabs label={formState.label} onLabelChange={formState.setLabel} />
 
       {/* Form Inputs */}
       <AddressFormInputs
@@ -163,10 +166,7 @@ export function AddressForm({
       />
 
       {/* Coordinates Display */}
-      <AddressCoordinatesDisplay
-        lat={formState.lat}
-        lng={formState.lng}
-      />
+      <AddressCoordinatesDisplay lat={formState.lat} lng={formState.lng} />
 
       <Button
         title={isPending ? 'Saving...' : 'Save'}

@@ -12,7 +12,10 @@ import { AddressGeocodeInfoProps } from '../types';
  * @param geocodeResult - The geocoding result object
  * @param geocodeLoading - Loading state for geocoding
  */
-export function AddressGeocodeInfo({ geocodeResult, geocodeLoading }: AddressGeocodeInfoProps) {
+export function AddressGeocodeInfo({
+  geocodeResult,
+  geocodeLoading,
+}: AddressGeocodeInfoProps) {
   if (!geocodeResult) {
     return null;
   }

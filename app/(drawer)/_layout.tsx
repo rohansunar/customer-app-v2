@@ -23,6 +23,7 @@ export default function AppLayout() {
         name="home"
         options={{
           headerTitle: () => <HeaderAddressSelector />,
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen

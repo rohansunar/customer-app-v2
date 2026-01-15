@@ -25,20 +25,19 @@ export function SubscriptionCard({ subscription, productName }: Props) {
   const handleToggleStatus = () => {
     updateStatus.mutate({
       id: subscription.id,
-      status: isActive ? 'CANCELLED' : 'ACTIVE',
     });
   };
 
   const getFrequencyLabel = () => {
-    switch (subscription.type) {
+    switch (subscription.frequency) {
       case 'DAILY':
         return 'Daily';
-      case 'ALTERNATE':
-        return 'Alternate Days';
-      case 'CUSTOM':
-        return `Custom: ${subscription.customDays?.map((d) => d.substring(0, 3)).join(', ')}`;
+      case 'ALTERNATIVE_DAYS':
+        return 'Alternative Days';
+      case 'CUSTOM_DAYS':
+        return `Custom: ${subscription.custom_days?.map((d) => d.substring(0, 3)).join(', ')}`;
       default:
-        return subscription.type;
+        return subscription.frequency;
     }
   };
 
@@ -89,7 +88,7 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               color={colors.textSecondary}
               style={styles.detailText}
             >
-              Starts: {subscription.startDate}
+              Starts: {subscription.start_date}
             </Text>
           </View>
           <View style={styles.detailItem}>
@@ -98,13 +97,13 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               size={16}
               color={colors.textSecondary}
             />
-            <Text
+            {/* <Text
               variant="xs"
               color={colors.textSecondary}
               style={styles.detailText}
             >
               Morning Delivery
-            </Text>
+            </Text> */}
           </View>
         </View>
 

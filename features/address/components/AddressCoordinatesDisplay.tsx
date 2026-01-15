@@ -12,7 +12,10 @@ import { AddressCoordinatesDisplayProps } from '../types';
  * @param lat - Latitude value
  * @param lng - Longitude value
  */
-export function AddressCoordinatesDisplay({ lat, lng }: AddressCoordinatesDisplayProps) {
+export function AddressCoordinatesDisplay({
+  lat,
+  lng,
+}: AddressCoordinatesDisplayProps) {
   const hasValidCoordinates = lat !== 0 && lng !== 0;
 
   if (!hasValidCoordinates) {

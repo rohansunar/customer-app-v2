@@ -1,3 +1,4 @@
+import { showError } from '@/core/ui/toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { subscriptionService } from '../services/subscriptionService';
@@ -9,13 +10,8 @@ export function useUpdateSubscriptionStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      status,
-    }: {
-      id: string;
-      status: 'ACTIVE' | 'CANCELLED';
-    }) => subscriptionService.updateSubscriptionStatus(id, status),
+    mutationFn: ({ id }: { id: string }) =>
+      subscriptionService.updateSubscriptionStatus(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
 
@@ -26,12 +22,8 @@ export function useUpdateSubscriptionStatus() {
       });
     },
     onError: (error) => {
-      console.error('Subscription update failed:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Update Failed',
-        text2: 'Could not update subscription status. Please try again.',
-      });
+      console.log('Subscription update failed:', error);
+      showError('Could not update subscription status. Please try again.');
     },
   });
 }

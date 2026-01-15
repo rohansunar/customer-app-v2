@@ -1,5 +1,6 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
+import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
@@ -9,7 +10,12 @@ import React from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 export default function SubscriptionsScreen() {
-  const { data: subscriptions, isLoading: isLoadingSubs } = useSubscriptions();
+  const [page, setPage] = React.useState(1);
+  const [limit] = React.useState(10);
+  const { data: subscriptions, isLoading: isLoadingSubs } = useSubscriptions(
+    page,
+    limit,
+  );
   const { data: productsData } = useProducts();
 
   const isLoading = isLoadingSubs;
@@ -42,6 +48,18 @@ export default function SubscriptionsScreen() {
     return product?.name || 'Product';
   };
 
+  const handleNextPage = () => {
+    if (subscriptions && page < subscriptions.totalPages) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -51,7 +69,7 @@ export default function SubscriptionsScreen() {
       </View>
 
       <FlatList
-        data={subscriptions}
+        data={subscriptions?.subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <SubscriptionCard
@@ -63,6 +81,28 @@ export default function SubscriptionsScreen() {
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
       />
+
+      {subscriptions && subscriptions.totalPages > 1 && (
+        <View style={styles.paginationContainer}>
+          <Button
+            title="Previous"
+            onPress={handlePreviousPage}
+            disabled={page === 1}
+            variant="ghost"
+            style={styles.paginationButton}
+          />
+          <Text variant="s" color={colors.textSecondary}>
+            Page {page} of {subscriptions.totalPages}
+          </Text>
+          <Button
+            title="Next"
+            onPress={handleNextPage}
+            disabled={page === subscriptions.totalPages}
+            variant="ghost"
+            style={styles.paginationButton}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -100,5 +140,16 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     lineHeight: 20,
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.s,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  paginationButton: {
+    minWidth: 100,
   },
 });

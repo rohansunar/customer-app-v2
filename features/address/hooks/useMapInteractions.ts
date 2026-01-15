@@ -30,7 +30,7 @@ export function useMapInteractions(
   setState: (state: string) => void,
   address?: Address,
   addressText?: string,
-  pincode?: string
+  pincode?: string,
 ) {
   const {
     location: currentLocation,
@@ -74,7 +74,15 @@ export function useMapInteractions(
         setState(geocodeResult.state);
       }
     }
-  }, [geocodeResult, address, addressText, pincode, setAddressText, setPincode, setState]);
+  }, [
+    geocodeResult,
+    address,
+    addressText,
+    pincode,
+    setAddressText,
+    setPincode,
+    setState,
+  ]);
 
   const handleUseCurrentLocation = () => {
     if (currentLocation) {
