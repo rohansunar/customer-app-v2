@@ -121,8 +121,8 @@ export default function AddressScreen() {
     <AddressItem
       address={item}
       onPress={() => handleItemPress(item)}
+      onEdit={() => handleItemPress(item)}
       onDelete={() => handleDeleteFromList(item.id)}
-      onToggleDefault={() => handleToggleDefault(item)}
     />
   );
 

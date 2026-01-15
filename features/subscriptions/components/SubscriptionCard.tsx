@@ -8,8 +8,10 @@ import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
+import { getFrequencyLabel } from '../utils/subscriptionUtils';
 import { SubscriptionModal } from './SubscriptionModal';
 
 interface Props {
@@ -19,6 +21,7 @@ interface Props {
 
 export function SubscriptionCard({ subscription, productName }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
+  const deleteSubscription = useDeleteSubscription();
   const [isEditVisible, setIsEditVisible] = useState(false);
   const isActive = subscription.status === 'ACTIVE';
 
@@ -26,19 +29,6 @@ export function SubscriptionCard({ subscription, productName }: Props) {
     updateStatus.mutate({
       id: subscription.id,
     });
-  };
-
-  const getFrequencyLabel = () => {
-    switch (subscription.frequency) {
-      case 'DAILY':
-        return 'Daily';
-      case 'ALTERNATIVE_DAYS':
-        return 'Alternative Days';
-      case 'CUSTOM_DAYS':
-        return `Custom: ${subscription.custom_days?.map((d) => d.substring(0, 3)).join(', ')}`;
-      default:
-        return subscription.frequency;
-    }
   };
 
   return (
@@ -55,7 +45,7 @@ export function SubscriptionCard({ subscription, productName }: Props) {
             </Text>
             <Text variant="s" color={colors.textSecondary}>
               {subscription.quantity} Unit{subscription.quantity > 1 ? 's' : ''}{' '}
-              • {getFrequencyLabel()}
+              • {getFrequencyLabel(subscription.frequency, subscription.custom_days)}
             </Text>
           </View>
           <Badge
@@ -135,6 +125,20 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               />
             }
           />
+          <Button
+            title=""
+            onPress={() => deleteSubscription.mutate({ id: subscription.id })}
+            variant="ghost"
+            style={styles.deleteButton}
+            loading={deleteSubscription.isPending}
+            icon={
+              <Ionicons
+                name="trash-outline"
+                size={18}
+                color={colors.primary}
+              />
+            }
+          />
         </View>
       </Card>
 
@@ -142,6 +146,7 @@ export function SubscriptionCard({ subscription, productName }: Props) {
         visible={isEditVisible}
         onClose={() => setIsEditVisible(false)}
         productName={productName}
+        productId={subscription.productId}
         existingSubscription={subscription}
       />
     </>
@@ -199,7 +204,14 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     minHeight: 40,
-    paddingVertical: spacing.s,
+    paddingVertical: spacing.xs,
+    borderRadius: spacing.radius.m,
+    flex: 1,
+  },
+
+  deleteButton: {
+    minHeight: 40,
+    paddingVertical: spacing.xs,
     borderRadius: spacing.radius.m,
     flex: 1,
   },

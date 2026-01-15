@@ -22,7 +22,7 @@ interface ProductImageSliderProps {
 export function ProductImageSlider({ images }: ProductImageSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<number | null>(null);
 
   const startAutoPlay = () => {
     stopAutoPlay();
