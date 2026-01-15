@@ -6,7 +6,10 @@ import { SubscriptionType } from '../types';
  * @param custom_days - Optional array of custom days for CUSTOM_DAYS frequency.
  * @returns The formatted frequency label.
  */
-export function getFrequencyLabel(frequency: SubscriptionType, custom_days?: string[]): string {
+export function getFrequencyLabel(
+  frequency: SubscriptionType,
+  custom_days?: string[],
+): string {
   switch (frequency) {
     case 'DAILY':
       return 'Daily';

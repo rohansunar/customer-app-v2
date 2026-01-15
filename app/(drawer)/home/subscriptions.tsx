@@ -35,8 +35,9 @@ export default function SubscriptionsScreen() {
         No Subscriptions
       </Text>
       <Text variant="s" color={colors.textSecondary} style={styles.emptyText}>
-        You haven't subscribed to any products yet. Subscribe to your favorite
-        daily essentials for hassle-free delivery.
+        {
+          "You haven't subscribed to any products yet. Subscribe to your favorite daily essentials for hassle-free delivery."
+        }
       </Text>
     </View>
   );

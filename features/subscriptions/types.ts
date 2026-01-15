@@ -10,7 +10,7 @@ export type DayOfWeek =
   | 'SUNDAY';
 
 export interface SubscriptionRequest {
-  productId:string;
+  productId: string;
   frequency: SubscriptionType;
   custom_days?: DayOfWeek[];
   start_date: string;

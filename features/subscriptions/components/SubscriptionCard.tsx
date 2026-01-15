@@ -7,7 +7,7 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
@@ -45,7 +45,11 @@ export function SubscriptionCard({ subscription, productName }: Props) {
             </Text>
             <Text variant="s" color={colors.textSecondary}>
               {subscription.quantity} Unit{subscription.quantity > 1 ? 's' : ''}{' '}
-              • {getFrequencyLabel(subscription.frequency, subscription.custom_days)}
+              •{' '}
+              {getFrequencyLabel(
+                subscription.frequency,
+                subscription.custom_days,
+              )}
             </Text>
           </View>
           <Badge
@@ -78,7 +82,7 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               color={colors.textSecondary}
               style={styles.detailText}
             >
-              Starts: {subscription.start_date}
+              Starts: {new Date(subscription.start_date).toLocaleDateString()}
             </Text>
           </View>
           <View style={styles.detailItem}>
@@ -127,16 +131,25 @@ export function SubscriptionCard({ subscription, productName }: Props) {
           />
           <Button
             title=""
-            onPress={() => deleteSubscription.mutate({ id: subscription.id })}
+            onPress={() =>
+              Alert.alert(
+                'Confirm Deletion',
+                'Are you sure you want to delete this subscription?',
+                [
+                  { text: 'Cancel' },
+                  {
+                    text: 'Delete',
+                    onPress: () =>
+                      deleteSubscription.mutate({ id: subscription.id }),
+                  },
+                ],
+              )
+            }
             variant="ghost"
             style={styles.deleteButton}
             loading={deleteSubscription.isPending}
             icon={
-              <Ionicons
-                name="trash-outline"
-                size={18}
-                color={colors.primary}
-              />
+              <Ionicons name="trash-outline" size={18} color={colors.error} />
             }
           />
         </View>
@@ -213,6 +226,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     paddingVertical: spacing.xs,
     borderRadius: spacing.radius.m,
-    flex: 1,
+    width: 40,
+    paddingHorizontal: 0,
   },
 });

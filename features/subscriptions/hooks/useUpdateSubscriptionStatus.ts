@@ -13,7 +13,9 @@ export function useUpdateSubscriptionStatus() {
       subscriptionService.updateSubscriptionStatus(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      showSuccess(`Subscription ${data.status === 'ACTIVE' ? 'Resumed' : 'Paused'}`);
+      showSuccess(
+        `Subscription ${data.status === 'ACTIVE' ? 'Resumed' : 'Paused'}`,
+      );
     },
     onError: (error) => {
       console.log('Subscription update failed:', error);

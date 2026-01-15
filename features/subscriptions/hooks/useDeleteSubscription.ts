@@ -13,7 +13,7 @@ export function useDeleteSubscription() {
       subscriptionService.deleteSubscription(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      showSuccess('Subscription deleted successfully');
+      showSuccess('Subscription deleted');
     },
     onError: (error) => {
       console.log('Subscription deletion failed:', error);

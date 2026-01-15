@@ -22,7 +22,7 @@ import { CalendarPicker } from './CalendarPicker';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  productId:string;
+  productId: string;
   productName: string;
   existingSubscription?: Subscription;
 }
@@ -66,7 +66,7 @@ export function SubscriptionModal({
     };
 
     if (isEditing && existingSubscription) {
-      const {productId, ...updatePayload } = payload;
+      const { productId, ...updatePayload } = payload;
       updateSubscription.mutate(
         {
           id: existingSubscription.id,
