@@ -11,6 +11,9 @@ export function useSetDefaultAddress() {
       queryClient.invalidateQueries({
         queryKey: ['addresses'],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['subscriptions'],
+      });
     },
   });
 }
