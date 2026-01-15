@@ -1,24 +1,25 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
-import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
-import { useSubscriptions } from '@/features/subscriptions/hooks/useSubscriptions';
+import { useInfiniteSubscriptions } from '@/features/subscriptions/hooks/useInfiniteSubscriptions';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 export default function SubscriptionsScreen() {
-  const [page, setPage] = React.useState(1);
-  const [limit] = React.useState(10);
-  const { data: subscriptions, isLoading: isLoadingSubs } = useSubscriptions(
-    page,
-    limit,
-  );
+  const { subscriptions, loading, loadingMore, loadMore, error, refetch } =
+    useInfiniteSubscriptions();
   const { data: productsData } = useProducts();
 
-  const isLoading = isLoadingSubs;
+  const isLoading = loading;
 
   if (isLoading) {
     return (
@@ -49,18 +50,6 @@ export default function SubscriptionsScreen() {
     return product?.name || 'Product';
   };
 
-  const handleNextPage = () => {
-    if (subscriptions && page < subscriptions.totalPages) {
-      setPage(page + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -69,8 +58,21 @@ export default function SubscriptionsScreen() {
         </Text>
       </View>
 
+      {error && (
+        <View style={styles.errorContainer}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={24}
+            color={colors.error}
+          />
+          <Text variant="s" color={colors.error} style={styles.errorText}>
+            {error}
+          </Text>
+        </View>
+      )}
+
       <FlatList
-        data={subscriptions?.subscriptions}
+        data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <SubscriptionCard
@@ -81,29 +83,19 @@ export default function SubscriptionsScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refetch} />
+        }
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={styles.loadingMore}>
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          ) : null
+        }
       />
-
-      {subscriptions && subscriptions.totalPages > 1 && (
-        <View style={styles.paginationContainer}>
-          <Button
-            title="Previous"
-            onPress={handlePreviousPage}
-            disabled={page === 1}
-            variant="ghost"
-            style={styles.paginationButton}
-          />
-          <Text variant="s" color={colors.textSecondary}>
-            Page {page} of {subscriptions.totalPages}
-          </Text>
-          <Button
-            title="Next"
-            onPress={handleNextPage}
-            disabled={page === subscriptions.totalPages}
-            variant="ghost"
-            style={styles.paginationButton}
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -142,15 +134,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  loadingMore: {
+    padding: spacing.m,
     alignItems: 'center',
-    padding: spacing.s,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
-  paginationButton: {
-    minWidth: 100,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.m,
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.l,
+    marginBottom: spacing.m,
+    borderRadius: 8,
+  },
+  errorText: {
+    marginLeft: spacing.s,
+    flex: 1,
   },
 });

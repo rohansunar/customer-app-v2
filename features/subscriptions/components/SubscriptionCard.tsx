@@ -91,13 +91,14 @@ export function SubscriptionCard({ subscription, productName }: Props) {
               size={16}
               color={colors.textSecondary}
             />
-            {/* <Text
+            <Text
               variant="xs"
               color={colors.textSecondary}
               style={styles.detailText}
             >
-              Morning Delivery
-            </Text> */}
+              Next Delivery Date :{' '}
+              {new Date(subscription.next_delivery_date).toLocaleDateString()}
+            </Text>
           </View>
         </View>
 
