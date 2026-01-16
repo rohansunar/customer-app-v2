@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { subscriptionService } from '../services/subscriptionService';
@@ -23,15 +24,13 @@ export function useUpdateSubscription() {
       Toast.show({
         type: 'success',
         text1: 'Subscription Updated',
-        text2: 'Your subscription details have been successfully changed.',
       });
     },
     onError: (error) => {
-      console.error('Subscription update failed:', error);
+      console.log('Subscription update failed:', error);
       Toast.show({
         type: 'error',
-        text1: 'Update Failed',
-        text2: 'Could not update subscription details. Please try again.',
+        text1: `${getErrorMessage(error)}`,
       });
     },
   });

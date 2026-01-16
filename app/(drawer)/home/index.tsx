@@ -12,10 +12,12 @@ import {
   View,
 } from 'react-native';
 
+import { showError } from '@/core/ui/toast';
+import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import CartButton from '@/features/cart/components/CartButton';
 import { ReferralBanner } from '@/features/promotion/components/ReferralBanner';
 import { ReferralModal } from '@/features/promotion/components/ReferralModal';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
   const {
@@ -28,12 +30,18 @@ export default function HomeScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useProducts();
-  const { data: cartData } = useCart();
+  const { data: cartData,error:cartError,  isError } = useCart();
   const [isReferralModalVisible, setIsReferralModalVisible] = useState(false);
 
   const totalItems = cartData?.totalItems || 0;
 
   const products = data?.pages.flatMap((page) => page.data) || [];
+
+  useEffect(() => {
+    if (isError) {
+      showError(getErrorMessage(cartError));
+    }
+  }, [isError]);
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -82,7 +90,7 @@ export default function HomeScreen() {
           }
         />
       )}
-      {totalItems > 0 && <CartButton totalItems={totalItems} />}
+      {totalItems > 0 && !isError && <CartButton totalItems={totalItems} />}
       <ReferralModal
         visible={isReferralModalVisible}
         onClose={() => setIsReferralModalVisible(false)}

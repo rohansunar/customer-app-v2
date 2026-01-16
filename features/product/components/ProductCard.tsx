@@ -5,6 +5,7 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Product } from '../types';
@@ -48,6 +49,15 @@ export function ProductCard({ product }: Props) {
             {product.description}
           </Text>
         )}
+
+        <View style={styles.additionalInfo}>
+          <Text variant="s" color={colors.textSecondary}>
+           <Ionicons name="location" size={16} color={colors.black} /> 2.5 km away
+          </Text>
+          <Text variant="s" color={colors.textSecondary}>
+            Bought by 300+
+          </Text>
+        </View>
 
         <View style={styles.buttonContainer}>
           <Button
@@ -101,6 +111,11 @@ const styles = StyleSheet.create({
   description: {
     marginBottom: spacing.m,
     lineHeight: 20,
+  },
+  additionalInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing.m,
   },
   buttonContainer: {
     flexDirection: 'row',

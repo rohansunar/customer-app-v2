@@ -1,6 +1,6 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Dimensions,
   FlatList,
@@ -22,32 +22,6 @@ interface ProductImageSliderProps {
 export function ProductImageSlider({ images }: ProductImageSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-  const timerRef = useRef<number | null>(null);
-
-  const startAutoPlay = () => {
-    stopAutoPlay();
-    if (images.length > 1) {
-      timerRef.current = setInterval(() => {
-        const nextIndex = (activeIndex + 1) % images.length;
-        flatListRef.current?.scrollToIndex({
-          index: nextIndex,
-          animated: true,
-        });
-      }, 3000);
-    }
-  };
-
-  const stopAutoPlay = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    startAutoPlay();
-    return () => stopAutoPlay();
-  }, [activeIndex, images.length]);
 
   if (!images || images.length === 0) {
     return (
@@ -80,8 +54,6 @@ export function ProductImageSlider({ images }: ProductImageSliderProps) {
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        onScrollBeginDrag={stopAutoPlay}
-        onScrollEndDrag={startAutoPlay}
         renderItem={({ item }) => (
           <Image
             source={{ uri: item }}

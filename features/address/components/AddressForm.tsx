@@ -5,17 +5,15 @@ import { Text } from '@/core/ui/Text';
 import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useMapInteractions } from '../hooks/useMapInteractions';
 import { AddressFormProps } from '../types';
-import { AddressCoordinatesDisplay } from './AddressCoordinatesDisplay';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressMapSection } from './AddressMapSection';
@@ -99,7 +97,7 @@ export function AddressForm({
 
       {/* Location Buttons */}
       <View style={styles.locationButtonsContainer}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.locationButton, { backgroundColor: colors.primary }]}
           onPress={handleUseCurrentLocation}
           disabled={locationLoading}
@@ -119,7 +117,7 @@ export function AddressForm({
               </Text>
             </>
           )}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {geocodeResult && (
           <TouchableOpacity
@@ -164,9 +162,6 @@ export function AddressForm({
         cities={cities}
         isCitiesLoading={isCitiesLoading}
       />
-
-      {/* Coordinates Display */}
-      <AddressCoordinatesDisplay lat={formState.lat} lng={formState.lng} />
 
       <Button
         title={isPending ? 'Saving...' : 'Save'}

@@ -13,7 +13,7 @@ export const subscriptionService = {
   createSubscription: async (
     request: SubscriptionRequest,
   ): Promise<Subscription> => {
-    return apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
+    return await apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
   },
 
   /**

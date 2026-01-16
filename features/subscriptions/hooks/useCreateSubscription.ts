@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { subscriptionService } from '../services/subscriptionService';
@@ -19,15 +20,12 @@ export function useCreateSubscription() {
       Toast.show({
         type: 'success',
         text1: 'Subscription Created!',
-        text2: 'Your subscription has been successfully saved.',
       });
     },
     onError: (error) => {
-      console.error('Subscription creation failed:', error);
       Toast.show({
         type: 'error',
-        text1: 'Subscription Failed',
-        text2: 'Could not create subscription. Please try again.',
+        text1: `${getErrorMessage(error)}`,
       });
     },
   });
