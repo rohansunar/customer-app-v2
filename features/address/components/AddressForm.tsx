@@ -4,12 +4,7 @@ import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useMapInteractions } from '../hooks/useMapInteractions';
