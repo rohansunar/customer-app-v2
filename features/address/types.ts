@@ -6,10 +6,8 @@ export type Address = {
   address: string;
   pincode: string;
   city: City;
-  location: {
-    lng: number;
-    lat: number;
-  };
+  lng: number;
+  lat: number;
   isDefault: boolean;
 };
 
@@ -18,10 +16,8 @@ export type CreateAddressData = {
   address: string;
   pincode: string;
   cityId: string;
-  location: {
-    lng: number;
-    lat: number;
-  };
+  lng: number;
+  lat: number;
   isDefault?: boolean;
 };
 

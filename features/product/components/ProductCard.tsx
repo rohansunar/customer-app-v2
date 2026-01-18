@@ -52,7 +52,7 @@ export function ProductCard({ product }: Props) {
 
         <View style={styles.additionalInfo}>
           <Text variant="s" color={colors.textSecondary}>
-           <Ionicons name="location" size={16} color={colors.black} /> 2.5 km away
+           <Ionicons name="location" size={16} color={colors.black} /> {product.distance.value} {product.distance.unit} away
           </Text>
           <Text variant="s" color={colors.textSecondary}>
             Bought by 300+
