@@ -70,7 +70,8 @@ export function AddressForm({
         address: formState.addressText,
         pincode: formState.pincode,
         cityId: formState.cityId,
-        location: { lng: formState.lng, lat: formState.lat },
+        lng: formState.lng,
+        lat: formState.lat,
       });
     }
   };
