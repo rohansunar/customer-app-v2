@@ -8,10 +8,13 @@ export const productService = {
     limit = 10,
   ): Promise<{
     data: Product[];
-    total: number;
-    page: number;
-    totalPages: number;
+    pagination: {
+      total: number;
+      page: number;
+      totalPages: number;
+    };
   }> {
+    console.log('getProducts', page, limit);
     return apiClient
       .get(API_ENDPOINTS.PRODUCT, { params: { page, limit } })
       .then((res) => res.data);

@@ -10,5 +10,5 @@ export type Product = {
   price: number;
   categoryId: string;
   images?: string[];
-  distance: Distance
+  distance: Distance;
 };

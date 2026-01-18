@@ -12,8 +12,7 @@ export function useCreateAddress() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         predicate: (query) =>
-        query.queryKey[0] === 'addresses' ||
-        query.queryKey[0] === 'cart',
+          query.queryKey[0] === 'addresses' || query.queryKey[0] === 'cart',
       });
     },
     onError: (error) => {

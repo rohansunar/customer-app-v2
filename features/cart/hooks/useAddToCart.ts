@@ -11,7 +11,7 @@ import { cartService } from '../services/cartService';
  */
 export function useAddToCart() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: cartService.addToCart,
     onSuccess: () => {

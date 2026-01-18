@@ -29,7 +29,11 @@ export function useInfiniteSubscriptions(limit: number = 10) {
   const loading = isLoading;
   const loadingMore = isFetchingNextPage;
   const hasMore = hasNextPage ?? false;
-  const errorMessage = error ? (error instanceof Error ? error.message : 'Failed to load subscriptions') : null;
+  const errorMessage = error
+    ? error instanceof Error
+      ? error.message
+      : 'Failed to load subscriptions'
+    : null;
 
   return {
     subscriptions,

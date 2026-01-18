@@ -10,8 +10,7 @@ export function useDeleteAddress() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         predicate: (query) =>
-        query.queryKey[0] === 'addresses' ||
-        query.queryKey[0] === 'cart',
+          query.queryKey[0] === 'addresses' || query.queryKey[0] === 'cart',
       });
     },
   });

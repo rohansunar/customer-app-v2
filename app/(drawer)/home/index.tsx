@@ -30,7 +30,7 @@ export default function HomeScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useProducts();
-  const { data: cartData,error:cartError,  isError } = useCart();
+  const { data: cartData, error: cartError, isError } = useCart();
   const [isReferralModalVisible, setIsReferralModalVisible] = useState(false);
 
   const totalItems = cartData?.totalItems || 0;

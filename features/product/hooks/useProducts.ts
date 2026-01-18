@@ -7,8 +7,8 @@ export function useProducts() {
     queryKey: ['products'],
     queryFn: ({ pageParam = 1 }) => productService.getProducts(pageParam, 10),
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
+      if (lastPage.pagination.page < lastPage.pagination.totalPages) {
+        return lastPage.pagination.page + 1;
       }
       return undefined;
     },
