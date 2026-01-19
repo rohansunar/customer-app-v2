@@ -4,9 +4,8 @@ import { Button } from '@/core/ui/Button';
 import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
 import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
-import { isValidPhone } from '@/shared/utils/phoneValidator';
+import { usePhoneValidation } from '@/shared/hooks/usePhoneValidation';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -17,20 +16,14 @@ import {
 } from 'react-native';
 
 export default function LoginScreen() {
-  const [phone, setPhone] = useState('');
+  const { phone, error, isValidPhone, onChange } = usePhoneValidation();
   const { mutate, isPending } = useRequestOtp();
 
   function handleRequestOtp() {
-    // Basic cleanup
-    const cleanPhone = phone.trim();
-
-    if (!isValidPhone(cleanPhone)) {
-      Alert.alert(
-        'Invalid Phone',
-        'Please enter a valid 10-digit phone number.',
-      );
+    if (!isValidPhone) {
       return;
     }
+    const cleanPhone = phone.trim();
 
     mutate(cleanPhone, {
       onSuccess: () => {
@@ -74,16 +67,17 @@ export default function LoginScreen() {
             label="Phone Number"
             placeholder="9876543210"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={onChange}
             keyboardType="phone-pad"
             maxLength={10}
             autoFocus
           />
-
+          {error && <Text style={{ color: 'red', marginTop: 6 }}>{error}</Text>}
           <Button
             title={isPending ? 'Sending...' : 'Send OTP'}
             onPress={handleRequestOtp}
             loading={isPending}
+            disabled={!isValidPhone || isPending}
             style={styles.button}
           />
         </View>
