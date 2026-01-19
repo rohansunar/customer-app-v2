@@ -1,51 +1,83 @@
+import { OTP_LENGTH, useOtpInput } from '@/features/auth/hooks/handleOtpInputs';
+import { useOtpTimer } from '@/features/auth/components/resendTimer';
+import { useOtpShake } from '@/features/auth/components/useAnimations';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { typography } from '@/core/theme/typography';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
+import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
 import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
+  Animated,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
 export default function OtpScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
-  const inputRefs = useRef<TextInput[]>([]);
+  const [hasError, setHasError] = useState(false);
+  const { otpDigits, inputRefs, handleChange, handleBackspace, clearOtp } =
+    useOtpInput(() => setHasError(false));
+
+  const { timer, resetTimer } = useOtpTimer(true);
+  const { shake, animatedStyle } = useOtpShake();
   const { mutate, isPending } = useVerifyOtp();
+  const { mutate: requestOtp, isPending: isResending } = useRequestOtp();
 
   if (!phone) {
     Alert.alert('Error', 'Phone number not provided.');
     router.back();
     return null;
   }
-
-  function handleVerifyOtp() {
+  const handleVerifyOtp = () => {
     const otp = otpDigits.join('');
-    if (!otp || otp.length !== 6) {
-      Alert.alert('Invalid OTP', 'Please enter a valid 6-digit OTP.');
+
+    if (otp.length !== OTP_LENGTH) {
+      setHasError(true);
+      shake();
       return;
     }
+
+    setHasError(false);
 
     mutate(
       { phone, otp },
       {
         onSuccess: () => {
+          setHasError(false);
           router.replace('/(drawer)/home' as any);
         },
         onError: () => {
-          Alert.alert('Error', 'Invalid OTP. Please try again.');
+          setHasError(true);
+          shake();
+          clearOtp();
         },
       },
     );
-  }
+  };
+
+  const handleResend = () => {
+    if (timer > 0 || isResending) return;
+
+    requestOtp(phone, {
+      onSuccess: () => {
+        resetTimer();
+        clearOtp();
+        Alert.alert('OTP Sent', 'A new OTP has been sent to your phone.');
+      },
+      onError: () => {
+        Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      },
+    });
+  };
 
   return (
     <KeyboardAvoidingView
@@ -66,7 +98,7 @@ export default function OtpScreen() {
         </Text>
       </View>
 
-      <View style={styles.inputContainer}>
+      <Animated.View style={[styles.inputContainer, animatedStyle]}>
         {otpDigits.map((digit, index) => (
           <TextInput
             key={index}
@@ -74,33 +106,35 @@ export default function OtpScreen() {
               if (ref) inputRefs.current[index] = ref;
             }}
             value={digit}
-            onChangeText={(text) => {
-              if (/^\d?$/.test(text)) {
-                const newDigits = [...otpDigits];
-                newDigits[index] = text;
-                setOtpDigits(newDigits);
-                if (text && index < 5) {
-                  inputRefs.current[index + 1]?.focus();
-                }
-              }
-            }}
-            onKeyPress={({ nativeEvent }) => {
-              if (nativeEvent.key === 'Backspace' && !digit && index > 0) {
-                inputRefs.current[index - 1]?.focus();
-              }
-            }}
-            keyboardType="numeric"
+            onChangeText={(text) => handleChange(text, index)}
+            onKeyPress={({ nativeEvent }) =>
+              handleBackspace(nativeEvent.key, digit, index)
+            }
+            keyboardType="number-pad"
             maxLength={1}
-            style={styles.otpInput}
+            style={[styles.otpInput, hasError && styles.otpInputError]}
             autoFocus={index === 0}
           />
         ))}
+      </Animated.View>
+
+      <View style={styles.resendContainer}>
+        {timer > 0 ? (
+          <Text style={styles.timer}>Resend OTP in {timer}s</Text>
+        ) : (
+          <TouchableOpacity onPress={handleResend} disabled={isResending}>
+            <Text style={[styles.resendText, isResending && { opacity: 0.6 }]}>
+              {isResending ? 'Resending...' : 'Resend OTP'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Button
         title={isPending ? 'Verifying...' : 'Verify'}
         onPress={handleVerifyOtp}
         loading={isPending}
+        disabled={isPending || isResending}
         style={styles.button}
       />
     </KeyboardAvoidingView>
@@ -140,5 +174,27 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.s,
+  },
+  resendContainer: {
+    alignItems: 'center',
+    marginTop: spacing.m,
+    paddingVertical: spacing.s,
+  },
+
+  timer: {
+    color: colors.textSecondary,
+    fontSize: typography.size.s,
+    letterSpacing: 0.3,
+  },
+
+  resendText: {
+    color: colors.primary,
+    fontSize: typography.size.s,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  otpInputError: {
+    borderColor: '#EF4444', // red-500
+    backgroundColor: '#FEF2F2', // light red tint
   },
 });
