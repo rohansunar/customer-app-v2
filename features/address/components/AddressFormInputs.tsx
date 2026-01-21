@@ -1,8 +1,5 @@
-import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Input } from '@/core/ui/Input';
-import { Text } from '@/core/ui/Text';
-import { Picker } from '@react-native-picker/picker';
 import { StyleSheet, View } from 'react-native';
 import { AddressFormInputsProps } from '../types';
 
@@ -28,10 +25,6 @@ export function AddressFormInputs({
   onPincodeChange,
   state,
   onStateChange,
-  cityId,
-  onCityIdChange,
-  cities,
-  isCitiesLoading,
 }: AddressFormInputsProps) {
   return (
     <>
@@ -63,44 +56,11 @@ export function AddressFormInputs({
         </View>
       </View>
 
-      <Text variant="s" color={colors.textSecondary} style={styles.label}>
-        City
-      </Text>
-      <View
-        style={[styles.pickerWrapper, isCitiesLoading && styles.disabledPicker]}
-      >
-        <Picker
-          selectedValue={cityId}
-          onValueChange={onCityIdChange}
-          enabled={!isCitiesLoading}
-        >
-          <Picker.Item
-            label={isCitiesLoading ? 'Loading Cities...' : 'Select City'}
-            value=""
-          />
-          {cities?.map((city: any) => (
-            <Picker.Item key={city.id} label={city.name} value={city.id} />
-          ))}
-        </Picker>
-      </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  label: {
-    marginBottom: spacing.xs,
-  },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: spacing.radius.m,
-    marginBottom: spacing.m,
-  },
-  disabledPicker: {
-    opacity: 0.5,
-    backgroundColor: colors.border,
-  },
   rowInputs: {
     flexDirection: 'row',
     gap: spacing.m,

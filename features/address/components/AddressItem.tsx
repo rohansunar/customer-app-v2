@@ -56,7 +56,7 @@ export const AddressItem = memo(
             {address.address}
           </Text>
           <Text variant="xs" color={colors.textTertiary}>
-            {address.city.name}, {address.pincode}
+            {address.location.name}, {address.pincode}
           </Text>
         </View>
 

@@ -12,7 +12,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   setLabel: (label: string) => void;
   setAddressText: (addressText: string) => void;
   setPincode: (pincode: string) => void;
-  setCityId: (cityId: string) => void;
+  setCity: (city: string) => void;
   setLng: (lng: number) => void;
   setLat: (lat: number) => void;
   setState: (state: string) => void;
@@ -20,9 +20,9 @@ export function useAddressForm(address?: Address): AddressFormState & {
   const [label, setLabel] = useState(address?.label || 'Home');
   const [addressText, setAddressText] = useState(address?.address || '');
   const [pincode, setPincode] = useState(address?.pincode || '');
-  const [cityId, setCityId] = useState(address?.city?.id || '');
-  const [lng, setLng] = useState(address?.location?.lng || 0);
-  const [lat, setLat] = useState(address?.location?.lat || 0);
+  const [city, setCity] = useState(address?.location.name || '');
+  const [lng, setLng] = useState(address?.lng || 0);
+  const [lat, setLat] = useState(address?.lat || 0);
   const [state, setState] = useState('');
 
   useEffect(() => {
@@ -30,9 +30,8 @@ export function useAddressForm(address?: Address): AddressFormState & {
       setLabel(address.label);
       setAddressText(address.address);
       setPincode(address.pincode);
-      setCityId(address.city?.id || '');
-      setLng(address.location?.lng || 0);
-      setLat(address.location?.lat || 0);
+      setLng(address.lng || 0);
+      setLat(address.lat || 0);
     }
   }, [address]);
 
@@ -40,14 +39,14 @@ export function useAddressForm(address?: Address): AddressFormState & {
     label,
     addressText,
     pincode,
-    cityId,
+    city,
     lng,
     lat,
     state,
     setLabel,
     setAddressText,
     setPincode,
-    setCityId,
+    setCity,
     setLng,
     setLat,
     setState,

@@ -2,12 +2,13 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
-import { useCities } from '@/features/city/hooks/useCities';
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
-import { useMapInteractions } from '../hooks/useMapInteractions';
+import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
+import { useLocationLogic } from '../hooks/useLocationLogic';
+import { useMapLogic } from '../hooks/useMapLogic';
 import { AddressFormProps } from '../types';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressGeocodeInfo } from './AddressGeocodeInfo';
@@ -29,30 +30,36 @@ export function AddressForm({
   onCancel,
   isPending,
 }: AddressFormProps) {
-  const { data: cities, isLoading: isCitiesLoading } = useCities();
 
   // Form state management
   const formState = useAddressForm(address);
 
   // Map and location interactions
-  const {
-    geocodeResult,
-    geocodeLoading,
-    locationLoading,
-    handleUseCurrentLocation,
-    handleMapRegionChange,
-    handleFillFromMap,
-  } = useMapInteractions(
+  // Map and location interactions
+  const { handleMapRegionChangeComplete } = useMapLogic(
     formState.lat,
     formState.lng,
     formState.setLat,
-    formState.setLng,
+    formState.setLng
+  );
+
+  const { currentLocation, locationLoading, handleUseCurrentLocation } =
+    useLocationLogic(
+      formState.lat,
+      formState.lng,
+      formState.setLat,
+      formState.setLng,
+      address
+    );
+
+  const { geocodeResult, geocodeLoading } = useGeocodingLogic(
+    formState.lat,
+    formState.lng,
     formState.setAddressText,
     formState.setPincode,
     formState.setState,
-    address,
-    formState.addressText,
-    formState.pincode,
+    formState.setCity,
+    address
   );
 
   // Validation
@@ -64,7 +71,8 @@ export function AddressForm({
         label: formState.label,
         address: formState.addressText,
         pincode: formState.pincode,
-        cityId: formState.cityId,
+        city: formState.city,
+        state: formState.state,
         lng: formState.lng,
         lat: formState.lat,
       });
@@ -88,7 +96,7 @@ export function AddressForm({
       <AddressMapSection
         lat={formState.lat}
         lng={formState.lng}
-        onRegionChange={handleMapRegionChange}
+        onRegionChangeComplete={handleMapRegionChangeComplete}
       />
 
       {/* Location Buttons */}
@@ -114,26 +122,6 @@ export function AddressForm({
             </>
           )}
         </TouchableOpacity> */}
-
-        {geocodeResult && (
-          <TouchableOpacity
-            style={[
-              styles.locationButton,
-              { backgroundColor: colors.secondary },
-            ]}
-            onPress={handleFillFromMap}
-          >
-            <Ionicons name="download" size={20} color={colors.white} />
-            <Text
-              variant="s"
-              color={colors.white}
-              weight="medium"
-              style={styles.buttonText}
-            >
-              Fill from Map
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       {/* Geocode Info */}
@@ -153,10 +141,6 @@ export function AddressForm({
         onPincodeChange={formState.setPincode}
         state={formState.state}
         onStateChange={formState.setState}
-        cityId={formState.cityId}
-        onCityIdChange={formState.setCityId}
-        cities={cities}
-        isCitiesLoading={isCitiesLoading}
       />
 
       <Button

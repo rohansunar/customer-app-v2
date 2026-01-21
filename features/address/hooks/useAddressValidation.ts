@@ -15,7 +15,7 @@ export function useAddressValidation() {
    * @returns True if valid, false otherwise
    */
   const validateForm = (formState: AddressFormState): boolean => {
-    const { label, addressText, pincode, cityId, lng, lat } = formState;
+    const { label, addressText, pincode, city, state, lng, lat } = formState;
 
     if (!label) {
       showError('Please select an address type');
@@ -29,8 +29,12 @@ export function useAddressValidation() {
       showError('Please enter your pincode');
       return false;
     }
-    if (!cityId) {
-      showError('Please select a city');
+    if (!city) {
+      showError('City is required. Please select a location on the map.');
+      return false;
+    }
+    if (!state) {
+      showError('State is required. Please select a location on the map.');
       return false;
     }
     if (!lng || !lat) {
