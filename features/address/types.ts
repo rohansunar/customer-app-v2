@@ -1,11 +1,13 @@
-import { City } from '../city/services/cityService';
 
 export type Address = {
   id: string;
   label: string;
   address: string;
   pincode: string;
-  city: City;
+  location: {
+    id: string;
+    name: string;
+  };
   lng: number;
   lat: number;
   isDefault: boolean;
@@ -15,7 +17,8 @@ export type CreateAddressData = {
   label: string;
   address: string;
   pincode: string;
-  cityId: string;
+  city: string;
+  state: string;
   lng: number;
   lat: number;
   isDefault?: boolean;
@@ -32,7 +35,7 @@ export interface AddressFormState {
   label: string;
   addressText: string;
   pincode: string;
-  cityId: string;
+  city: string;
   lng: number;
   lat: number;
   state: string;
@@ -41,7 +44,7 @@ export interface AddressFormState {
 export interface AddressMapSectionProps {
   lat: number;
   lng: number;
-  onRegionChange: (region: any) => void;
+  onRegionChangeComplete: (region: any) => void;
 }
 
 export interface AddressTabsProps {
@@ -56,10 +59,6 @@ export interface AddressFormInputsProps {
   onPincodeChange: (text: string) => void;
   state: string;
   onStateChange: (text: string) => void;
-  cityId: string;
-  onCityIdChange: (cityId: string) => void;
-  cities: any[];
-  isCitiesLoading: boolean;
 }
 
 export interface AddressGeocodeInfoProps {

@@ -17,7 +17,7 @@ import { AddressMapSectionProps } from '../types';
 export function AddressMapSection({
   lat,
   lng,
-  onRegionChange,
+  onRegionChangeComplete,
 }: AddressMapSectionProps) {
   const hasValidCoordinates = lat !== 0 && lng !== 0;
 
@@ -34,7 +34,7 @@ export function AddressMapSection({
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}
-        onRegionChange={onRegionChange}
+        onRegionChange={onRegionChangeComplete}
         height={250}
       />
       <View style={styles.mapOverlay}>
