@@ -14,7 +14,6 @@ export const productService = {
       totalPages: number;
     };
   }> {
-    console.log('getProducts', page, limit);
     return apiClient
       .get(API_ENDPOINTS.PRODUCT, { params: { page, limit } })
       .then((res) => res.data);
