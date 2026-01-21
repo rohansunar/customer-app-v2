@@ -1,6 +1,6 @@
 import { spacing } from '@/core/theme/spacing';
 import { Input } from '@/core/ui/Input';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { AddressFormInputsProps } from '../types';
 
 /**
@@ -36,25 +36,7 @@ export function AddressFormInputs({
         placeholder="e.g. 123 Main St"
       />
 
-      <View style={styles.rowInputs}>
-        <View style={styles.halfInput}>
-          <Input
-            label="Pincode"
-            value={pincode}
-            onChangeText={onPincodeChange}
-            keyboardType="numeric"
-            placeholder="e.g. 560001"
-          />
-        </View>
-        <View style={styles.halfInput}>
-          <Input
-            label="State"
-            value={state}
-            onChangeText={onStateChange}
-            placeholder="e.g. Karnataka"
-          />
-        </View>
-      </View>
+
 
     </>
   );
