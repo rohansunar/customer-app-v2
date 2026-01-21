@@ -27,6 +27,7 @@ export function useHandlePayment(cartId: string) {
           router.push('/home/orders' as any);
         },
         onError: (error) => {
+          console.log(error)
           showError(getErrorMessage(error));
         },
       },

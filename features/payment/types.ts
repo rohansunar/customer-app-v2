@@ -11,7 +11,7 @@
  * - 'Online': Payment made online (e.g., via card or digital wallet).
  * - 'Monthly': Payment on a monthly basis (e.g., subscription).
  */
-export type PaymentMode = 'Cash' | 'Online' | 'Monthly';
+export type PaymentMode = 'COD' | 'ONLINE' | 'MONTHLY';
 
 /**
  * Represents a payment request.

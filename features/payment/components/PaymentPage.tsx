@@ -31,17 +31,17 @@ export function PaymentPage() {
     description: string;
   }[] = [
     {
-      mode: 'Online',
+      mode: 'ONLINE',
       icon: 'card-outline',
       description: 'Pay via Card, UPI or Netbanking',
     },
     {
-      mode: 'Cash',
+      mode: 'COD',
       icon: 'cash-outline',
       description: 'Pay when your water arrives',
     },
     {
-      mode: 'Monthly',
+      mode: 'MONTHLY',
       icon: 'calendar-outline',
       description: 'Add to your monthly bill',
     },

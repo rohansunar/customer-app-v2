@@ -1,4 +1,4 @@
-import { showError, showSuccess } from '@/core/ui/toast';
+import { showError } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentService } from '../services/paymentService';
@@ -17,7 +17,6 @@ export function usePayment() {
     mutationFn: (data: PaymentRequest) => paymentService.processPayment(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      showSuccess('Payment processed successfully');
     },
     onError: (error) => {
       showError(getErrorMessage(error));
