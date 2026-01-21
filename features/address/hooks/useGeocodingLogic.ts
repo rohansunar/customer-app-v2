@@ -57,7 +57,6 @@ export function useGeocodingLogic(
     // Auto-fill address details from geocode result
     useEffect(() => {
         if (geocodeResult && !address) {
-            setAddressText(geocodeResult.formattedAddress);
             setPincode(geocodeResult.postalCode);
             setState(geocodeResult.state);
             setCity(geocodeResult.city);
@@ -65,7 +64,6 @@ export function useGeocodingLogic(
     }, [
         geocodeResult,
         address,
-        setAddressText,
         setPincode,
         setState,
         setCity,
