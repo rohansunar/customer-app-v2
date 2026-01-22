@@ -6,6 +6,16 @@ import React, { memo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Address } from '../types';
 
+/**
+ * AddressItem Component
+ *
+ * Displays a single address in a list format with actions for edit and delete.
+ * Uses React.memo for performance optimization, re-rendering only when props change.
+ * Conditionally styles default addresses with primary color and checkmark.
+ * Icons differentiate address types (Home/Work) for visual clarity.
+ * Why memo: Prevents unnecessary re-renders in FlatList, improving scroll performance.
+ * Edge cases: Handles long addresses with text truncation, default status indication.
+ */
 interface AddressItemProps {
   address: Address;
   onPress: () => void;
@@ -21,9 +31,10 @@ export const AddressItem = memo(
         activeOpacity={0.7}
         style={[
           styles.container,
-          address.isDefault && styles.containerSelected,
+          address.isDefault && styles.containerSelected, // Conditional styling for default addresses
         ]}
       >
+        {/* Icon: Visual indicator for address type, colored based on default status. */}
         <View style={styles.leftIcon}>
           <Ionicons
             name={
@@ -36,6 +47,7 @@ export const AddressItem = memo(
           />
         </View>
 
+        {/* Content: Displays address details with truncation for long text. */}
         <View style={styles.content}>
           <View style={styles.header}>
             <Text
@@ -44,13 +56,13 @@ export const AddressItem = memo(
               color={address.isDefault ? colors.primary : colors.textPrimary}
             >
               {address.label}
-              {address.isDefault && ' (Default)'}
+              {address.isDefault && ' (Default)'} {/* Indicates primary address */}
             </Text>
           </View>
           <Text
             variant="xs"
             color={colors.textSecondary}
-            numberOfLines={1}
+            numberOfLines={1} // Prevents overflow, shows ellipsis
             style={styles.address}
           >
             {address.address}
@@ -60,6 +72,7 @@ export const AddressItem = memo(
           </Text>
         </View>
 
+        {/* Actions: Edit and delete buttons, with checkmark for default. */}
         <View style={styles.rightActions}>
           {address.isDefault && (
             <Ionicons
