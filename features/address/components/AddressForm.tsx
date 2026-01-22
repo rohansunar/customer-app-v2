@@ -16,13 +16,21 @@ import { AddressMapSection } from './AddressMapSection';
 import { AddressTabs } from './AddressTabs';
 
 /**
- * Main address form component refactored for SOLID principles.
- * Composes smaller, single-responsibility sub-components and custom hooks.
+ * AddressForm Component
  *
- * @param address - Optional existing address for editing
- * @param onSave - Callback to save the address
- * @param onCancel - Callback to cancel the form
- * @param isPending - Loading state for save operation
+ * Main address form component refactored for SOLID principles and clean architecture.
+ * Composes smaller, single-responsibility sub-components (e.g., AddressMapSection, AddressTabs) and custom hooks for logic separation.
+ * Handles both add and edit modes based on 'address' prop presence.
+ * Integrates map, geocoding, and location services for rich address input.
+ * Validates form data before saving and provides user feedback.
+ * Why this design: Separates concerns (UI, logic, data) for testability and maintainability.
+ * Dependencies: Relies on custom hooks for state management and external services.
+ * Edge cases: Handles loading states, form validation errors, and coordinate updates.
+ *
+ * @param address - Optional existing address for editing; if provided, pre-fills form
+ * @param onSave - Callback invoked with validated CreateAddressData on successful save
+ * @param onCancel - Callback to close the form without saving
+ * @param isPending - Indicates save operation in progress; disables form to prevent double-submission
  */
 export function AddressForm({
   address,
@@ -31,58 +39,71 @@ export function AddressForm({
   isPending,
 }: AddressFormProps) {
 
-  // Form state management
-  const formState = useAddressForm(address);
+   // Form state management: Custom hook initializes and manages form fields.
+   // Pre-fills with address data if editing; provides setters for updates.
+   const formState = useAddressForm(address);
 
-  // Map and location interactions
-  // Map and location interactions
-  const { handleMapRegionChangeComplete } = useMapLogic(
-    formState.lat,
-    formState.lng,
-    formState.setLat,
-    formState.setLng
-  );
+   // Map interactions: Hook handles map region changes, updating coordinates in form state.
+   // Ensures real-time sync between map position and form data.
+   const { handleMapRegionChangeComplete } = useMapLogic(
+     formState.lat,
+     formState.lng,
+     formState.setLat,
+     formState.setLng
+   );
 
-  const { currentLocation, locationLoading, handleUseCurrentLocation } =
-    useLocationLogic(
-      formState.lat,
-      formState.lng,
-      formState.setLat,
-      formState.setLng,
-      address
-    );
+   // Location services: Provides current location fetching and integration.
+   // Updates form coordinates when user selects current location.
+   // 'address' passed to avoid resetting during edit mode.
+   const { currentLocation, locationLoading, handleUseCurrentLocation } =
+     useLocationLogic(
+       formState.lat,
+       formState.lng,
+       formState.setLat,
+       formState.setLng,
+       address
+     );
 
-  const { geocodeResult, geocodeLoading } = useGeocodingLogic(
-    formState.lat,
-    formState.lng,
-    formState.setAddressText,
-    formState.setPincode,
-    formState.setState,
-    formState.setCity,
-    address
-  );
+   // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
+   // Updates address text, pincode, state, city based on map position.
+   // Essential for user-friendly address entry via map interaction.
+   const { geocodeResult, geocodeLoading } = useGeocodingLogic(
+     formState.lat,
+     formState.lng,
+     formState.setAddressText,
+     formState.setPincode,
+     formState.setState,
+     formState.setCity,
+     address
+   );
 
-  // Validation
-  const { validateForm } = useAddressValidation();
+   // Form validation: Hook provides validation logic for form data.
+   // Ensures required fields and format correctness before submission.
+   const { validateForm } = useAddressValidation();
 
-  const handleSave = () => {
-    if (validateForm(formState)) {
-      onSave({
-        label: formState.label,
-        address: formState.addressText,
-        pincode: formState.pincode,
-        city: formState.city,
-        state: formState.state,
-        lng: formState.lng,
-        lat: formState.lat,
-      });
-    }
-  };
+   // handleSave: Validates form and constructs CreateAddressData for parent callback.
+   // Only proceeds if validation passes; prevents invalid data submission.
+   // Maps internal form state to API-expected structure.
+   const handleSave = () => {
+     if (validateForm(formState)) {
+       onSave({
+         label: formState.label,
+         address: formState.addressText,
+         pincode: formState.pincode,
+         city: formState.city,
+         state: formState.state,
+         lng: formState.lng,
+         lat: formState.lat,
+       });
+     }
+   };
 
+  // Determines edit mode based on address prop presence.
   const isEdit = !!address;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header: Displays mode-specific title and close button for UX. */}
       <View style={styles.header}>
         <Text variant="l" weight="bold">
           {isEdit ? 'Edit Address' : 'Add Address'}
@@ -92,14 +113,16 @@ export function AddressForm({
         </TouchableOpacity>
       </View>
 
-      {/* Map Section */}
+      {/* Map Section: Interactive map for coordinate selection.
+         Updates form state on region changes. */}
       <AddressMapSection
         lat={formState.lat}
         lng={formState.lng}
         onRegionChangeComplete={handleMapRegionChangeComplete}
       />
 
-      {/* Location Buttons */}
+      {/* Location Buttons: Commented out feature for using current location.
+         Could be re-enabled for enhanced UX, with permission handling. */}
       <View style={styles.locationButtonsContainer}>
         {/* <TouchableOpacity
           style={[styles.locationButton, { backgroundColor: colors.primary }]}
@@ -124,16 +147,19 @@ export function AddressForm({
         </TouchableOpacity> */}
       </View>
 
-      {/* Geocode Info */}
+      {/* Geocode Info: Displays address derived from coordinates.
+         Provides feedback on geocoding process. */}
       <AddressGeocodeInfo
         geocodeResult={geocodeResult}
         geocodeLoading={geocodeLoading}
       />
 
-      {/* Address Tabs */}
+      {/* Address Tabs: Selection for address label (Home, Work, etc.).
+         Updates form label state. */}
       <AddressTabs label={formState.label} onLabelChange={formState.setLabel} />
 
-      {/* Form Inputs */}
+      {/* Form Inputs: Text fields for address details.
+         Controlled inputs linked to form state. */}
       <AddressFormInputs
         addressText={formState.addressText}
         onAddressTextChange={formState.setAddressText}
@@ -143,6 +169,8 @@ export function AddressForm({
         onStateChange={formState.setState}
       />
 
+      {/* Save Button: Triggers validation and save.
+         Disabled during pending state to prevent multiple submissions. */}
       <Button
         title={isPending ? 'Saving...' : 'Save'}
         onPress={handleSave}

@@ -3,7 +3,6 @@ export const API_ENDPOINTS = {
   VERIFY_OTP: '/auth/customer/verify-otp',
   CUSTOMER_ME: '/customer/me',
   ADDRESS: '/customer/addresses',
-  CITIES: '/cities',
   PRODUCT: '/search/products',
   CART: '/cart',
   CUSTOMER_ORDER: '/customer/orders',
