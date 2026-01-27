@@ -164,6 +164,14 @@ export function useRemoveFromCart() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
+
+    /**
+     * Called when mutation is SETTLED
+     * Ensures final cache consistency
+     */
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
   });
 }
 

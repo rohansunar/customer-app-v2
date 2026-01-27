@@ -92,6 +92,17 @@ export function AddressForm({
       formState.setLng,
       address,
     );
+  // Location services: Provides current location fetching and integration.
+  // Updates form coordinates when user selects current location.
+  // 'address' passed to avoid resetting during edit mode.
+  const { currentLocation, locationLoading, handleUseCurrentLocation } =
+    useLocationLogic(
+      formState.lat,
+      formState.lng,
+      formState.setLat,
+      formState.setLng,
+      address,
+    );
 
   // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
   // Updates address text, pincode, state, city based on map position.
