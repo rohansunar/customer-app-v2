@@ -15,6 +15,7 @@ import { Address, CreateAddressData } from '@/features/address/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Modal,
   StyleSheet,
@@ -133,91 +134,128 @@ export function AddressPickerModal({
   }, [onClose]);
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <SafeAreaView style={styles.container}>
-          {!showForm ? (
-            <>
-              <View style={styles.header}>
-                <Text variant="l" weight="bold">
-                  Select Address
-                </Text>
-                <TouchableOpacity
-                  onPress={handleCloseModal}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color={colors.textPrimary} />
-                </TouchableOpacity>
-              </View>
-
+    <Modal visible={isVisible} animationType="slide" transparent={false}>
+      <SafeAreaView style={styles.container}>
+        {!showForm ? (
+          <>
+            <View style={styles.header}>
               <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAddAddress}
+                onPress={handleCloseModal}
+                style={styles.closeButton}
               >
-                <Ionicons name="add" size={20} color={colors.primary} />
-                <Text
-                  color={colors.primary}
-                  weight="medium"
-                  style={styles.addButtonText}
-                >
-                  Add Address
-                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={24}
+                  color={colors.textPrimary}
+                />
               </TouchableOpacity>
+              <Text variant="l" weight="bold" style={styles.title}>
+                Select Address
+              </Text>
+              <View style={styles.headerPlaceholder} />
+            </View>
 
+            <View style={styles.content}>
               {isLoading ? (
+                /* ---------- LOADING ---------- */
                 <View style={styles.centered}>
-                  <Text>Loading addresses...</Text>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={styles.loadingText}>Loading addresses...</Text>
                 </View>
               ) : addresses && addresses.length > 0 ? (
-                <FlatList
-                  data={addresses}
-                  keyExtractor={(item) => item.id}
-                  renderItem={renderItem}
-                  contentContainerStyle={styles.list}
-                />
+                /* ---------- ADDRESSES PRESENT ---------- */
+                <>
+                  {/* Add Address button ONLY when addresses exist */}
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={handleAddAddress}
+                  >
+                    <Ionicons name="add" size={20} color={colors.primary} />
+                    <Text
+                      color={colors.primary}
+                      weight="medium"
+                      style={styles.addButtonText}
+                    >
+                      Add Address
+                    </Text>
+                  </TouchableOpacity>
+
+                  <FlatList
+                    data={addresses}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.list}
+                    showsVerticalScrollIndicator={false}
+                  />
+                </>
               ) : (
+                /* ---------- EMPTY STATE ---------- */
                 <View style={styles.centered}>
-                  <Text color={colors.textSecondary}>No addresses found</Text>
+                  <Ionicons
+                    name="location-outline"
+                    size={64}
+                    color={colors.textSecondary}
+                  />
+                  <Text color={colors.textSecondary} style={styles.emptyText}>
+                    No addresses found
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.emptyAddButton}
+                    onPress={handleAddAddress}
+                  >
+                    <Text color={colors.primary} weight="medium">
+                      Add your first address
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               )}
-            </>
-          ) : (
-            <AddressForm
-              address={editingAddress || undefined}
-              onSave={handleSaveAddress}
-              onCancel={() => setShowForm(false)}
-              isPending={createMutation.isPending || updateMutation.isPending}
-            />
-          )}
-          <Toast config={toastConfig} position="top" topOffset={20} />
-        </SafeAreaView>
-      </View>
+            </View>
+          </>
+        ) : (
+          <AddressForm
+            address={editingAddress || undefined}
+            onSave={handleSaveAddress}
+            onCancel={() => setShowForm(false)}
+            isPending={createMutation.isPending || updateMutation.isPending}
+          />
+        )}
+        <Toast config={toastConfig} position="top" topOffset={20} />
+      </SafeAreaView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
   container: {
+    flex: 1,
     backgroundColor: colors.surface,
-    borderTopLeftRadius: spacing.radius.l,
-    borderTopRightRadius: spacing.radius.l,
-    height: '70%',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: spacing.m,
+    paddingHorizontal: spacing.m,
+    paddingVertical: spacing.s,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
+    height: 60,
+  },
+  title: {
+    flex: 1,
+    textAlign: 'left',
+    marginLeft: 7, // Offset for the close button width
+  },
+  headerPlaceholder: {
+    width: 24, // Matches close button width for balance
   },
   closeButton: {
     padding: spacing.xs,
+    zIndex: 1,
+  },
+  content: {
+    flex: 1,
   },
   addButton: {
     flexDirection: 'row',
@@ -225,17 +263,78 @@ const styles = StyleSheet.create({
     padding: spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
   },
   addButtonText: {
     marginLeft: spacing.xs,
   },
   list: {
-    padding: spacing.m,
+    paddingBottom: spacing.xl,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
+  },
+  loadingText: {
+    marginTop: spacing.m,
+    color: colors.textSecondary,
+  },
+  emptyText: {
+    marginTop: spacing.m,
+    marginBottom: spacing.l,
+    fontSize: 16,
+  },
+  emptyAddButton: {
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.m,
+    backgroundColor: colors.primary + '10', // 10% opacity
+    borderRadius: spacing.radius.m,
+  },
+
+  // Address item styles
+  addressItem: {
+    padding: spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  addressItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  addressName: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tag: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: spacing.xs,
+    backgroundColor: colors.primary + '20',
+  },
+  tagText: {
+    fontSize: 10,
+    color: colors.primary,
+  },
+  addressText: {
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    marginTop: spacing.s,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: spacing.l,
+  },
+  actionButtonText: {
+    marginLeft: spacing.xs,
+    color: colors.primary,
   },
 });
