@@ -1,4 +1,3 @@
-
 /**
  * Address Type
  *
@@ -119,6 +118,7 @@ export interface AddressFormInputsProps {
   onPincodeChange: (text: string) => void;
   state: string;
   onStateChange: (text: string) => void;
+  addressError?: string | null;
 }
 
 /**

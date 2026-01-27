@@ -3,6 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
@@ -38,65 +39,94 @@ export function AddressForm({
   onCancel,
   isPending,
 }: AddressFormProps) {
+  // Form state management: Custom hook initializes and manages form fields.
+  // Pre-fills with address data if editing; provides setters for updates.
+  const formState = useAddressForm(address);
 
-   // Form state management: Custom hook initializes and manages form fields.
-   // Pre-fills with address data if editing; provides setters for updates.
-   const formState = useAddressForm(address);
+  // Form validation: Hook provides validation logic for form data.
+  // Ensures required fields and format correctness before submission.
+  const { validateForm, validateFullAddress } = useAddressValidation();
 
-   // Map interactions: Hook handles map region changes, updating coordinates in form state.
-   // Ensures real-time sync between map position and form data.
-   const { handleMapRegionChangeComplete } = useMapLogic(
-     formState.lat,
-     formState.lng,
-     formState.setLat,
-     formState.setLng
-   );
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const debounceRef = useRef<number | null>(null);
 
-   // Location services: Provides current location fetching and integration.
-   // Updates form coordinates when user selects current location.
-   // 'address' passed to avoid resetting during edit mode.
-   const { currentLocation, locationLoading, handleUseCurrentLocation } =
-     useLocationLogic(
-       formState.lat,
-       formState.lng,
-       formState.setLat,
-       formState.setLng,
-       address
-     );
+  // 🔹 Debounced validation for address text
+  const handleAddressTextChange = (value: string) => {
+    formState.setAddressText(value);
+    setAddressError(null);
 
-   // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
-   // Updates address text, pincode, state, city based on map position.
-   // Essential for user-friendly address entry via map interaction.
-   const { geocodeResult, geocodeLoading } = useGeocodingLogic(
-     formState.lat,
-     formState.lng,
-     formState.setAddressText,
-     formState.setPincode,
-     formState.setState,
-     formState.setCity,
-     address
-   );
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      const error = validateFullAddress(value);
+      setAddressError(error);
+    }, 3000);
+  };
 
-   // Form validation: Hook provides validation logic for form data.
-   // Ensures required fields and format correctness before submission.
-   const { validateForm } = useAddressValidation();
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
-   // handleSave: Validates form and constructs CreateAddressData for parent callback.
-   // Only proceeds if validation passes; prevents invalid data submission.
-   // Maps internal form state to API-expected structure.
-   const handleSave = () => {
-     if (validateForm(formState)) {
-       onSave({
-         label: formState.label,
-         address: formState.addressText,
-         pincode: formState.pincode,
-         city: formState.city,
-         state: formState.state,
-         lng: formState.lng,
-         lat: formState.lat,
-       });
-     }
-   };
+  // Map interactions: Hook handles map region changes, updating coordinates in form state.
+  // Ensures real-time sync between map position and form data.
+  const { handleMapRegionChangeComplete } = useMapLogic(
+    formState.lat,
+    formState.lng,
+    formState.setLat,
+    formState.setLng,
+  );
+
+  // Location services: Provides current location fetching and integration.
+  // Updates form coordinates when user selects current location.
+  // 'address' passed to avoid resetting during edit mode.
+  const { currentLocation, locationLoading, handleUseCurrentLocation } =
+    useLocationLogic(
+      formState.lat,
+      formState.lng,
+      formState.setLat,
+      formState.setLng,
+      address,
+    );
+
+  // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
+  // Updates address text, pincode, state, city based on map position.
+  // Essential for user-friendly address entry via map interaction.
+  const { geocodeResult, geocodeLoading } = useGeocodingLogic(
+    formState.lat,
+    formState.lng,
+    formState.setAddressText,
+    formState.setPincode,
+    formState.setState,
+    formState.setCity,
+    address,
+  );
+
+  // handleSave: Validates form and constructs CreateAddressData for parent callback.
+  // Only proceeds if validation passes; prevents invalid data submission.
+  // Maps internal form state to API-expected structure.
+  const handleSave = () => {
+    const error = validateFullAddress(formState.addressText);
+    setAddressError(error);
+
+    if (error) return;
+
+    if (validateForm(formState)) {
+      onSave({
+        label: formState.label,
+        address: formState.addressText,
+        pincode: formState.pincode,
+        city: formState.city,
+        state: formState.state,
+        lng: formState.lng,
+        lat: formState.lat,
+      });
+    }
+  };
 
   // Determines edit mode based on address prop presence.
   const isEdit = !!address;
@@ -162,11 +192,12 @@ export function AddressForm({
          Controlled inputs linked to form state. */}
       <AddressFormInputs
         addressText={formState.addressText}
-        onAddressTextChange={formState.setAddressText}
+        onAddressTextChange={handleAddressTextChange}
         pincode={formState.pincode}
         onPincodeChange={formState.setPincode}
         state={formState.state}
         onStateChange={formState.setState}
+        addressError={addressError}
       />
 
       {/* Save Button: Triggers validation and save.

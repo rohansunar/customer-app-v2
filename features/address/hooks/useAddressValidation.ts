@@ -1,6 +1,6 @@
 import { showError } from '@/core/ui/toast';
+import { addressValidator } from '@/shared/utils/addressValidator';
 import { AddressFormState } from '../types';
-
 /**
  * Custom hook for validating address form data.
  * Provides validation logic for form submission.
@@ -8,15 +8,27 @@ import { AddressFormState } from '../types';
  * @returns Object containing validation function
  */
 export function useAddressValidation() {
-  /**
-   * Validates the address form data and shows error messages if invalid.
-   *
-   * @param formState - The current form state
-   * @returns True if valid, false otherwise
-   */
+  // /**
+  //  * Validates the address form data and shows error messages if invalid.
+  //  *
+  //  * @param formState - The current form state
+  //  * @returns True if valid, false otherwise
+  //  */
+  const validateFullAddress = (addressText: string): string | null => {
+    const result = addressValidator.safeParse(addressText);
+    if (!result.success) {
+      return result.error.issues[0].message;
+    }
+    return null;
+  };
+
   const validateForm = (formState: AddressFormState): boolean => {
     const { label, addressText, pincode, city, state, lng, lat } = formState;
-
+    const addressError = validateFullAddress(formState.addressText);
+    if (addressError) {
+      showError(addressError);
+      return false;
+    }
     if (!label) {
       showError('Please select an address type');
       return false;
@@ -44,5 +56,8 @@ export function useAddressValidation() {
     return true;
   };
 
-  return { validateForm };
+  return {
+    validateForm,
+    validateFullAddress,
+  };
 }

@@ -56,7 +56,8 @@ export const AddressItem = memo(
               color={address.isDefault ? colors.primary : colors.textPrimary}
             >
               {address.label}
-              {address.isDefault && ' (Default)'} {/* Indicates primary address */}
+              {address.isDefault && ' (Default)'}{' '}
+              {/* Indicates primary address */}
             </Text>
           </View>
           <Text
@@ -67,6 +68,7 @@ export const AddressItem = memo(
           >
             {address.address}
           </Text>
+          {/* cspell:ignore pincode */}
           <Text variant="xs" color={colors.textTertiary}>
             {address.location.name}, {address.pincode}
           </Text>
@@ -97,6 +99,8 @@ export const AddressItem = memo(
     );
   },
 );
+
+AddressItem.displayName = 'AddressItem';
 
 const styles = StyleSheet.create({
   container: {

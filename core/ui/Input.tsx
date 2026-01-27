@@ -7,12 +7,12 @@ import { Text } from './Text';
 
 interface Props extends TextInputProps {
   label?: string;
-  error?: string;
+  error?: string | boolean;
 }
 
 export function Input({ label, error, style, ...props }: Props) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, error && styles.containerError]}>
       {label && (
         <Text variant="s" weight="medium" style={styles.label}>
           {label}
@@ -23,7 +23,7 @@ export function Input({ label, error, style, ...props }: Props) {
         placeholderTextColor={colors.textTertiary}
         {...props}
       />
-      {error && (
+      {error && typeof error === 'string' && (
         <Text variant="xs" color={colors.error} style={styles.error}>
           {error}
         </Text>
@@ -35,6 +35,9 @@ export function Input({ label, error, style, ...props }: Props) {
 const styles = StyleSheet.create({
   container: {
     marginBottom: spacing.m,
+  },
+  containerError: {
+    marginBottom: spacing.xs,
   },
   label: {
     marginBottom: spacing.xs,

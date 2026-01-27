@@ -1,5 +1,6 @@
 import { spacing } from '@/core/theme/spacing';
 import { Input } from '@/core/ui/Input';
+import { Text } from '@/core/ui/Text';
 import { StyleSheet } from 'react-native';
 import { AddressFormInputsProps } from '../types';
 
@@ -25,6 +26,7 @@ export function AddressFormInputs({
   onPincodeChange,
   state,
   onStateChange,
+  addressError,
 }: AddressFormInputsProps) {
   return (
     <>
@@ -33,11 +35,10 @@ export function AddressFormInputs({
         value={addressText}
         onChangeText={onAddressTextChange}
         multiline
-        placeholder="e.g. 123 Main St"
+        placeholder="e.g. Flat 12, 123 Main St"
+        error={!!addressError}
       />
-
-
-
+      {addressError && <Text style={styles.errorText}>{addressError}</Text>}
     </>
   );
 }
@@ -49,5 +50,10 @@ const styles = StyleSheet.create({
   },
   halfInput: {
     flex: 1,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginBottom: 4,
   },
 });
