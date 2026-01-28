@@ -1,7 +1,13 @@
-export function getErrorMessage(error: any): string {
-  const { message } = error?.response?.data;
-  if (Array.isArray(message)) {
-    return message.join('\n');
+import { AxiosError } from 'axios';
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError) {
+    return error.response?.data?.message ?? error.message ?? 'Request failed';
   }
-  return message || error?.message || 'Something went wrong! Please Try Later';
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Unexpected error';
 }
