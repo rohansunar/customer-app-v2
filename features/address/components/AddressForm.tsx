@@ -38,65 +38,64 @@ export function AddressForm({
   onCancel,
   isPending,
 }: AddressFormProps) {
+  // Form state management: Custom hook initializes and manages form fields.
+  // Pre-fills with address data if editing; provides setters for updates.
+  const formState = useAddressForm(address);
 
-   // Form state management: Custom hook initializes and manages form fields.
-   // Pre-fills with address data if editing; provides setters for updates.
-   const formState = useAddressForm(address);
+  // Map interactions: Hook handles map region changes, updating coordinates in form state.
+  // Ensures real-time sync between map position and form data.
+  const { handleMapRegionChangeComplete } = useMapLogic(
+    formState.lat,
+    formState.lng,
+    formState.setLat,
+    formState.setLng,
+  );
 
-   // Map interactions: Hook handles map region changes, updating coordinates in form state.
-   // Ensures real-time sync between map position and form data.
-   const { handleMapRegionChangeComplete } = useMapLogic(
-     formState.lat,
-     formState.lng,
-     formState.setLat,
-     formState.setLng
-   );
+  // Location services: Provides current location fetching and integration.
+  // Updates form coordinates when user selects current location.
+  // 'address' passed to avoid resetting during edit mode.
+  const { currentLocation, locationLoading, handleUseCurrentLocation } =
+    useLocationLogic(
+      formState.lat,
+      formState.lng,
+      formState.setLat,
+      formState.setLng,
+      address,
+    );
 
-   // Location services: Provides current location fetching and integration.
-   // Updates form coordinates when user selects current location.
-   // 'address' passed to avoid resetting during edit mode.
-   const { currentLocation, locationLoading, handleUseCurrentLocation } =
-     useLocationLogic(
-       formState.lat,
-       formState.lng,
-       formState.setLat,
-       formState.setLng,
-       address
-     );
+  // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
+  // Updates address text, pincode, state, city based on map position.
+  // Essential for user-friendly address entry via map interaction.
+  const { geocodeResult, geocodeLoading } = useGeocodingLogic(
+    formState.lat,
+    formState.lng,
+    formState.setAddressText,
+    formState.setPincode,
+    formState.setState,
+    formState.setCity,
+    address,
+  );
 
-   // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
-   // Updates address text, pincode, state, city based on map position.
-   // Essential for user-friendly address entry via map interaction.
-   const { geocodeResult, geocodeLoading } = useGeocodingLogic(
-     formState.lat,
-     formState.lng,
-     formState.setAddressText,
-     formState.setPincode,
-     formState.setState,
-     formState.setCity,
-     address
-   );
+  // Form validation: Hook provides validation logic for form data.
+  // Ensures required fields and format correctness before submission.
+  const { validateForm } = useAddressValidation();
 
-   // Form validation: Hook provides validation logic for form data.
-   // Ensures required fields and format correctness before submission.
-   const { validateForm } = useAddressValidation();
-
-   // handleSave: Validates form and constructs CreateAddressData for parent callback.
-   // Only proceeds if validation passes; prevents invalid data submission.
-   // Maps internal form state to API-expected structure.
-   const handleSave = () => {
-     if (validateForm(formState)) {
-       onSave({
-         label: formState.label,
-         address: formState.addressText,
-         pincode: formState.pincode,
-         city: formState.city,
-         state: formState.state,
-         lng: formState.lng,
-         lat: formState.lat,
-       });
-     }
-   };
+  // handleSave: Validates form and constructs CreateAddressData for parent callback.
+  // Only proceeds if validation passes; prevents invalid data submission.
+  // Maps internal form state to API-expected structure.
+  const handleSave = () => {
+    if (validateForm(formState)) {
+      onSave({
+        label: formState.label,
+        address: formState.addressText,
+        pincode: formState.pincode,
+        city: formState.city,
+        state: formState.state,
+        lng: formState.lng,
+        lat: formState.lat,
+      });
+    }
+  };
 
   // Determines edit mode based on address prop presence.
   const isEdit = !!address;

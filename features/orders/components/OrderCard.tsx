@@ -107,7 +107,8 @@ function OrderCardComponent({ order, loading }: Props) {
   }
 
   const canCancel =
-    order.delivery_status !== 'CANCELLED' && order.delivery_status !== 'DELIVERED';
+    order.delivery_status !== 'CANCELLED' &&
+    order.delivery_status !== 'DELIVERED';
 
   return (
     <Card
@@ -234,7 +235,9 @@ function OrderCardComponent({ order, loading }: Props) {
           <StatusBadge status={order.delivery_status} />
         </View>
 
-        {order.delivery_status === 'OUT_FOR_DELIVERY' && <OTPSegment otp={otp} />}
+        {order.delivery_status === 'OUT_FOR_DELIVERY' && (
+          <OTPSegment otp={otp} />
+        )}
       </View>
 
       <OrderModal

@@ -56,7 +56,8 @@ export const AddressItem = memo(
               color={address.isDefault ? colors.primary : colors.textPrimary}
             >
               {address.label}
-              {address.isDefault && ' (Default)'} {/* Indicates primary address */}
+              {address.isDefault && ' (Default)'}{' '}
+              {/* Indicates primary address */}
             </Text>
           </View>
           <Text

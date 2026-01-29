@@ -14,10 +14,10 @@ export type OrderStatus =
 // }
 
 export interface OrderItem {
-  id:string;
+  id: string;
   quantity: number;
   price: string;
-  product:{name:string};
+  product: { name: string };
 }
 
 export interface Address {

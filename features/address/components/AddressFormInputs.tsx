@@ -35,9 +35,6 @@ export function AddressFormInputs({
         multiline
         placeholder="e.g. 123 Main St"
       />
-
-
-
     </>
   );
 }

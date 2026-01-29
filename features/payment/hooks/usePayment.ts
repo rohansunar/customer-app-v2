@@ -17,6 +17,7 @@ export function usePayment() {
     mutationFn: (data: PaymentRequest) => paymentService.processPayment(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['order'] });
     },
     onError: (error) => {
       showError(getErrorMessage(error));

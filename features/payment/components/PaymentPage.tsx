@@ -38,12 +38,7 @@ export function PaymentPage() {
     {
       mode: 'COD',
       icon: 'cash-outline',
-      description: 'Pay when your water arrives',
-    },
-    {
-      mode: 'MONTHLY',
-      icon: 'calendar-outline',
-      description: 'Add to your monthly bill',
+      description: 'Pay when your product arrives',
     },
   ];
 

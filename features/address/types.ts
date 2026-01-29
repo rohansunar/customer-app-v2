@@ -1,4 +1,3 @@
-
 /**
  * Address Type
  *

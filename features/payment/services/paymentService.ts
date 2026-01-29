@@ -12,7 +12,7 @@ export const paymentService = {
   async processPayment(data: PaymentRequest) {
     const response = await apiClient.post(API_ENDPOINTS.PAYMENT, data);
     const order = response.data;
-    if(order.provider_payload == null){
+    if (order.provider_payload == null) {
       return;
     }
     const options = {
@@ -23,7 +23,7 @@ export const paymentService = {
       name: 'My App',
       description: 'First Payment',
       prefill: {
-        name:'Rohan Sunar',
+        name: 'Rohan Sunar',
         email: 'test@example.com',
         contact: '9999999999',
       },
@@ -31,17 +31,17 @@ export const paymentService = {
 
     try {
       if (!RazorpayCheckout) {
-        throw new Error("Razorpay SDK not linked. Are you using Expo Dev Client?");
+        throw new Error(
+          'Razorpay SDK not linked. Are you using Expo Dev Client?',
+        );
       }
 
       const result = await RazorpayCheckout.open(options);
       return result;
     } catch (error: any) {
       const message =
-        error?.description ||
-        error?.message ||
-        "Payment cancelled or failed";
-      showError(message)
+        error?.description || error?.message || 'Payment cancelled or failed';
+      showError(message);
     }
   },
 };
