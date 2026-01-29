@@ -5,10 +5,10 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Product } from '../types';
+import { DistanceBadge } from './DistanceBadge';
 import { ProductImageSlider } from './ProductImageSlider';
 
 type Props = {
@@ -27,15 +27,24 @@ export function ProductCard({ product }: Props) {
   return (
     <Card style={styles.card}>
       {/* Product Image Slider */}
-      <ProductImageSlider images={product.images || []} />
+      <View style={styles.sliderContainer}>
+        <ProductImageSlider images={product.images || []} />
+        {product.distance ? (
+          <DistanceBadge
+            value={product.distance.value}
+            unit={product.distance.unit}
+            style={styles.badge}
+          />
+        ) : null}
+      </View>
 
       <View style={styles.details}>
         <View style={styles.header}>
           <Text variant="l" weight="bold" color={colors.textPrimary}>
             {product.name}
           </Text>
-          <Text variant="m" weight="bold" color={colors.primary}>
-            ₹ {product.price}
+          <Text variant="s" color={colors.textSecondary}>
+            Bought by 300+
           </Text>
         </View>
 
@@ -51,12 +60,8 @@ export function ProductCard({ product }: Props) {
         )}
 
         <View style={styles.additionalInfo}>
-          <Text variant="s" color={colors.textSecondary}>
-            <Ionicons name="location" size={16} color={colors.black} />{' '}
-            {product.distance.value} {product.distance.unit} away
-          </Text>
-          <Text variant="s" color={colors.textSecondary}>
-            Bought by 300+
+          <Text variant="l" weight="semibold" color={colors.textPrimary}>
+            ₹ {product.price}
           </Text>
         </View>
 
@@ -91,7 +96,7 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.l,
     padding: 0, // No padding on card so slider can reach edges
-    overflow: 'hidden',
+    overflow: 'visible',
     borderRadius: spacing.radius.l,
     backgroundColor: colors.surface,
     shadowColor: '#000',
@@ -99,6 +104,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  sliderContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: spacing.m,
+    right: spacing.m,
+    zIndex: 10,
   },
   details: {
     padding: spacing.m,
