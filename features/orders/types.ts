@@ -7,22 +7,17 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
-export interface Product {
-  id: string;
-  name: string;
-  price: string;
-}
+// export interface Product {
+//   id: string;
+//   name: string;
+//   price: string;
+// }
 
-export interface CartItem {
-  id: string;
+export interface OrderItem {
+  id:string;
   quantity: number;
   price: string;
-  product: Product;
-}
-
-export interface Cart {
-  id: string;
-  cartItems: CartItem[];
+  product:{name:string};
 }
 
 export interface Address {
@@ -35,10 +30,10 @@ export interface Order {
   id: string;
   orderNo: string;
   total_amount: string;
-  status: OrderStatus;
+  delivery_status: OrderStatus;
   payment_status: string;
   created_at: string;
-  cart: Cart;
+  orderItems: OrderItem[];
   address: Address;
   assigned_rider_phone: string;
 }
