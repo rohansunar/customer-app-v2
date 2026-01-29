@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useHandlePayment } from '@/features/payment/hooks/useHandlePayment';
+import { PaymentMode } from '@/features/payment/types';
 import { useCart } from '../hooks/useCart';
 import { useRemoveFromCart } from '../hooks/useRemoveFromCart';
 import { CartItem } from '../types';
@@ -105,6 +107,27 @@ export function CartSummary() {
     );
   }
 
+  const { handlePayment, isPending } = useHandlePayment(data?.cartId || '');
+  const [selectedPaymentMode, setSelectedPaymentMode] =
+    React.useState<PaymentMode>('ONLINE');
+
+  const paymentModes: {
+    mode: PaymentMode;
+    label: string;
+    description: string;
+  }[] = [
+      {
+        mode: 'ONLINE',
+        label: 'Pay Online',
+        description: 'Card, UPI, Netbanking',
+      },
+      {
+        mode: 'COD',
+        label: 'COD',
+        description: 'Pay on delivery',
+      },
+    ];
+
   if (cartItems.length === 0) {
     return (
       <View style={styles.center}>
@@ -125,6 +148,55 @@ export function CartSummary() {
       </View>
     );
   }
+
+  const renderPaymentSelection = () => (
+    <View style={styles.paymentSection}>
+      <Text variant="m" weight="semibold" style={styles.sectionTitle}>
+        Payment Method
+      </Text>
+      <View style={styles.paymentOptions}>
+        {paymentModes.map((option) => {
+          const isSelected = selectedPaymentMode === option.mode;
+
+          return (
+            <TouchableOpacity
+              key={option.mode}
+              style={[
+                styles.paymentOption,
+                isSelected && styles.selectedPaymentOption,
+              ]}
+              onPress={() => setSelectedPaymentMode(option.mode)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.paymentOptionContent}>
+                <Ionicons
+                  name={option.mode === 'ONLINE' ? 'card-outline' : 'cash-outline'}
+                  size={24}
+                  color={isSelected ? colors.primary : colors.textSecondary}
+                  style={styles.paymentIcon}
+                />
+                <View style={styles.paymentTextContainer}>
+                  <Text
+                    weight="medium"
+                    color={isSelected ? colors.primary : colors.textPrimary}
+                  >
+                    {option.label}
+                  </Text>
+                  <Text
+                    variant="xs"
+                    color={isSelected ? colors.primary : colors.textSecondary}
+                    style={{ opacity: isSelected ? 0.9 : 0.8 }}
+                  >
+                    {option.description}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -216,10 +288,14 @@ export function CartSummary() {
             </View>
           </View>
 
+          {renderPaymentSelection()}
+
           <Button
-            title="Checkout"
-            onPress={() => router.push('/home/payment' as any)}
+            title={isPending ? 'Processing...' : 'Place Order'}
+            onPress={() => handlePayment(selectedPaymentMode)}
             style={styles.checkoutButton}
+            loading={isPending}
+            disabled={isPending}
           />
         </View>
       </View>
@@ -372,5 +448,42 @@ const styles = StyleSheet.create({
   checkoutButton: {
     width: '100%',
     height: 54,
+  },
+  paymentSection: {
+    marginBottom: spacing.m,
+  },
+  sectionTitle: {
+    marginBottom: spacing.s,
+  },
+  paymentOptions: {
+    flexDirection: 'row',
+    gap: spacing.s,
+  },
+  paymentOption: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    paddingVertical: spacing.s,
+    paddingHorizontal: spacing.m,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    minHeight: 70,
+  },
+  selectedPaymentOption: {
+    borderColor: colors.primary,
+    backgroundColor: colors.surfaceHighlight,
+  },
+  paymentOptionContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  paymentIcon: {
+    marginRight: spacing.m,
+  },
+  paymentTextContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });
