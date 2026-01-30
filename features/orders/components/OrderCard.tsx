@@ -5,6 +5,7 @@ import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  LayoutAnimation,
   Modal,
   StyleSheet,
   TouchableOpacity,
@@ -13,11 +14,17 @@ import {
 } from 'react-native';
 import { useCancelOrder } from '../hooks/useCancelOrder';
 import { Order } from '../types';
+import {
+  calculateTotalQuantity,
+  canCancelOrder,
+  formatOrderDate,
+  getPrimaryProductName,
+  getStatusColor,
+  getStatusLabel,
+} from '../utils/orderHelpers';
 import OrderCardSkeleton from './OrderCardSkeleton';
-import OrderHeader from './sub-components/OrderHeader';
 import OrderModal from './sub-components/OrderModal';
-import OTPSegment from './sub-components/OTPSegment';
-import StatusBadge from './sub-components/StatusBadge';
+import OrderTracker from './OrderTracker';
 import SupportModal from './sub-components/SupportModal';
 
 interface Props {
@@ -25,30 +32,12 @@ interface Props {
   loading?: boolean;
 }
 
-interface SectionProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  children: React.ReactNode;
-}
-
-const OrderSection = ({ icon, title, children }: SectionProps) => (
-  <View style={styles.section}>
-    <View style={styles.sectionHeader}>
-      <Ionicons name={icon} size={16} color={colors.textSecondary} />
-      <Text
-        variant="s"
-        weight="semibold"
-        color={colors.textSecondary}
-        style={styles.sectionTitle}
-      >
-        {title}
-      </Text>
-    </View>
-    {children}
-  </View>
-);
-
+/**
+ * OrderCard component displays a single order with collapsible item details
+ * Optimized with React.memo to prevent unnecessary re-renders
+ */
 function OrderCardComponent({ order, loading }: Props) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isSupportModalVisible, setIsSupportModalVisible] = useState(false);
@@ -56,7 +45,14 @@ function OrderCardComponent({ order, loading }: Props) {
   const menuAnchorRef = useRef<View>(null);
   const cancelOrderMutation = useCancelOrder();
 
+  // Mock OTP - memoized to prevent regeneration on re-renders
   const otp = useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
+
+  // Memoized callbacks to prevent function recreation on each render
+  const toggleExpanded = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsExpanded((prev) => !prev);
+  }, []);
 
   const handleCancelPress = useCallback(() => {
     setIsMenuVisible(false);
@@ -102,13 +98,36 @@ function OrderCardComponent({ order, loading }: Props) {
     [cancelOrderMutation, order],
   );
 
+  // Early return for loading state
   if (loading || !order) {
     return <OrderCardSkeleton />;
   }
 
-  const canCancel =
-    order.delivery_status !== 'CANCELLED' &&
-    order.delivery_status !== 'DELIVERED';
+  // Memoized computed values
+  const productName = useMemo(
+    () => getPrimaryProductName(order.orderItems),
+    [order.orderItems],
+  );
+  const totalQuantity = useMemo(
+    () => calculateTotalQuantity(order.orderItems),
+    [order.orderItems],
+  );
+  const canCancel = useMemo(
+    () => canCancelOrder(order.delivery_status),
+    [order.delivery_status],
+  );
+  const statusColor = useMemo(
+    () => getStatusColor(order.delivery_status),
+    [order.delivery_status],
+  );
+  const statusLabel = useMemo(
+    () => getStatusLabel(order.delivery_status),
+    [order.delivery_status],
+  );
+  const formattedDate = useMemo(
+    () => formatOrderDate(order.created_at),
+    [order.created_at],
+  );
 
   return (
     <Card
@@ -116,129 +135,174 @@ function OrderCardComponent({ order, loading }: Props) {
       accessible={true}
       accessibilityLabel={`Order ${order.orderNo}, status ${order.delivery_status}, total ${order.total_amount}`}
     >
-      <View style={styles.headerRow}>
-        <OrderHeader orderNo={order.orderNo} createdAt={order.created_at} />
-      </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerTitleContainer}>
+          <Text variant="l" weight="bold" color={colors.textPrimary} style={styles.productName}>
+            {productName}
+            {order.orderItems.length > 1 && ` + ${order.orderItems.length - 1} more`}
+          </Text>
+          <Text variant="s" color={colors.textTertiary} style={styles.orderNo}>
+            Order #{order.orderNo}
+          </Text>
+        </View>
 
-      {canCancel && (
-        <View style={styles.menuAnchor}>
+        <View style={styles.headerRightContainer}>
+          <View style={[styles.statusBadge, { borderColor: statusColor, backgroundColor: colors.surface }]}>
+            <Ionicons name="time-outline" size={14} color={statusColor} style={{ marginRight: 4 }} />
+            <Text variant="xs" weight="bold" color={statusColor}>
+              {statusLabel}
+            </Text>
+          </View>
+          <Text variant="xs" color={colors.textTertiary} style={styles.dateText}>
+            {formattedDate}
+          </Text>
+        </View>
+
+        {/* Menu Button */}
+        {canCancel && (
           <TouchableOpacity
             ref={menuAnchorRef}
             onPress={toggleMenu}
-            style={styles.menuButton}
-            activeOpacity={0.7}
+            style={styles.menuTrigger}
           >
-            <Ionicons
-              name="ellipsis-horizontal"
-              size={18}
-              color={colors.textSecondary}
-            />
+            <Ionicons name="ellipsis-vertical" size={20} color={colors.textTertiary} />
           </TouchableOpacity>
+        )}
+      </View>
 
-          <Modal
-            visible={isMenuVisible}
-            transparent
-            animationType="none"
-            onRequestClose={() => setIsMenuVisible(false)}
-          >
-            <TouchableWithoutFeedback onPress={() => setIsMenuVisible(false)}>
-              <View style={styles.modalBackdrop}>
-                <View
-                  style={[
-                    styles.menuOverlay,
-                    {
-                      top: menuPosition.top,
-                      right: menuPosition.right,
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={handleCancelPress}
-                  >
-                    <Ionicons
-                      name="close-circle-outline"
-                      size={18}
-                      color={colors.error}
-                    />
-                    <Text
-                      variant="s"
-                      color={colors.error}
-                      style={styles.menuItemText}
-                    >
-                      Cancel Order
-                    </Text>
-                  </TouchableOpacity>
+      {/* Details Section */}
+      <View style={styles.detailsContainer}>
+        {/* Address */}
+        <View style={styles.detailRow}>
+          <View style={[styles.iconBox, { backgroundColor: '#E0F2FE' }]}>
+            <Ionicons name="location-outline" size={18} color={colors.primary} />
+          </View>
+          <Text variant="s" color={colors.textSecondary} style={styles.detailText} numberOfLines={1}>
+            {order.address.address}, {order.address.pincode}
+          </Text>
+        </View>
 
-                  <View style={styles.menuDivider} />
+        {/* Quantity (Collapsible Toggle) */}
+        <TouchableOpacity
+          style={styles.detailRow}
+          onPress={toggleExpanded}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.iconBox, { backgroundColor: '#F3E8FF' }]}>
+            <Ionicons name="cube-outline" size={18} color="#9333EA" />
+          </View>
+          <View style={styles.quantityRow}>
+            <Text variant="s" color={colors.textSecondary} style={styles.detailText}>
+              Quantity: {totalQuantity} Items
+            </Text>
+            <Ionicons
+              name={isExpanded ? "chevron-up" : "chevron-down"}
+              size={16}
+              color={colors.textTertiary}
+            />
+          </View>
+        </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={handleContactPress}
-                  >
-                    <Ionicons
-                      name="chatbubble-ellipses-outline"
-                      size={18}
-                      color={colors.primary}
-                    />
-                    <Text
-                      variant="s"
-                      color={colors.primary}
-                      style={styles.menuItemText}
-                    >
-                      Contact Support
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+        {/* Collapsible Items List */}
+        {isExpanded && (
+          <View style={styles.itemsList}>
+            {order.orderItems.map((item, index) => (
+              <View key={item.id || index} style={styles.itemRow}>
+                <Text variant="xs" color={colors.textPrimary} style={styles.itemName}>
+                  {item.product.name}
+                </Text>
+                <Text variant="xs" color={colors.textSecondary}>
+                  {item.quantity} x ₹{item.price} = <Text weight="medium">₹{item.quantity * Number(item.price)}</Text>
+                </Text>
               </View>
-            </TouchableWithoutFeedback>
-          </Modal>
+            ))}
+          </View>
+        )}
+      </View>
+
+      {/* Footer: Amount */}
+      <View style={styles.amountRow}>
+        <Text variant="m" color={colors.textSecondary}>Total Amount</Text>
+        <Text variant="l" weight="bold" color={colors.primary}>
+          ₹{order.total_amount}
+        </Text>
+      </View>
+
+      {/* Tracker */}
+      <View style={styles.trackerContainer}>
+        <OrderTracker status={order.delivery_status} />
+      </View>
+
+      {/* OTP Segment */}
+      {order.delivery_status === 'OUT_FOR_DELIVERY' && (
+        <View style={styles.otpContainer}>
+          <Text variant="s" color={colors.textSecondary}>OTP for Delivery:</Text>
+          <Text variant="l" weight="bold" color={colors.primary} style={styles.otpText}>
+            {otp}
+          </Text>
         </View>
       )}
 
-      <View style={styles.content}>
-        {/* <OrderSection
-          icon="location-outline"
-          title={`Delivery Address: ${order.address.label}`}
-        >
-          <Text
-            variant="xs"
-            color={colors.textTertiary}
-            style={styles.addressText}
-          >
-            {order.address.address}, {order.address.pincode}
-          </Text>
-        </OrderSection> */}
+      {/* Modals */}
+      <Modal
+        visible={isMenuVisible}
+        transparent
+        animationType="none"
+        onRequestClose={() => setIsMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsMenuVisible(false)}>
+          <View style={styles.modalBackdrop}>
+            <View
+              style={[
+                styles.menuOverlay,
+                {
+                  top: menuPosition.top,
+                  right: menuPosition.right,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleCancelPress}
+              >
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+                <Text
+                  variant="s"
+                  color={colors.error}
+                  style={styles.menuItemText}
+                >
+                  Cancel Order
+                </Text>
+              </TouchableOpacity>
 
-        <OrderSection icon="list-outline" title="Items">
-          {order.orderItems.map((item) => (
-            <View key={item.id} style={styles.itemRow}>
-              <Text variant="xs" color={colors.textPrimary}>
-                {item.quantity} x {item.product.name}
-              </Text>
-              <Text variant="xs" weight="medium" color={colors.textPrimary}>
-                ₹ {item.price}
-              </Text>
+              <View style={styles.menuDivider} />
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={handleContactPress}
+              >
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={18}
+                  color={colors.primary}
+                />
+                <Text
+                  variant="s"
+                  color={colors.primary}
+                  style={styles.menuItemText}
+                >
+                  Contact Support
+                </Text>
+              </TouchableOpacity>
             </View>
-          ))}
-        </OrderSection>
-
-        <View style={styles.footer}>
-          <View>
-            <Text variant="s" color={colors.textSecondary}>
-              Total Amount
-            </Text>
-            <Text variant="m" weight="bold" color={colors.primary}>
-              ₹ {order.total_amount}
-            </Text>
           </View>
-          <StatusBadge status={order.delivery_status} />
-        </View>
-
-        {order.delivery_status === 'OUT_FOR_DELIVERY' && (
-          <OTPSegment otp={otp} />
-        )}
-      </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       <OrderModal
         visible={isModalVisible}
@@ -258,34 +322,118 @@ function OrderCardComponent({ order, loading }: Props) {
 const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.m,
-    padding: spacing.m,
+    padding: spacing.s,
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.l,
-    borderWidth: 1,
-    borderColor: colors.border,
-    zIndex: 1,
+    borderWidth: 0,
   },
-  headerRow: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.s,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    marginRight: spacing.s,
+  },
+  productName: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  orderNo: {
+    fontSize: 12,
+  },
+  headerRightContainer: {
+    alignItems: 'flex-end',
+  },
+  dateText: {
+    marginTop: 4,
+  },
+  statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 40, // Space for menu button
-    zIndex: 10,
-  },
-  menuAnchor: {
-    position: 'absolute',
-    top: spacing.m,
-    right: spacing.m,
-    zIndex: 20,
-  },
-  menuButton: {
-    width: 32,
-    height: 32,
+    paddingHorizontal: spacing.s,
+    paddingVertical: 2,
     borderRadius: 16,
+    borderWidth: 1,
+    backgroundColor: '#FFFBEB',
+  },
+  menuTrigger: {
+    padding: 4,
+    marginLeft: spacing.xs,
+    marginTop: -4,
+  },
+  detailsContainer: {
     backgroundColor: colors.background,
+    borderRadius: spacing.radius.m,
+    padding: spacing.s,
+    paddingVertical: spacing.s,
+    marginBottom: spacing.s,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.s,
+  },
+  iconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: spacing.s,
+  },
+  detailText: {
+    flex: 1,
+    fontSize: 13,
+  },
+  quantityRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  itemsList: {
+    marginTop: spacing.s,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.s,
+    paddingLeft: 28 + spacing.s,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  itemName: {
+    flex: 1,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.s,
+    paddingHorizontal: spacing.xs,
+  },
+  trackerContainer: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: spacing.radius.m,
+    padding: spacing.s,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.s,
+    padding: spacing.s,
+    backgroundColor: '#EFF6FF',
+    borderRadius: spacing.radius.m,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#DBEAFE',
+  },
+  otpText: {
+    marginLeft: 8,
   },
   modalBackdrop: {
     flex: 1,
@@ -319,38 +467,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
     marginHorizontal: spacing.s,
   },
-  content: {
-    marginTop: spacing.s,
-  },
-  section: {
-    marginBottom: spacing.m,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  sectionTitle: {
-    marginLeft: spacing.xs,
-  },
-  addressText: {
-    paddingLeft: spacing.m + spacing.xs,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.xs / 2,
-    paddingLeft: spacing.m + spacing.xs,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: spacing.s,
-    marginTop: spacing.s,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
 });
 
+// Memoize the component to prevent unnecessary re-renders
+// Only re-render when order or loading props change
 export default React.memo(OrderCardComponent);

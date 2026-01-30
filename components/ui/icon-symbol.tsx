@@ -23,6 +23,8 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'checkmark.circle.fill': 'check-circle',
   'xmark.circle.fill': 'cancel',
+  'cart.fill': 'shopping-cart',
+  'arrow.clockwise': 'schedule',
 } as IconMapping;
 
 /**
@@ -35,12 +37,14 @@ export function IconSymbol({
   size = 24,
   color,
   style,
+  accessibilityLabel,
 }: {
   name: IconSymbolName;
   size?: number;
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
+  accessibilityLabel?: string;
 }) {
   return (
     <MaterialIcons
@@ -48,6 +52,7 @@ export function IconSymbol({
       size={size}
       name={MAPPING[name]}
       style={style}
+      accessibilityLabel={accessibilityLabel}
     />
   );
 }

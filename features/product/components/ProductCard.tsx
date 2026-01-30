@@ -3,6 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
 import React, { useState } from 'react';
@@ -72,12 +73,14 @@ export function ProductCard({ product }: Props) {
             variant="outline"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
+            icon={<IconSymbol name="cart.fill" color={colors.primary} size={20} />}
           />
           <Button
             title="Subscribe"
             onPress={() => setIsSubscriptionModalVisible(true)}
             variant="primary"
             style={styles.subscribeButton}
+            icon={<IconSymbol name="arrow.clockwise" color={colors.surface} size={20} />}
           />
         </View>
       </View>
