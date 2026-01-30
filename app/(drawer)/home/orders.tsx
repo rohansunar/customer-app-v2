@@ -28,7 +28,7 @@ export default function OrdersTab() {
     isLoading: activeLoading,
     refetch: refetchActive,
     isFetching: activeFetching,
-    error: activeError
+    error: activeError,
   } = useOrders(activeStatuses);
 
   const {
@@ -36,14 +36,17 @@ export default function OrdersTab() {
     isLoading: historyLoading,
     refetch: refetchHistory,
     isFetching: historyFetching,
-    error: historyError
+    error: historyError,
   } = useOrders(historyStatuses);
 
   const currentData = activeTab === 'ACTIVE' ? activeData : historyData;
-  const currentLoading = activeTab === 'ACTIVE' ? activeLoading : historyLoading;
+  const currentLoading =
+    activeTab === 'ACTIVE' ? activeLoading : historyLoading;
   const currentError = activeTab === 'ACTIVE' ? activeError : historyError;
-  const currentRefetch = activeTab === 'ACTIVE' ? refetchActive : refetchHistory;
-  const currentFetching = activeTab === 'ACTIVE' ? activeFetching : historyFetching;
+  const currentRefetch =
+    activeTab === 'ACTIVE' ? refetchActive : refetchHistory;
+  const currentFetching =
+    activeTab === 'ACTIVE' ? activeFetching : historyFetching;
 
   // Memoized callbacks for FlatList optimization
   const keyExtractor = React.useCallback((item: any) => item.id, []);
@@ -119,15 +122,13 @@ export default function OrdersTab() {
           style={[
             styles.tab,
             activeTab === 'ACTIVE' && styles.activeTab,
-            activeTab !== 'ACTIVE' && styles.inactiveTab
+            activeTab !== 'ACTIVE' && styles.inactiveTab,
           ]}
           onPress={() => setActiveTab('ACTIVE')}
         >
           <Text
             weight="bold"
-            color={
-              activeTab === 'ACTIVE' ? colors.white : colors.textSecondary
-            }
+            color={activeTab === 'ACTIVE' ? colors.white : colors.textSecondary}
           >
             Active ({activeData?.total || 0})
           </Text>
@@ -137,7 +138,7 @@ export default function OrdersTab() {
           style={[
             styles.tab,
             activeTab === 'HISTORY' && styles.activeTab,
-            activeTab !== 'HISTORY' && styles.inactiveTab
+            activeTab !== 'HISTORY' && styles.inactiveTab,
           ]}
           onPress={() => setActiveTab('HISTORY')}
         >
