@@ -3,6 +3,7 @@
 export type OrderStatus =
   | 'PENDING'
   | 'CONFIRMED'
+  | 'PROCESSING'
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
   | 'CANCELLED';

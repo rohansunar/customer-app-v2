@@ -19,14 +19,51 @@ import {
 export default function OrdersTab() {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
 
+  const activeStatuses = ['PENDING', 'PROCESSING', 'OUT_FOR_DELIVERY'];
   const historyStatuses = ['DELIVERED', 'CANCELLED'];
 
-  const { data, isLoading, refetch, isFetching, error } = useOrders(
-    activeTab === 'ACTIVE' ? undefined : historyStatuses,
+  // Fetch both to show counts
+  const {
+    data: activeData,
+    isLoading: activeLoading,
+    refetch: refetchActive,
+    isFetching: activeFetching,
+    error: activeError
+  } = useOrders(activeStatuses);
+
+  const {
+    data: historyData,
+    isLoading: historyLoading,
+    refetch: refetchHistory,
+    isFetching: historyFetching,
+    error: historyError
+  } = useOrders(historyStatuses);
+
+  const currentData = activeTab === 'ACTIVE' ? activeData : historyData;
+  const currentLoading = activeTab === 'ACTIVE' ? activeLoading : historyLoading;
+  const currentError = activeTab === 'ACTIVE' ? activeError : historyError;
+  const currentRefetch = activeTab === 'ACTIVE' ? refetchActive : refetchHistory;
+  const currentFetching = activeTab === 'ACTIVE' ? activeFetching : historyFetching;
+
+  // Memoized callbacks for FlatList optimization
+  const keyExtractor = React.useCallback((item: any) => item.id, []);
+  const renderItem = React.useCallback(
+    ({ item }: any) => <OrderCard order={item} />,
+    [],
+  );
+
+  // FlatList performance optimization - fixed item height
+  const getItemLayout = React.useCallback(
+    (_data: any, index: number) => ({
+      length: 400, // Approximate height of OrderCard
+      offset: 400 * index,
+      index,
+    }),
+    [],
   );
 
   const renderContent = () => {
-    if (isLoading) {
+    if (currentLoading) {
       return (
         <View style={styles.centered}>
           <Text>Loading orders...</Text>
@@ -34,7 +71,7 @@ export default function OrdersTab() {
       );
     }
 
-    if (error) {
+    if (currentError) {
       return (
         <View style={styles.centered}>
           <Text color={colors.error}>Error loading orders</Text>
@@ -42,7 +79,7 @@ export default function OrdersTab() {
       );
     }
 
-    if (!data?.orders || data.orders.length === 0) {
+    if (!currentData?.orders || currentData.orders.length === 0) {
       return (
         <View style={styles.centered}>
           <Text color={colors.textSecondary}>
@@ -54,15 +91,19 @@ export default function OrdersTab() {
 
     return (
       <FlatList
-        data={data.orders}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <OrderCard order={item} />}
+        data={currentData.orders}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        windowSize={5} // Reduce memory usage by rendering fewer items
+        maxToRenderPerBatch={5} // Optimize initial render
+        removeClippedSubviews={true} // Android optimization
         refreshControl={
           <RefreshControl
-            refreshing={isFetching}
-            onRefresh={refetch}
+            refreshing={currentFetching}
+            onRefresh={currentRefetch}
             tintColor={colors.primary}
           />
         }
@@ -75,29 +116,38 @@ export default function OrdersTab() {
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'ACTIVE' && styles.activeTab]}
+          style={[
+            styles.tab,
+            activeTab === 'ACTIVE' && styles.activeTab,
+            activeTab !== 'ACTIVE' && styles.inactiveTab
+          ]}
           onPress={() => setActiveTab('ACTIVE')}
         >
           <Text
-            weight={activeTab === 'ACTIVE' ? 'bold' : 'medium'}
+            weight="bold"
             color={
-              activeTab === 'ACTIVE' ? colors.primary : colors.textSecondary
+              activeTab === 'ACTIVE' ? colors.white : colors.textSecondary
             }
           >
-            Active
+            Active ({activeData?.total || 0})
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'HISTORY' && styles.activeTab]}
+          style={[
+            styles.tab,
+            activeTab === 'HISTORY' && styles.activeTab,
+            activeTab !== 'HISTORY' && styles.inactiveTab
+          ]}
           onPress={() => setActiveTab('HISTORY')}
         >
           <Text
-            weight={activeTab === 'HISTORY' ? 'bold' : 'medium'}
+            weight="bold"
             color={
-              activeTab === 'HISTORY' ? colors.primary : colors.textSecondary
+              activeTab === 'HISTORY' ? colors.white : colors.textSecondary
             }
           >
-            History
+            History ({historyData?.total || 0})
           </Text>
         </TouchableOpacity>
       </View>
@@ -116,18 +166,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: spacing.m,
     backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    // Removed borderBottomWidth to match cleaner look, or keep if preferred.
+    // Making it look like the image: Tabs are buttons.
   },
   tab: {
     flex: 1,
     paddingVertical: spacing.s,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    justifyContent: 'center',
+    borderRadius: spacing.radius.circle, // Pill shape
+    marginHorizontal: spacing.xs,
   },
   activeTab: {
-    borderBottomColor: colors.primary,
+    backgroundColor: colors.primary, // Blue background
+  },
+  inactiveTab: {
+    backgroundColor: '#F1F5F9', // light grey
   },
   list: {
     padding: spacing.m,
