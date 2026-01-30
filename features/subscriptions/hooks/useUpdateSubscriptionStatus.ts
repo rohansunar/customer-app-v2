@@ -18,7 +18,6 @@ export function useUpdateSubscriptionStatus() {
       );
     },
     onError: (error) => {
-      console.log('Subscription update failed:', error);
       showError('Could not update subscription status. Please try again.');
     },
   });

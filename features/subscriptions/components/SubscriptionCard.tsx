@@ -12,7 +12,6 @@ import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
 import { getFrequencyLabel } from '../utils/subscriptionUtils';
-import { SubscriptionModal } from './SubscriptionModal';
 
 interface Props {
   subscription: Subscription;
@@ -22,7 +21,6 @@ interface Props {
 export function SubscriptionCard({ subscription, productName }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
   const deleteSubscription = useDeleteSubscription();
-  const [isEditVisible, setIsEditVisible] = useState(false);
   const isActive = subscription.status === 'ACTIVE';
 
   const handleToggleStatus = () => {
@@ -104,19 +102,6 @@ export function SubscriptionCard({ subscription, productName }: Props) {
 
         <View style={styles.footer}>
           <Button
-            title="Edit"
-            onPress={() => setIsEditVisible(true)}
-            variant="ghost"
-            style={styles.editButton}
-            icon={
-              <Ionicons
-                name="create-outline"
-                size={18}
-                color={colors.primary}
-              />
-            }
-          />
-          <Button
             title={isActive ? 'Pause' : 'Resume'}
             onPress={handleToggleStatus}
             variant={isActive ? 'outline' : 'primary'}
@@ -155,14 +140,6 @@ export function SubscriptionCard({ subscription, productName }: Props) {
           />
         </View>
       </Card>
-
-      <SubscriptionModal
-        visible={isEditVisible}
-        onClose={() => setIsEditVisible(false)}
-        productName={productName}
-        productId={subscription.productId}
-        existingSubscription={subscription}
-      />
     </>
   );
 }

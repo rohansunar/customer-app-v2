@@ -41,7 +41,7 @@ export default function HomeScreen() {
     if (isError) {
       showError(getErrorMessage(cartError));
     }
-  }, [isError]);
+  }, [isError, cartError]);
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
