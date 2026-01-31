@@ -1,6 +1,7 @@
+import { AlertProvider } from '@/core/context/AlertContext';
+import { ToastProvider } from '@/core/context/ToastContext';
 import { AppProvider } from '@/core/providers/AppProvider';
 import { useAuth } from '@/core/providers/AuthProvider';
-import { ToastProvider } from '@/core/utils/ToastContext';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -30,9 +31,11 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AppProvider>
-      <ToastProvider>
-        <RootNavigator />
-      </ToastProvider>
+      <AlertProvider>
+        <ToastProvider>
+          <RootNavigator />
+        </ToastProvider>
+      </AlertProvider>
       {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
