@@ -3,7 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { typography } from '@/core/theme/typography';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
-import { showError, showSuccess } from '@/core/ui/toast';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 
 import { AddressPickerModal } from '@/features/address/components/AddressPickerModal';
 import { useAddresses } from '@/features/address/hooks/useAddresses';
@@ -17,7 +17,6 @@ import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -29,6 +28,7 @@ import {
 
 export default function OtpScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
+  const showToast = useToastHelpers();
 
   /* -------------------- Local state -------------------- */
   const [hasError, setHasError] = useState(false);
@@ -50,10 +50,10 @@ export default function OtpScreen() {
   /* Safe guard effect */
   useEffect(() => {
     if (!phone) {
-      showError('Phone number not provided.');
+      showToast.error('Phone number not provided.');
       router.back();
     }
-  }, [phone]);
+  }, [phone, showToast]);
 
   /* Post-OTP navigation effect */
   useEffect(() => {
@@ -72,6 +72,7 @@ export default function OtpScreen() {
 
     if (otp.length !== OTP_LENGTH) {
       setHasError(true);
+      showToast.error('Please Enter 6 digits OTP');
       shake();
       return;
     }
@@ -85,6 +86,7 @@ export default function OtpScreen() {
         onError: () => {
           setHasError(true);
           shake();
+          showToast.error('Please Enter Correct OTP');
           clearOtp();
         },
       },
@@ -99,10 +101,10 @@ export default function OtpScreen() {
       onSuccess: () => {
         resetTimer();
         clearOtp();
-        showSuccess('A new OTP has been sent.');
+        showToast.success('A new OTP has been sent.');
       },
       onError: () => {
-        showError('Failed to resend OTP.');
+        showToast.error('Failed to resend OTP.');
       },
     });
   };
