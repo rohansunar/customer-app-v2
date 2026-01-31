@@ -40,7 +40,8 @@ const getDefaultTitle = (type?: AlertType): string => {
   }
 };
 
-export const useAlert = () => {
+// Rename to internal useAlertState to make it clear it's for internal use
+export const useAlertState = () => {
   const [alert, setAlert] = useState<AlertState>({
     visible: false,
     title: 'Alert',
@@ -85,12 +86,12 @@ export const useAlert = () => {
     }));
   }, []);
 
-  /* ---------- Helpers ---------- */
+  /* ---------- Helper methods ---------- */
 
   const showSuccess = useCallback(
-    (title: string, message: string, onConfirm?: () => void) => {
+    (message: string, title?: string, onConfirm?: () => void) => {
       showAlert({
-        title,
+        title: title || 'Success',
         message,
         type: 'success',
         autoDismiss: 3000,
@@ -104,9 +105,9 @@ export const useAlert = () => {
   );
 
   const showError = useCallback(
-    (title: string, message: string, onRetry?: () => void) => {
+    (message: string, title?: string, onRetry?: () => void) => {
       showAlert({
-        title,
+        title: title || 'Error',
         message,
         type: 'error',
         primaryButtonText: 'Retry',
@@ -123,15 +124,15 @@ export const useAlert = () => {
 
   const showConfirm = useCallback(
     (
-      title: string,
       message: string,
       onConfirm: () => void,
+      title?: string,
       onCancel?: () => void,
       confirmText = 'Confirm',
       cancelText = 'Cancel',
     ) => {
       showAlert({
-        title,
+        title: title || 'Confirm',
         message,
         type: 'confirm',
         primaryButtonText: confirmText,
@@ -150,9 +151,9 @@ export const useAlert = () => {
   );
 
   const showInfo = useCallback(
-    (title: string, message: string) => {
+    (message: string, title?: string) => {
       showAlert({
-        title,
+        title: title || 'Info',
         message,
         type: 'info',
         autoDismiss: 4000,
@@ -172,3 +173,5 @@ export const useAlert = () => {
   };
 };
 
+// Type for the context value
+export type AlertContextType = ReturnType<typeof useAlertState>;

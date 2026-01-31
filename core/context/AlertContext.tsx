@@ -1,21 +1,20 @@
 import React, { createContext, useContext } from 'react';
 import Alert from '../ui/customAlert';
-import { useAlert } from '../utils/useAlert';
+import { AlertContextType, useAlertState } from '../utils/useAlert';
 
-type AlertContextType = ReturnType<typeof useAlert>;
-
+// Create context with proper typing
 const AlertContext = createContext<AlertContextType | null>(null);
 
 export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const alertHelpers = useAlert();
+  const alertHelpers = useAlertState();
 
   return (
     <AlertContext.Provider value={alertHelpers}>
       {children}
 
-      {/* 🔥 Render Alert ONCE globally */}
+      {/* Global Alert Component */}
       <Alert
         visible={alertHelpers.alert.visible}
         title={alertHelpers.alert.title}
@@ -30,15 +29,34 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
         onClose={alertHelpers.hideAlert}
         showCloseButton={alertHelpers.alert.showCloseButton}
         icon={alertHelpers.alert.icon}
+        autoDismiss={alertHelpers.alert.autoDismiss}
+        dismissOnBackdropPress={alertHelpers.alert.dismissOnBackdropPress}
+        accessibility={alertHelpers.alert.accessibility}
       />
     </AlertContext.Provider>
   );
 };
 
-export const useAlertContext = () => {
+// Main hook to use in components
+export const useAlert = () => {
   const ctx = useContext(AlertContext);
   if (!ctx) {
-    throw new Error('useAlertContext must be used within AlertProvider');
+    throw new Error('useAlert must be used within AlertProvider');
   }
   return ctx;
+};
+
+// Optional: Export specific methods for convenience
+export const useAlertMethods = () => {
+  const ctx = useContext(AlertContext);
+  if (!ctx) {
+    throw new Error('useAlertMethods must be used within AlertProvider');
+  }
+
+  return {
+    showSuccess: ctx.showSuccess,
+    showError: ctx.showError,
+    showConfirm: ctx.showConfirm,
+    showInfo: ctx.showInfo,
+  };
 };

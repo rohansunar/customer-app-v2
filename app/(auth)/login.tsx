@@ -1,3 +1,4 @@
+import { useAlert } from '@/core/context/AlertContext';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
@@ -6,8 +7,8 @@ import { Text } from '@/core/ui/Text';
 import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
 import { usePhoneValidation } from '@/shared/hooks/usePhoneValidation';
 import { router } from 'expo-router';
+
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -18,7 +19,7 @@ import {
 export default function LoginScreen() {
   const { phone, error, isValidPhone, onChange } = usePhoneValidation();
   const { mutate, isPending } = useRequestOtp();
-
+  const { showError } = useAlert();
   function handleRequestOtp() {
     if (!isValidPhone) {
       return;
@@ -34,9 +35,13 @@ export default function LoginScreen() {
       },
       onError: (error) => {
         console.log(error);
-        Alert.alert(
+        showError(
           'Error',
           'Failed to send OTP. Please check your connection and try again.',
+          () => {
+            // Optional retry function
+            handleRequestOtp();
+          },
         );
       },
     });

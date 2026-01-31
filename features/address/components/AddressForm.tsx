@@ -48,9 +48,9 @@ export function AddressForm({
   const { validateForm, validateFullAddress } = useAddressValidation();
 
   const [addressError, setAddressError] = useState<string | null>(null);
-  const debounceRef = useRef<number | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 🔹 Debounced validation for address text
+  //  Debounced validation for address text
   const handleAddressTextChange = (value: string) => {
     formState.setAddressText(value);
     setAddressError(null);
