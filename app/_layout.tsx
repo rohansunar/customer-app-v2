@@ -1,5 +1,6 @@
 import { AppProvider } from '@/core/providers/AppProvider';
 import { useAuth } from '@/core/providers/AuthProvider';
+import { SplashProvider } from '@/core/providers/SplashProvider';
 import { toastConfig } from '@/core/ui/toastConfig';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,33 +14,21 @@ SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { loading } = useAuth();
 
-  useEffect(() => {
-    if (!loading) {
-      // Auth check finished → hide splash
-      SplashScreen.hideAsync();
-    }
-  }, [loading]);
-
   // Do not render navigation until auth is ready
   if (loading) {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }}></Stack>;
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
 
 export default function RootLayout() {
   return (
     <AppProvider>
-      <RootNavigator />
-      <Toast config={toastConfig} position="top" />
-      {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider> */}
+      <SplashProvider>
+        <RootNavigator />
+        <Toast config={toastConfig} position="top" />
+      </SplashProvider>
     </AppProvider>
   );
 }
