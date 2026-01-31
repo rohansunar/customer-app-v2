@@ -12,8 +12,8 @@ import {
   View,
 } from 'react-native';
 
-import { showError } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import CartButton from '@/features/cart/components/CartButton';
 import { ReferralBanner } from '@/features/promotion/components/ReferralBanner';
 import { ReferralModal } from '@/features/promotion/components/ReferralModal';
@@ -36,12 +36,13 @@ export default function HomeScreen() {
   const totalItems = cartData?.totalItems || 0;
 
   const products = data?.pages.flatMap((page) => page.data) || [];
+  const showToast = useToastHelpers();
 
   useEffect(() => {
     if (isError) {
-      showError(getErrorMessage(cartError));
+      showToast.error(getErrorMessage(cartError));
     }
-  }, [isError]);
+  }, [cartError, isError, showToast]);
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
