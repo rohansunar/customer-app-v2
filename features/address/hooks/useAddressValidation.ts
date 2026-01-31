@@ -1,4 +1,4 @@
-import { showError } from '@/core/ui/toast';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { addressValidator } from '@/shared/utils/addressValidator';
 import { AddressFormState } from '../types';
 /**
@@ -8,6 +8,8 @@ import { AddressFormState } from '../types';
  * @returns Object containing validation function
  */
 export function useAddressValidation() {
+  const showToast = useToastHelpers();
+
   // /**
   //  * Validates the address form data and shows error messages if invalid.
   //  *
@@ -26,31 +28,31 @@ export function useAddressValidation() {
     const { label, addressText, pincode, city, state, lng, lat } = formState;
     const addressError = validateFullAddress(formState.addressText);
     if (addressError) {
-      showError(addressError);
+      showToast.error(addressError);
       return false;
     }
     if (!label) {
-      showError('Please select an address type');
+      showToast.error('Please select an address type');
       return false;
     }
     if (!addressText) {
-      showError('Please enter your full address');
+      showToast.error('Please enter your full address');
       return false;
     }
     if (!pincode) {
-      showError('Please enter your pincode');
+      showToast.error('Please enter your pincode');
       return false;
     }
     if (!city) {
-      showError('City is required. Please select a location on the map.');
+      showToast.error('City is required. Please select a location on the map.');
       return false;
     }
     if (!state) {
-      showError('State is required. Please select a location on the map.');
+      showToast.error('State is required. Please select a location on the map.');
       return false;
     }
     if (!lng || !lat) {
-      showError('Please select a location on the map');
+      showToast.error('Please select a location on the map');
       return false;
     }
     return true;

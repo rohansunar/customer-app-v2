@@ -15,8 +15,8 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
-import { showError, showSuccess } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { AddressForm } from '@/features/address/components/AddressForm';
 import { AddressItem } from '@/features/address/components/AddressItem';
 import { useAddresses } from '@/features/address/hooks/useAddresses';
@@ -50,6 +50,7 @@ export default function AddressScreen() {
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const showToast = useToastHelpers();
 
   // Early returns for loading and error states: Prevents rendering the main UI when data is unavailable.
   // This improves UX by showing appropriate feedback instead of a broken interface.
@@ -96,23 +97,27 @@ export default function AddressScreen() {
         { id: selectedAddress.id, data: formData },
         {
           onSuccess: (res) => {
-            showSuccess(res?.data?.message || 'Address updated successfully');
+            showToast.success(
+              res?.data?.message || 'Address updated successfully',
+            );
             setIsModalVisible(false);
             setSelectedAddress(null);
           },
           onError: (error) => {
-            showError(getErrorMessage(error));
+            showToast.error(getErrorMessage(error));
           },
         },
       );
     } else {
       createMutation.mutate(formData, {
         onSuccess: (res) => {
-          showSuccess(res?.data?.message || 'Address created successfully');
+          showToast.success(
+            res?.data?.message || 'Address created successfully',
+          );
           setIsModalVisible(false);
         },
         onError: (error) => {
-          showError(getErrorMessage(error));
+          showToast.error(getErrorMessage(error));
         },
       });
     }
@@ -124,10 +129,10 @@ export default function AddressScreen() {
   const handleDeleteFromList = (id: string) => {
     deleteMutation.mutate(id, {
       onSuccess: (res) => {
-        showSuccess(res?.data?.message || 'Address deleted successfully');
+        showToast.success(res?.data?.message || 'Address deleted successfully');
       },
       onError: (error) => {
-        showError(getErrorMessage(error));
+        showToast.error(getErrorMessage(error));
       },
     });
   };

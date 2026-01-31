@@ -1,9 +1,9 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
-import { showError, showSuccess } from '@/core/ui/toast';
 import { toastConfig } from '@/core/ui/toastConfig';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { AddressForm } from '@/features/address/components/AddressForm';
 import { AddressItem } from '@/features/address/components/AddressItem';
 import { useAddresses } from '@/features/address/hooks/useAddresses';
@@ -41,20 +41,21 @@ export function AddressPickerModal({
   const updateMutation = useUpdateAddress();
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const showToast = useToastHelpers();
 
   const handleSetDefault = useCallback(
     (id: string) => {
       setDefaultMutation.mutate(id, {
         onSuccess: () => {
-          showSuccess('Location updated');
+          showToast.success('Location updated');
           onClose();
         },
         onError: (error) => {
-          showError(getErrorMessage(error));
+          showToast.error(getErrorMessage(error));
         },
       });
     },
-    [setDefaultMutation, onClose],
+    [setDefaultMutation, showToast, onClose],
   );
 
   const handleAddAddress = useCallback(() => {
@@ -71,14 +72,14 @@ export function AddressPickerModal({
     (id: string) => {
       deleteMutation.mutate(id, {
         onSuccess: () => {
-          // showSuccess('Address deleted');
+          showToast.success('Address Deleted');
         },
         onError: (error) => {
-          showError(getErrorMessage(error));
+          showToast.error(getErrorMessage(error));
         },
       });
     },
-    [deleteMutation],
+    [deleteMutation, showToast],
   );
 
   const handleSaveAddress = useCallback(
@@ -88,31 +89,31 @@ export function AddressPickerModal({
           { id: editingAddress.id, data: formData },
           {
             onSuccess: () => {
-              showSuccess('Address updated');
+              showToast.success('Address updated');
               setShowForm(false);
               setEditingAddress(null);
               onClose();
             },
             onError: (error) => {
-              showError(getErrorMessage(error));
+              showToast.error(getErrorMessage(error));
             },
           },
         );
       } else {
         createMutation.mutate(formData, {
           onSuccess: () => {
-            showSuccess('Address added');
+            showToast.success('Address added');
             setShowForm(false);
             setEditingAddress(null);
             onClose();
           },
           onError: (error) => {
-            showError(getErrorMessage(error));
+            showToast.error(getErrorMessage(error));
           },
         });
       }
     },
-    [editingAddress, updateMutation, createMutation, onClose],
+    [editingAddress, updateMutation, showToast, onClose, createMutation],
   );
 
   const renderItem = useCallback(
