@@ -1,18 +1,20 @@
-import { showError, showSuccess } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { profileService } from '../services/profileService';
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const showToast = useToastHelpers();
+
   return useMutation({
     mutationFn: profileService.updateProfile,
     onSuccess: () => {
-      showSuccess('Profile updated successfully');
+      showToast.success('Profile updated successfully');
       queryClient.invalidateQueries({ queryKey: ['profile'] });
     },
     onError: (error) => {
-      showError(getErrorMessage(error));
+      showToast.error(getErrorMessage(error));
     },
   });
 }
