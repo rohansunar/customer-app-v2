@@ -1,5 +1,5 @@
-import { showError } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cartService } from '../services/cartService';
 
@@ -11,6 +11,7 @@ import { cartService } from '../services/cartService';
  */
 export function useAddToCart() {
   const queryClient = useQueryClient();
+  const showToast = useToastHelpers();
 
   return useMutation({
     mutationFn: cartService.addToCart,
@@ -18,7 +19,7 @@ export function useAddToCart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error) => {
-      showError(getErrorMessage(error));
+      showToast.error(getErrorMessage(error));
     },
   });
 }

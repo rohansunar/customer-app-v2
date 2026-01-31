@@ -1,5 +1,5 @@
-import { showError, showSuccess } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cartService } from '../services/cartService';
 import { CartResponse } from '../types';
@@ -38,6 +38,7 @@ function updateCartCache(
  */
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
+  const showToast = useToastHelpers();
 
   return useMutation({
     mutationFn: (id: string) => cartService.deleteCartItem(id),
@@ -45,10 +46,10 @@ export function useRemoveFromCart() {
       queryClient.setQueryData(['cart'], (oldData: CartResponse | undefined) =>
         updateCartCache(oldData, id),
       );
-      showSuccess('Item removed');
+      showToast.success('Item removed');
     },
     onError: (error) => {
-      showError(getErrorMessage(error));
+      showToast.error(getErrorMessage(error));
     },
   });
 }
