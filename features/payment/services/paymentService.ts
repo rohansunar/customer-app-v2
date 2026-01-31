@@ -1,7 +1,6 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
 import { ENV } from '@/core/config/env';
-import { showError } from '@/core/ui/toast';
 import RazorpayCheckout from 'react-native-razorpay';
 import { PaymentRequest } from '../types';
 
@@ -20,7 +19,7 @@ export const paymentService = {
       name: 'My App',
       description: 'First Payment',
       prefill: {
-        name:'Rohan Sunar',
+        name: 'Rohan Sunar',
         email: 'test@example.com',
         contact: '9999999999',
       },
@@ -28,17 +27,17 @@ export const paymentService = {
 
     try {
       if (!RazorpayCheckout) {
-        throw new Error("Razorpay SDK not linked. Are you using Expo Dev Client?");
+        throw new Error(
+          'Razorpay SDK not linked. Are you using Expo Dev Client?',
+        );
       }
 
       const result = await RazorpayCheckout.open(options);
       return result;
     } catch (error: any) {
       const message =
-        error?.description ||
-        error?.message ||
-        "Payment cancelled or failed";
-      showError(message)
+        error?.description || error?.message || 'Payment cancelled or failed';
+      return message;
     }
   },
 };

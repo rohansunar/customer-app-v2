@@ -1,5 +1,5 @@
-import { showError } from '@/core/ui/toast';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { PaymentMode } from '../types';
@@ -17,6 +17,7 @@ import { usePayment } from './usePayment';
 export function useHandlePayment(cartId: string) {
   const payment = usePayment();
   const queryClient = useQueryClient();
+  const showToast = useToastHelpers();
 
   const handlePayment = (paymentMode: PaymentMode) => {
     payment.mutate(
@@ -27,8 +28,7 @@ export function useHandlePayment(cartId: string) {
           router.push('/home/orders' as any);
         },
         onError: (error) => {
-          console.log(error)
-          showError(getErrorMessage(error));
+          showToast.error(getErrorMessage(error));
         },
       },
     );
