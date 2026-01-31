@@ -1,5 +1,5 @@
+import { useToast } from '../context/ToastContext';
 import { ToastPosition } from '../ui/customToast';
-import { useToast } from './ToastContext';
 
 interface ToastOptions {
   duration?: number;
