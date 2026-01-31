@@ -5,21 +5,50 @@ import { useProducts } from '@/features/product/hooks/useProducts';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
 import { useInfiniteSubscriptions } from '@/features/subscriptions/hooks/useInfiniteSubscriptions';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
+type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
 export default function SubscriptionsScreen() {
+  const [filter, setFilter] = useState<FilterType>('ALL');
   const { subscriptions, loading, loadingMore, loadMore, error, refetch } =
     useInfiniteSubscriptions();
   const { data: productsData } = useProducts();
 
   const isLoading = loading;
+
+  // Filter subscriptions based on selected filter
+  const filteredSubscriptions = React.useMemo(() => {
+    if (filter === 'ALL') return subscriptions;
+    return subscriptions.filter((sub) => sub.status === filter);
+  }, [subscriptions, filter]);
+
+  // Auto-refresh when there are progressing subscriptions
+  React.useEffect(() => {
+    const hasProgressing = subscriptions.some(s => s.status === 'PROCESSING');
+    if (hasProgressing) {
+      const interval = setInterval(() => {
+        refetch();
+      }, 6000);
+      return () => clearInterval(interval);
+    }
+  }, [subscriptions, refetch]);
+
+  // Count subscriptions by status
+  const counts = React.useMemo(() => {
+    const active = subscriptions.filter((s) => s.status === 'ACTIVE').length;
+    const paused = subscriptions.filter((s) => s.status === 'INACTIVE').length;
+    return { all: subscriptions.length, active, paused };
+  }, [subscriptions]);
 
   if (isLoading) {
     return (
@@ -30,17 +59,20 @@ export default function SubscriptionsScreen() {
   }
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons name="repeat-outline" size={64} color={colors.textTertiary} />
-      <Text variant="l" weight="bold" style={styles.emptyTitle}>
-        No Subscriptions
+    <Animated.View
+      entering={FadeInDown.springify()}
+      style={styles.emptyContainer}
+    >
+      <View style={styles.emptyIconContainer}>
+        <Ionicons name="repeat-outline" size={64} color={colors.primary} />
+      </View>
+      <Text variant="xl" weight="bold" style={styles.emptyTitle}>
+        No Subscriptions Yet
       </Text>
-      <Text variant="s" color={colors.textSecondary} style={styles.emptyText}>
-        {
-          "You haven't subscribed to any products yet. Subscribe to your favorite daily essentials for hassle-free delivery."
-        }
+      <Text variant="m" color={colors.textSecondary} style={styles.emptyText}>
+        Subscribe to your favorite products for hassle-free recurring deliveries
       </Text>
-    </View>
+    </Animated.View>
   );
 
   const getProductName = (productId: string) => {
@@ -50,14 +82,77 @@ export default function SubscriptionsScreen() {
     return product?.name || 'Product';
   };
 
+  const renderFilterChip = (
+    type: FilterType,
+    label: string,
+    count: number,
+    icon: string
+  ) => {
+    const isSelected = filter === type;
+    return (
+      <TouchableOpacity
+        onPress={() => setFilter(type)}
+        style={[styles.filterChip, isSelected && styles.filterChipActive]}
+      >
+        <Ionicons
+          name={icon as any}
+          size={16}
+          color={isSelected ? colors.white : colors.textSecondary}
+        />
+        <Text
+          variant="s"
+          weight="medium"
+          color={isSelected ? colors.white : colors.textSecondary}
+        >
+          {label}
+        </Text>
+        <View
+          style={[
+            styles.countBadge,
+            isSelected && styles.countBadgeActive,
+          ]}
+        >
+          <Text
+            variant="xs"
+            weight="bold"
+            color={isSelected ? colors.primary : colors.textTertiary}
+          >
+            {count}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.container}>
+      {/* Enhanced Header */}
       <View style={styles.header}>
-        <Text variant="xl" weight="bold">
-          My Subscriptions
-        </Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text variant="xl" weight="bold">
+              My Subscriptions
+            </Text>
+            <Text variant="s" color={colors.textSecondary}>
+              {counts.all} {counts.all === 1 ? 'subscription' : 'subscriptions'}
+            </Text>
+          </View>
+          <View style={styles.headerIcon}>
+            <Ionicons name="repeat" size={28} color={colors.primary} />
+          </View>
+        </View>
+
+        {/* Filter Chips */}
+        {subscriptions.length > 0 && (
+          <View style={styles.filterContainer}>
+            {renderFilterChip('ALL', 'All', counts.all, 'apps-outline')}
+            {renderFilterChip('ACTIVE', 'Active', counts.active, 'checkmark-circle-outline')}
+            {renderFilterChip('INACTIVE', 'Paused', counts.paused, 'pause-circle-outline')}
+          </View>
+        )}
       </View>
 
+      {/* Error Message */}
       {error && (
         <View style={styles.errorContainer}>
           <Ionicons
@@ -71,13 +166,15 @@ export default function SubscriptionsScreen() {
         </View>
       )}
 
+      {/* Subscription List */}
       <FlatList
-        data={subscriptions}
+        data={filteredSubscriptions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <SubscriptionCard
             subscription={item}
             productName={getProductName(item.productId)}
+            index={index}
           />
         )}
         contentContainerStyle={styles.listContent}
@@ -106,12 +203,59 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: spacing.l,
+    backgroundColor: colors.surface,
     paddingTop: spacing.xl,
+    paddingHorizontal: spacing.l,
+    paddingBottom: spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.m,
+  },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    gap: spacing.s,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.m,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.circle,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  countBadge: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    minWidth: 20,
+    alignItems: 'center',
+  },
+  countBadgeActive: {
+    backgroundColor: colors.white,
   },
   listContent: {
     padding: spacing.l,
-    paddingTop: 0,
     paddingBottom: spacing.xxl,
   },
   center: {
@@ -126,13 +270,22 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
     marginTop: spacing.xxl,
   },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.primary + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.l,
+  },
   emptyTitle: {
-    marginTop: spacing.m,
     marginBottom: spacing.s,
   },
   emptyText: {
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
+    maxWidth: 280,
   },
   loadingMore: {
     padding: spacing.m,
@@ -142,13 +295,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.m,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.error + '10',
     marginHorizontal: spacing.l,
-    marginBottom: spacing.m,
-    borderRadius: 8,
+    marginTop: spacing.m,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1,
+    borderColor: colors.error + '30',
   },
   errorText: {
     marginLeft: spacing.s,
     flex: 1,
   },
 });
+

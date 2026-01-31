@@ -27,6 +27,7 @@ export function useCreateAddress() {
       });
     },
     onError: (error) => {
+      console.log("useCreateAddress", error)  
       // Show error toast with user-friendly message
       Toast.show({
         type: 'error',
