@@ -48,17 +48,17 @@ export function AddressForm({
   const { validateForm, validateFullAddress } = useAddressValidation();
 
   const [addressError, setAddressError] = useState<string | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   //  Debounced validation for address text
   const handleAddressTextChange = (value: string) => {
     formState.setAddressText(value);
     setAddressError(null);
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-    debounceRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       const error = validateFullAddress(value);
       setAddressError(error);
     }, 3000);
@@ -66,8 +66,8 @@ export function AddressForm({
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, []);

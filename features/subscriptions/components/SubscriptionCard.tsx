@@ -1,3 +1,4 @@
+import { useAlert } from '@/core/context/AlertContext';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { statusColors } from '@/core/theme/statusColors';
@@ -7,7 +8,7 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
@@ -24,6 +25,7 @@ export function SubscriptionCard({ subscription, productName }: Props) {
   const deleteSubscription = useDeleteSubscription();
   const [isEditVisible, setIsEditVisible] = useState(false);
   const isActive = subscription.status === 'ACTIVE';
+  const { showConfirm } = useAlert();
 
   const handleToggleStatus = () => {
     updateStatus.mutate({
@@ -133,17 +135,17 @@ export function SubscriptionCard({ subscription, productName }: Props) {
           <Button
             title=""
             onPress={() =>
-              Alert.alert(
-                'Confirm Deletion',
-                'Are you sure you want to delete this subscription?',
-                [
-                  { text: 'Cancel' },
-                  {
-                    text: 'Delete',
-                    onPress: () =>
-                      deleteSubscription.mutate({ id: subscription.id }),
-                  },
-                ],
+              showConfirm(
+                'Delete Subscription', // title
+                'Are you sure you want to delete this Subscription?', // message
+                () => {
+                  deleteSubscription.mutate({ id: subscription.id });
+                },
+                () => {
+                  console.log('Deletion cancelled');
+                },
+                'Delete', // confirmText
+                'Cancel', // cancelText
               )
             }
             variant="ghost"
