@@ -1,3 +1,4 @@
+import { useAlert } from '@/core/context/AlertContext';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
@@ -42,6 +43,7 @@ export function AddressPickerModal({
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const showToast = useToastHelpers();
+  const { showConfirm } = useAlert();
 
   const handleSetDefault = useCallback(
     (id: string) => {
@@ -70,16 +72,27 @@ export function AddressPickerModal({
 
   const handleDelete = useCallback(
     (id: string) => {
-      deleteMutation.mutate(id, {
-        onSuccess: () => {
-          showToast.success('Address Deleted');
+      showConfirm(
+        'Delete Address', // title
+        'Are you sure you want to delete this address?', // message
+        () => {
+          deleteMutation.mutate(id, {
+            onSuccess: () => {
+              showToast.success('Address Deleted');
+            },
+            onError: (error) => {
+              showToast.error(getErrorMessage(error));
+            },
+          });
         },
-        onError: (error) => {
-          showToast.error(getErrorMessage(error));
+        () => {
+          console.log('Deletion cancelled');
         },
-      });
+        'Delete', // confirmText
+        'Cancel', // cancelText
+      );
     },
-    [deleteMutation, showToast],
+    [deleteMutation, showToast, showConfirm],
   );
 
   const handleSaveAddress = useCallback(

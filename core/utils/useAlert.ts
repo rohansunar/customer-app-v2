@@ -124,9 +124,9 @@ export const useAlertState = () => {
 
   const showConfirm = useCallback(
     (
+      title: string,
       message: string,
       onConfirm: () => void,
-      title?: string,
       onCancel?: () => void,
       confirmText = 'Confirm',
       cancelText = 'Cancel',
