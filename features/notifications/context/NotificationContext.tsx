@@ -6,10 +6,22 @@ import {
   useCallback,
 } from 'react';
 import { Alert, Linking } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { useAuth } from '../../../core/providers/AuthProvider';
 import { useNotificationPermission } from '../hooks/useNotificationPermission';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { useNotificationHandler } from '../hooks/useNotificationHandler';
+
+// Global configuration for how notifications are handled when the app is in the foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldVibrate: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 interface NotificationContextType {
   isEnabled: boolean;
@@ -66,6 +78,9 @@ export function NotificationProvider({
     triggerTokenFetch();
   }, [isAuthenticated, isEnabled, pushToken, isLoading, error, getToken]);
 
+  /*
+   * Stable request permission handler.
+   */
   /*
    * Stable request permission handler.
    */
