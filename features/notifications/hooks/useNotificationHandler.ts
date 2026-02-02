@@ -2,8 +2,6 @@ import { useEffect, useCallback } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { useQueryClient } from '@tanstack/react-query';
-import { notificationMapper } from '../utils/notificationMapper';
-import { NotificationType } from '../types';
 
 export function useNotificationHandler() {
   const queryClient = useQueryClient();
@@ -12,30 +10,15 @@ export function useNotificationHandler() {
     async (response: Notifications.NotificationResponse) => {
       const { notification } = response;
       const data = notification.request.content.data as Record<string, unknown>;
-      const notificationType = data?.type as NotificationType;
+      const notificationType = data?.type as string;
 
-      const mappedNotification = notificationMapper.mapToRoute(
-        notificationType,
-        data,
-      );
+      console.log('[useNotificationHandler] Handling notification:', notificationType);
 
       // Invalidate relevant queries to refresh data
-      if (
-        notificationType &&
-        typeof notificationType === 'string' &&
-        notificationType.startsWith('order')
-      ) {
-        queryClient.invalidateQueries({ queryKey: ['orders'] });
-      }
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
 
-      // Navigate to the appropriate screen
-      if (mappedNotification) {
-        // Use router for more reliable navigation in expo-router
-        router.push({
-          pathname: mappedNotification.screen as any,
-          params: mappedNotification.params,
-        } as any);
-      }
+      // Navigate to the order list (always to order list as per requirement)
+      router.push('/(drawer)/home/orders');
     },
     [queryClient],
   );
