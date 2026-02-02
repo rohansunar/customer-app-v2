@@ -4,8 +4,9 @@ import { Text } from '@/core/ui/Text';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
 import { useInfiniteSubscriptions } from '@/features/subscriptions/hooks/useInfiniteSubscriptions';
+import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -20,6 +21,14 @@ type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
 export default function SubscriptionsScreen() {
   const [filter, setFilter] = useState<FilterType>('ALL');
+  const { isEnabled, requestPermission } = useNotifications();
+
+  useEffect(() => {
+    if (!isEnabled) {
+      requestPermission();
+    }
+  }, [isEnabled, requestPermission]);
+
   const { subscriptions, loading, loadingMore, loadMore, error, refetch } =
     useInfiniteSubscriptions();
   const { data: productsData } = useProducts();
@@ -34,7 +43,7 @@ export default function SubscriptionsScreen() {
 
   // Auto-refresh when there are progressing subscriptions
   React.useEffect(() => {
-    const hasProgressing = subscriptions.some(s => s.status === 'PROCESSING');
+    const hasProgressing = subscriptions.some((s) => s.status === 'PROCESSING');
     if (hasProgressing) {
       const interval = setInterval(() => {
         refetch();
@@ -86,7 +95,7 @@ export default function SubscriptionsScreen() {
     type: FilterType,
     label: string,
     count: number,
-    icon: string
+    icon: string,
   ) => {
     const isSelected = filter === type;
     return (
@@ -107,10 +116,7 @@ export default function SubscriptionsScreen() {
           {label}
         </Text>
         <View
-          style={[
-            styles.countBadge,
-            isSelected && styles.countBadgeActive,
-          ]}
+          style={[styles.countBadge, isSelected && styles.countBadgeActive]}
         >
           <Text
             variant="xs"
@@ -146,8 +152,18 @@ export default function SubscriptionsScreen() {
         {subscriptions.length > 0 && (
           <View style={styles.filterContainer}>
             {renderFilterChip('ALL', 'All', counts.all, 'apps-outline')}
-            {renderFilterChip('ACTIVE', 'Active', counts.active, 'checkmark-circle-outline')}
-            {renderFilterChip('INACTIVE', 'Paused', counts.paused, 'pause-circle-outline')}
+            {renderFilterChip(
+              'ACTIVE',
+              'Active',
+              counts.active,
+              'checkmark-circle-outline',
+            )}
+            {renderFilterChip(
+              'INACTIVE',
+              'Paused',
+              counts.paused,
+              'pause-circle-outline',
+            )}
           </View>
         )}
       </View>
@@ -307,4 +323,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-

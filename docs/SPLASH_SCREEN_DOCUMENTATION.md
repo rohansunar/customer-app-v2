@@ -4,13 +4,13 @@
 
 ## 📋 Quick Reference
 
-| 📦 Item | 🔑 Value |
-|---------|----------|
-| **Component Path** | [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx) |
-| **Default Duration** | 2500ms (2.5 seconds) |
-| **Key Dependencies** | `expo-splash-screen`, `expo-linear-gradient`, `react-native-reanimated` |
-| **Theme File** | [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts) |
-| **Provider** | [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx) |
+| 📦 Item              | 🔑 Value                                                                   |
+| -------------------- | -------------------------------------------------------------------------- |
+| **Component Path**   | [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx) |
+| **Default Duration** | 2500ms (2.5 seconds)                                                       |
+| **Key Dependencies** | `expo-splash-screen`, `expo-linear-gradient`, `react-native-reanimated`    |
+| **Theme File**       | [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts)                   |
+| **Provider**         | [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx)   |
 
 ---
 
@@ -31,24 +31,24 @@ The splash screen appears immediately when users open the app and remains visibl
 
 Without a splash screen, users would encounter a blank white screen during the React Native bridge initialization period (typically 1-3 seconds). This creates several issues:
 
-| ⚠️ Issue | 📝 Description |
-|----------|----------------|
-| **Poor First Impression** | A blank screen suggests the app is broken or unresponsive |
-| **User Uncertainty** | Users may repeatedly tap the screen or attempt to close/reopen the app |
-| **Brand Missed Opportunity** | The initial screen real estate goes unused |
+| ⚠️ Issue                     | 📝 Description                                                         |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| **Poor First Impression**    | A blank screen suggests the app is broken or unresponsive              |
+| **User Uncertainty**         | Users may repeatedly tap the screen or attempt to close/reopen the app |
+| **Brand Missed Opportunity** | The initial screen real estate goes unused                             |
 
 > 💡 **Tip:** The splash screen transforms a potentially negative user experience into a positive brand introduction.
 
 ### ✨ Key Features
 
-| 🎯 Feature | 📖 Description |
-|------------|----------------|
-| **Animated Logo** | Bounce-in animation draws attention to the brand |
-| **Loading Indicators** | Three-dot animation shows ongoing activity |
-| **Background Animation** | Subtle pulsing circles add visual interest |
-| **Smooth Exit** | Fade-out transition prevents jarring content swaps |
-| **Customizable Duration** | Adjustable display time via props |
-| **Navigation Integration** | Automatic routing based on authentication state |
+| 🎯 Feature                 | 📖 Description                                     |
+| -------------------------- | -------------------------------------------------- |
+| **Animated Logo**          | Bounce-in animation draws attention to the brand   |
+| **Loading Indicators**     | Three-dot animation shows ongoing activity         |
+| **Background Animation**   | Subtle pulsing circles add visual interest         |
+| **Smooth Exit**            | Fade-out transition prevents jarring content swaps |
+| **Customizable Duration**  | Adjustable display time via props                  |
+| **Navigation Integration** | Automatic routing based on authentication state    |
 
 ---
 
@@ -79,11 +79,11 @@ The first implementation used Expo's built-in `expo-splash-screen` API, which pr
 
 The initial native-only approach had limitations:
 
-| ❌ Limitation | 📝 Impact |
-|---------------|-----------|
-| Static design | No animations or visual engagement |
-| Limited customization | Cannot adapt to app themes |
-| No dynamic content | Cannot show loading states |
+| ❌ Limitation         | 📝 Impact                          |
+| --------------------- | ---------------------------------- |
+| Static design         | No animations or visual engagement |
+| Limited customization | Cannot adapt to app themes         |
+| No dynamic content    | Cannot show loading states         |
 
 The team decided to implement a custom React Native splash screen that would:
 
@@ -96,24 +96,24 @@ The team decided to implement a custom React Native splash screen that would:
 
 The current architecture uses a layered approach:
 
-| Layer | Component | Purpose |
-|-------|-----------|---------|
-| 1️⃣ | **Native Splash Screen** (`expo-splash-screen`) | Displays instantly on app launch |
-| 2️⃣ | **Custom React Native Splash** | Activates once the app bundle loads |
-| 3️⃣ | **Exit Animation** | Smooth fade-out when initialization completes |
+| Layer | Component                                       | Purpose                                       |
+| ----- | ----------------------------------------------- | --------------------------------------------- |
+| 1️⃣    | **Native Splash Screen** (`expo-splash-screen`) | Displays instantly on app launch              |
+| 2️⃣    | **Custom React Native Splash**                  | Activates once the app bundle loads           |
+| 3️⃣    | **Exit Animation**                              | Smooth fade-out when initialization completes |
 
 > 📌 **Note:** This hybrid approach ensures zero latency initial display (native) with rich animation support (React Native).
 
 ### 📈 Evolution of Features
 
-| Version | Feature | Description |
-|---------|---------|-------------|
-| 1.0 | Basic Display | Simple logo and app name |
-| 1.1 | Animations | Added logo bounce and dot animations |
-| 1.2 | Theme Support | Extracted configuration to splashTheme.ts |
-| 1.3 | Provider Pattern | Added SplashProvider for state management |
-| 1.4 | Navigation Logic | Integrated auth-based routing |
-| 2.0 | Full Refactor | Hook-based architecture, improved performance |
+| Version | Feature          | Description                                   |
+| ------- | ---------------- | --------------------------------------------- |
+| 1.0     | Basic Display    | Simple logo and app name                      |
+| 1.1     | Animations       | Added logo bounce and dot animations          |
+| 1.2     | Theme Support    | Extracted configuration to splashTheme.ts     |
+| 1.3     | Provider Pattern | Added SplashProvider for state management     |
+| 1.4     | Navigation Logic | Integrated auth-based routing                 |
+| 2.0     | Full Refactor    | Hook-based architecture, improved performance |
 
 ---
 
@@ -148,26 +148,26 @@ customer-app/
 
 #### Main Component Files
 
-| 📁 File | 🎯 Purpose | 📤 Exports |
-|---------|------------|-----------|
-| [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx) | Core splash screen component | Default export |
-| [`components/splash/SplashScreen.types.ts`](components/splash/SplashScreen.types.ts) | TypeScript type definitions | `SplashScreenProps`, `SplashAnimationState`, `SplashScreenStyles` |
-| [`components/splash/index.ts`](components/splash/index.ts) | Public API barrel file | All public exports |
+| 📁 File                                                                              | 🎯 Purpose                   | 📤 Exports                                                        |
+| ------------------------------------------------------------------------------------ | ---------------------------- | ----------------------------------------------------------------- |
+| [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx)           | Core splash screen component | Default export                                                    |
+| [`components/splash/SplashScreen.types.ts`](components/splash/SplashScreen.types.ts) | TypeScript type definitions  | `SplashScreenProps`, `SplashAnimationState`, `SplashScreenStyles` |
+| [`components/splash/index.ts`](components/splash/index.ts)                           | Public API barrel file       | All public exports                                                |
 
 #### Hook Files
 
-| 📁 File | 🎯 Purpose | 🔧 Key Functions |
-|---------|------------|------------------|
-| [`hooks/splash/useSplashAnimation.ts`](hooks/splash/useSplashAnimation.ts) | Manages all entry/exit animations | `startAnimations()`, `startExitAnimation()` |
-| [`hooks/splash/useSplashDuration.ts`](hooks/splash/useSplashDuration.ts) | Handles timer logic and completion | `start()`, `reset()`, `isComplete` |
-| [`hooks/splash/useSplashNavigation.ts`](hooks/splash/useSplashNavigation.ts) | Auth-based routing logic | `navigateBasedOnAuth()`, `navigateToLogin()` |
+| 📁 File                                                                      | 🎯 Purpose                         | 🔧 Key Functions                             |
+| ---------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------- |
+| [`hooks/splash/useSplashAnimation.ts`](hooks/splash/useSplashAnimation.ts)   | Manages all entry/exit animations  | `startAnimations()`, `startExitAnimation()`  |
+| [`hooks/splash/useSplashDuration.ts`](hooks/splash/useSplashDuration.ts)     | Handles timer logic and completion | `start()`, `reset()`, `isComplete`           |
+| [`hooks/splash/useSplashNavigation.ts`](hooks/splash/useSplashNavigation.ts) | Auth-based routing logic           | `navigateBasedOnAuth()`, `navigateToLogin()` |
 
 #### Provider and Theme
 
-| 📁 File | 🎯 Purpose | 🔑 Key Values |
-|---------|------------|---------------|
-| [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx) | React context for splash state | `isVisible`, `showSplash()`, `hideSplash()`, `onComplete()` |
-| [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts) | Centralized theme configuration | Colors, typography, animation timings |
+| 📁 File                                                                  | 🎯 Purpose                      | 🔑 Key Values                                               |
+| ------------------------------------------------------------------------ | ------------------------------- | ----------------------------------------------------------- |
+| [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx) | React context for splash state  | `isVisible`, `showSplash()`, `hideSplash()`, `onComplete()` |
+| [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts)                 | Centralized theme configuration | Colors, typography, animation timings                       |
 
 ### 🔗 Component Interaction Diagram
 
@@ -204,39 +204,39 @@ The [`SplashScreen`](components/splash/SplashScreen.tsx:13) component follows a 
 ```typescript
 // components/splash/SplashScreen.tsx - Lines 13-52
 export default function SplashScreen({
-    duration = 2500,
-    onFinish,
-    testID = 'splash-screen',
+  duration = 2500,
+  onFinish,
+  testID = 'splash-screen',
 }: SplashScreenProps) {
-    const {
-        logoAnimations,
-        circleAnimations,
-        dotsAnimations,
-        fadeOutAnimation,
-        startAnimations,
-        startExitAnimation,
-    } = useSplashAnimation();
+  const {
+    logoAnimations,
+    circleAnimations,
+    dotsAnimations,
+    fadeOutAnimation,
+    startAnimations,
+    startExitAnimation,
+  } = useSplashAnimation();
 
-    const timerCallback = useMemo(() => NO_OP, []);
-    const { isComplete, start: startTimer } = useSplashDuration({
-        duration,
-        onComplete: timerCallback
-    });
+  const timerCallback = useMemo(() => NO_OP, []);
+  const { isComplete, start: startTimer } = useSplashDuration({
+    duration,
+    onComplete: timerCallback,
+  });
 
-    useEffect(() => {
-        ExpoSplashScreen.hideAsync();
-        startAnimations();
-        startTimer();
-    }, [startAnimations, startTimer]);
+  useEffect(() => {
+    ExpoSplashScreen.hideAsync();
+    startAnimations();
+    startTimer();
+  }, [startAnimations, startTimer]);
 
-    useEffect(() => {
-        if (isComplete) {
-            const exitAnimation = startExitAnimation();
-            exitAnimation.start(() => {
-                onFinish();
-            });
-        }
-    }, [isComplete, onFinish, startExitAnimation]);
+  useEffect(() => {
+    if (isComplete) {
+      const exitAnimation = startExitAnimation();
+      exitAnimation.start(() => {
+        onFinish();
+      });
+    }
+  }, [isComplete, onFinish, startExitAnimation]);
 }
 ```
 
@@ -258,9 +258,9 @@ const logoScale = useRef(new Animated.Value(0.8)).current;
 const circleScale = useRef(new Animated.Value(0.8)).current;
 const circleOpacity = useRef(new Animated.Value(0)).current;
 const dotsOpacity = useRef([
-    new Animated.Value(0),
-    new Animated.Value(0),
-    new Animated.Value(0),
+  new Animated.Value(0),
+  new Animated.Value(0),
+  new Animated.Value(0),
 ]).current;
 const fadeOut = useRef(new Animated.Value(1)).current;
 ```
@@ -275,22 +275,22 @@ const fadeOut = useRef(new Animated.Value(1)).current;
 ```typescript
 // hooks/splash/useSplashAnimation.ts - Lines 48-66
 const startAnimations = useCallback(() => {
-    // Logo bounce in
-    Animated.parallel([
-        Animated.timing(logoOpacity, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-            easing: Easing.out(Easing.ease),
-        }),
-        Animated.spring(logoScale, {
-            toValue: 1,
-            damping: 12,
-            mass: 1,
-            stiffness: 150,
-            useNativeDriver: true,
-        }),
-    ]).start();
+  // Logo bounce in
+  Animated.parallel([
+    Animated.timing(logoOpacity, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    }),
+    Animated.spring(logoScale, {
+      toValue: 1,
+      damping: 12,
+      mass: 1,
+      stiffness: 150,
+      useNativeDriver: true,
+    }),
+  ]).start();
 }, []);
 ```
 
@@ -308,24 +308,24 @@ The [`useSplashDuration`](hooks/splash/useSplashDuration.ts:21) hook manages the
 ```typescript
 // hooks/splash/useSplashDuration.ts - Lines 21-58
 export function useSplashDuration({
-    duration = 2500,
-    onComplete,
+  duration = 2500,
+  onComplete,
 }: UseSplashDurationProps): UseSplashDurationReturn {
-    const [remainingTime, setRemainingTime] = useState(duration);
-    const [isComplete, setIsComplete] = useState(false);
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [remainingTime, setRemainingTime] = useState(duration);
+  const [isComplete, setIsComplete] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const start = useCallback(() => {
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-        timerRef.current = setTimeout(() => {
-            setIsComplete(true);
-            onComplete();
-        }, duration);
-    }, [duration, onComplete]);
+  const start = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      setIsComplete(true);
+      onComplete();
+    }, duration);
+  }, [duration, onComplete]);
 
-    return { remainingTime, isComplete, start, reset };
+  return { remainingTime, isComplete, start, reset };
 }
 ```
 
@@ -341,17 +341,17 @@ The [`useSplashNavigation`](hooks/splash/useSplashNavigation.ts:12) hook handles
 ```typescript
 // hooks/splash/useSplashNavigation.ts - Lines 12-28
 export function useSplashNavigation(): UseSplashNavigationReturn {
-    const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-    const navigateBasedOnAuth = useCallback(() => {
-        if (isAuthenticated) {
-            router.replace('/(drawer)/home');
-        } else {
-            router.replace('/(auth)/login');
-        }
-    }, [isAuthenticated]);
+  const navigateBasedOnAuth = useCallback(() => {
+    if (isAuthenticated) {
+      router.replace('/(drawer)/home');
+    } else {
+      router.replace('/(auth)/login');
+    }
+  }, [isAuthenticated]);
 
-    return { navigateToLogin, navigateBasedOnAuth };
+  return { navigateToLogin, navigateBasedOnAuth };
 }
 ```
 
@@ -367,25 +367,25 @@ Styles are defined using React Native's `StyleSheet.create()` for optimal perfor
 ```typescript
 // components/splash/SplashScreen.tsx - Lines 147-242
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: '100%',
-        height: '100%',
-    },
-    gradient: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-    },
-    // ... additional styles
+  container: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  // ... additional styles
 });
 ```
 
@@ -399,11 +399,11 @@ const styles = StyleSheet.create({
 
 All animations use native driver for better performance:
 
-| ✅ Benefit | 📝 Description |
-|-----------|----------------|
+| ✅ Benefit                | 📝 Description                                |
+| ------------------------- | --------------------------------------------- |
 | **Offloads Calculations** | Animation calculations run on the main thread |
-| **Prevents Blocking** | JavaScript thread remains responsive |
-| **Smooth Animations** | Consistent 60fps performance |
+| **Prevents Blocking**     | JavaScript thread remains responsive          |
+| **Smooth Animations**     | Consistent 60fps performance                  |
 
 #### Why useMemo for Timer Callback?
 
@@ -415,10 +415,10 @@ const timerCallback = useMemo(() => NO_OP, []);
 
 #### Why Two useEffect Calls?
 
-| useEffect | Purpose |
-|-----------|---------|
-| **First** | Handles initialization (mounting animations) |
-| **Second** | Handles completion (exit animation) |
+| useEffect  | Purpose                                      |
+| ---------- | -------------------------------------------- |
+| **First**  | Handles initialization (mounting animations) |
+| **Second** | Handles completion (exit animation)          |
 
 > 📌 **Note:** This separation ensures proper cleanup and prevents race conditions.
 
@@ -430,15 +430,15 @@ const timerCallback = useMemo(() => NO_OP, []);
 
 The [`SplashScreenProps`](components/splash/SplashScreen.types.ts:6) interface provides all customization options:
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `duration` | `number` | 2500 | Duration in milliseconds before onFinish is called |
-| `onFinish` | `() => void` | Required | Callback fired when splash duration completes |
-| `LogoComponent` | `React.ReactNode` | Optional | Optional custom logo component |
-| `appName` | `string` | Optional | Optional override for app name |
-| `tagline` | `string` | Optional | Optional override for tagline |
-| `bottomTagline` | `string` | Optional | Optional override for bottom tagline |
-| `testID` | `string` | 'splash-screen' | Test identifier for E2E testing |
+| Prop            | Type              | Default         | Description                                        |
+| --------------- | ----------------- | --------------- | -------------------------------------------------- |
+| `duration`      | `number`          | 2500            | Duration in milliseconds before onFinish is called |
+| `onFinish`      | `() => void`      | Required        | Callback fired when splash duration completes      |
+| `LogoComponent` | `React.ReactNode` | Optional        | Optional custom logo component                     |
+| `appName`       | `string`          | Optional        | Optional override for app name                     |
+| `tagline`       | `string`          | Optional        | Optional override for tagline                      |
+| `bottomTagline` | `string`          | Optional        | Optional override for bottom tagline               |
+| `testID`        | `string`          | 'splash-screen' | Test identifier for E2E testing                    |
 
 <details>
 <summary>📜 View Full Props Interface</summary>
@@ -446,20 +446,20 @@ The [`SplashScreenProps`](components/splash/SplashScreen.types.ts:6) interface p
 ```typescript
 // components/splash/SplashScreen.types.ts - Lines 6-21
 export interface SplashScreenProps {
-    /** Duration in milliseconds before onFinish is called */
-    duration?: number;              // Default: 2500
-    /** Callback fired when splash duration completes */
-    onFinish: () => void;           // Required
-    /** Optional custom logo component */
-    LogoComponent?: React.ReactNode;
-    /** Optional override for app name */
-    appName?: string;
-    /** Optional override for tagline */
-    tagline?: string;
-    /** Optional override for bottom tagline */
-    bottomTagline?: string;
-    /** Test identifier for E2E testing */
-    testID?: string;                // Default: 'splash-screen'
+  /** Duration in milliseconds before onFinish is called */
+  duration?: number; // Default: 2500
+  /** Callback fired when splash duration completes */
+  onFinish: () => void; // Required
+  /** Optional custom logo component */
+  LogoComponent?: React.ReactNode;
+  /** Optional override for app name */
+  appName?: string;
+  /** Optional override for tagline */
+  tagline?: string;
+  /** Optional override for bottom tagline */
+  bottomTagline?: string;
+  /** Test identifier for E2E testing */
+  testID?: string; // Default: 'splash-screen'
 }
 ```
 
@@ -484,7 +484,7 @@ export default function AppEntry() {
 
 ```typescript
 // Show splash for 4 seconds
-<SplashScreen 
+<SplashScreen
     duration={4000}
     onFinish={handleComplete}
 />
@@ -494,7 +494,7 @@ export default function AppEntry() {
 
 ```typescript
 // Override default text
-<SplashScreen 
+<SplashScreen
     appName="My Brand"
     tagline="Custom tagline here"
     bottomTagline="Made with love"
@@ -508,7 +508,7 @@ export default function AppEntry() {
 // Use a custom logo component
 import { Image } from 'react-native';
 
-<SplashScreen 
+<SplashScreen
     LogoComponent={<Image source={require('./logo.png')} />}
     onFinish={handleComplete}
 />
@@ -524,46 +524,46 @@ The [`splashTheme`](core/theme/splashTheme.ts:2) object provides centralized sty
 ```typescript
 // core/theme/splashTheme.ts - Lines 2-53
 export const splashTheme = {
-    // Gradient colors (Purple → Blue → Indigo)
-    gradientColors: {
-        start: '#9333EA', // Purple-600
-        center: '#2563EB', // Blue-600
-        end: '#4F46E5', // Indigo-700
-    },
-    
-    // Logo container
-    logoContainer: {
-        size: 128,
-        borderRadius: 24,
-        backgroundColor: '#FFFFFF',
-        shadowColor: '#000000',
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        shadowOffset: { width: 0, height: 4 },
-    },
-    
-    // Typography
-    appName: {
-        fontSize: 40,
-        fontWeight: '700',
-        color: '#FFFFFF',
-        letterSpacing: -0.5,
-    },
-    
-    // Animation durations
-    animations: {
-        logoBounce: 800,
-        dotsBounce: 400,
-        circlePulse: 2000,
-        fadeOut: 300,
-    },
-    
-    // Loading dots
-    loadingDots: {
-        size: 12,
-        count: 3,
-        delay: [0, 150, 300],
-    },
+  // Gradient colors (Purple → Blue → Indigo)
+  gradientColors: {
+    start: '#9333EA', // Purple-600
+    center: '#2563EB', // Blue-600
+    end: '#4F46E5', // Indigo-700
+  },
+
+  // Logo container
+  logoContainer: {
+    size: 128,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+  },
+
+  // Typography
+  appName: {
+    fontSize: 40,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+  },
+
+  // Animation durations
+  animations: {
+    logoBounce: 800,
+    dotsBounce: 400,
+    circlePulse: 2000,
+    fadeOut: 300,
+  },
+
+  // Loading dots
+  loadingDots: {
+    size: 12,
+    count: 3,
+    delay: [0, 150, 300],
+  },
 };
 ```
 
@@ -576,12 +576,12 @@ To modify the theme, edit [`core/theme/splashTheme.ts`](core/theme/splashTheme.t
 ```typescript
 // Change gradient colors
 export const splashTheme = {
-    gradientColors: {
-        start: '#FF6B6B',  // Red
-        center: '#FF8E53', // Orange
-        end: '#FFA07A',    // Light Orange
-    },
-    // ... other properties
+  gradientColors: {
+    start: '#FF6B6B', // Red
+    center: '#FF8E53', // Orange
+    end: '#FFA07A', // Light Orange
+  },
+  // ... other properties
 };
 ```
 
@@ -706,14 +706,14 @@ Components can access splash state via the `useSplash` hook:
 import { useSplash } from '@/core/providers/SplashProvider';
 
 function MyComponent() {
-    const { isVisible, showSplash, hideSplash } = useSplash();
+  const { isVisible, showSplash, hideSplash } = useSplash();
 
-    // Control splash visibility
-    const handleLogout = async () => {
-        showSplash();
-        await performLogout();
-        hideSplash();
-    };
+  // Control splash visibility
+  const handleLogout = async () => {
+    showSplash();
+    await performLogout();
+    hideSplash();
+  };
 }
 ```
 
@@ -730,7 +730,7 @@ SplashScreen.preventAutoHideAsync();
 
 // In SplashScreen component - hide when custom splash is ready
 useEffect(() => {
-    ExpoSplashScreen.hideAsync();
+  ExpoSplashScreen.hideAsync();
 }, []);
 ```
 
@@ -758,6 +758,7 @@ flowchart LR
 **Symptoms:** The splash screen appears for less than a second, or users see a white screen.
 
 **Causes:**
+
 - Native splash is hiding too early
 - Custom splash hasn't mounted when native splash hides
 
@@ -765,10 +766,10 @@ flowchart LR
 
 ```typescript
 useEffect(() => {
-    console.debug('[SplashScreen] Mounting and starting sequence');
-    ExpoSplashScreen.hideAsync();
-    startAnimations();
-    startTimer();
+  console.debug('[SplashScreen] Mounting and starting sequence');
+  ExpoSplashScreen.hideAsync();
+  startAnimations();
+  startTimer();
 }, [startAnimations, startTimer]);
 ```
 
@@ -777,6 +778,7 @@ useEffect(() => {
 **Symptoms:** Static splash screen, no animations visible.
 
 **Causes:**
+
 - Animations not triggered on mount
 - Dependencies array causing useEffect to skip
 
@@ -784,8 +786,8 @@ useEffect(() => {
 
 ```typescript
 useEffect(() => {
-    startAnimations();
-    startTimer();
+  startAnimations();
+  startTimer();
 }, [startAnimations, startTimer]); // Ensure these are stable
 ```
 
@@ -794,6 +796,7 @@ useEffect(() => {
 **Symptoms:** App doesn't navigate after splash completes.
 
 **Causes:**
+
 - `onFinish` callback not called
 - Navigation hook not properly integrated
 
@@ -801,24 +804,24 @@ useEffect(() => {
 
 ```typescript
 useEffect(() => {
-    if (isComplete) {
-        console.debug('[SplashScreen] Duration complete, starting exit animation');
-        const exitAnimation = startExitAnimation();
-        exitAnimation.start(() => {
-            console.debug('[SplashScreen] Exit animation complete');
-            onFinish();
-        });
-    }
+  if (isComplete) {
+    console.debug('[SplashScreen] Duration complete, starting exit animation');
+    const exitAnimation = startExitAnimation();
+    exitAnimation.start(() => {
+      console.debug('[SplashScreen] Exit animation complete');
+      onFinish();
+    });
+  }
 }, [isComplete, onFinish, startExitAnimation]);
 ```
 
 ### ❌ Error Messages
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `useSplash must be used inside SplashProvider` | Missing provider | Wrap component tree in `SplashProvider` |
-| `useAuth must be used inside AuthProvider` | Missing auth provider | Ensure `AuthProvider` wraps splash |
-| Animation values not animating | Missing `useNativeDriver` | Add `useNativeDriver: true` |
+| Error                                          | Cause                     | Solution                                |
+| ---------------------------------------------- | ------------------------- | --------------------------------------- |
+| `useSplash must be used inside SplashProvider` | Missing provider          | Wrap component tree in `SplashProvider` |
+| `useAuth must be used inside AuthProvider`     | Missing auth provider     | Ensure `AuthProvider` wraps splash      |
+| Animation values not animating                 | Missing `useNativeDriver` | Add `useNativeDriver: true`             |
 
 ### 📊 Logging Approach
 
@@ -847,10 +850,10 @@ console.debug('[SplashAnimation] Starting exit animation');
 test('splash screen triggers onFinish after duration', () => {
     const onFinish = jest.fn();
     render(<SplashScreen duration={100} onFinish={onFinish} />);
-    
+
     // Wait for duration + animation time
     jest.advanceTimersByTime(500);
-    
+
     expect(onFinish).toHaveBeenCalled();
 });
 ```
@@ -872,58 +875,58 @@ import { renderHook, act } from '@testing-library/react-native';
 import { useSplashDuration } from '../useSplashDuration';
 
 describe('useSplashDuration', () => {
-    beforeEach(() => {
-        jest.useFakeTimers();
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('should start with isComplete false', () => {
+    const { result } = renderHook(() =>
+      useSplashDuration({ duration: 1000, onComplete: jest.fn() }),
+    );
+    expect(result.current.isComplete).toBe(false);
+  });
+
+  it('should set isComplete true after duration', () => {
+    const onComplete = jest.fn();
+    const { result } = renderHook(() =>
+      useSplashDuration({ duration: 1000, onComplete }),
+    );
+
+    act(() => {
+      result.current.start();
     });
 
-    afterEach(() => {
-        jest.useRealTimers();
+    expect(result.current.isComplete).toBe(false);
+
+    act(() => {
+      jest.advanceTimersByTime(1000);
     });
 
-    it('should start with isComplete false', () => {
-        const { result } = renderHook(() => 
-            useSplashDuration({ duration: 1000, onComplete: jest.fn() })
-        );
-        expect(result.current.isComplete).toBe(false);
+    expect(result.current.isComplete).toBe(true);
+    expect(onComplete).toHaveBeenCalled();
+  });
+
+  it('should reset correctly', () => {
+    const { result } = renderHook(() =>
+      useSplashDuration({ duration: 1000, onComplete: jest.fn() }),
+    );
+
+    act(() => {
+      result.current.start();
+      jest.advanceTimersByTime(1000);
     });
 
-    it('should set isComplete true after duration', () => {
-        const onComplete = jest.fn();
-        const { result } = renderHook(() => 
-            useSplashDuration({ duration: 1000, onComplete })
-        );
-        
-        act(() => {
-            result.current.start();
-        });
-        
-        expect(result.current.isComplete).toBe(false);
-        
-        act(() => {
-            jest.advanceTimersByTime(1000);
-        });
-        
-        expect(result.current.isComplete).toBe(true);
-        expect(onComplete).toHaveBeenCalled();
+    act(() => {
+      result.current.reset();
     });
 
-    it('should reset correctly', () => {
-        const { result } = renderHook(() => 
-            useSplashDuration({ duration: 1000, onComplete: jest.fn() })
-        );
-        
-        act(() => {
-            result.current.start();
-            jest.advanceTimersByTime(1000);
-        });
-        
-        act(() => {
-            result.current.reset();
-        });
-        
-        expect(result.current.isComplete).toBe(false);
-        expect(result.current.remainingTime).toBe(1000);
-    });
+    expect(result.current.isComplete).toBe(false);
+    expect(result.current.remainingTime).toBe(1000);
+  });
 });
 ```
 
@@ -954,7 +957,7 @@ describe('SplashScreen', () => {
         const { getByTestId } = render(
             <SplashScreen onFinish={jest.fn()} />
         );
-        
+
         expect(getByTestId('splash-screen-container')).toBeTruthy();
     });
 
@@ -962,7 +965,7 @@ describe('SplashScreen', () => {
         const { getByTestId, getByText } = render(
             <SplashScreen onFinish={jest.fn()} />
         );
-        
+
         expect(getByTestId('splash-screen-logo')).toBeTruthy();
         expect(getByText('QuickServe')).toBeTruthy();
     });
@@ -972,7 +975,7 @@ describe('SplashScreen', () => {
         const { getByTestId } = render(
             <SplashScreen duration={100} onFinish={onFinish} />
         );
-        
+
         // Wait for duration + animation
         await waitFor(() => {
             expect(onFinish).toHaveBeenCalled();
@@ -983,7 +986,7 @@ describe('SplashScreen', () => {
         const { getByTestId } = render(
             <SplashScreen testID="custom-splash" onFinish={jest.fn()} />
         );
-        
+
         expect(getByTestId('custom-splash-container')).toBeTruthy();
     });
 });
@@ -1014,7 +1017,7 @@ describe('Splash Navigation Integration', () => {
                 </AuthProvider>
             </NavigationContainer>
         );
-        
+
         // Wait for splash to complete
         await waitFor(() => expect(getByText('Login')).toBeTruthy(), {
             timeout: 3000
@@ -1029,20 +1032,20 @@ describe('Splash Navigation Integration', () => {
 
 For visual regression testing, consider using:
 
-| Tool | Purpose |
-|------|---------|
-| **Storybook** | Create stories for splash screen variants |
+| Tool          | Purpose                                    |
+| ------------- | ------------------------------------------ |
+| **Storybook** | Create stories for splash screen variants  |
 | **Chromatic** | Visual regression testing for React Native |
-| **Percy** | Screenshot comparison testing |
+| **Percy**     | Screenshot comparison testing              |
 
 ### 📈 Test Coverage Goals
 
-| Area | Coverage Target | Tools |
-|------|-----------------|-------|
-| Hooks | 100% | Jest, React Testing Library |
-| Component Rendering | 100% | Jest, React Testing Library |
-| Animation Sequences | 90% | Manual verification |
-| Integration Flow | 100% | Integration tests |
+| Area                | Coverage Target | Tools                       |
+| ------------------- | --------------- | --------------------------- |
+| Hooks               | 100%            | Jest, React Testing Library |
+| Component Rendering | 100%            | Jest, React Testing Library |
+| Animation Sequences | 90%             | Manual verification         |
+| Integration Flow    | 100%            | Integration tests           |
 
 ---
 
@@ -1052,23 +1055,23 @@ For visual regression testing, consider using:
 
 #### Splash Screen Timing
 
-| Phase | Typical Duration | Optimization |
-|-------|------------------|--------------|
-| Native Splash Display | 0-100ms | Pre-configured in app.json |
-| Bundle Load | 500-2000ms | Code splitting, Hermes |
-| Custom Splash Mount | 50-100ms | Minimal initial render |
-| Animations | 500-3000ms | useNativeDriver |
-| **Total** | **1000-4000ms** | - |
+| Phase                 | Typical Duration | Optimization               |
+| --------------------- | ---------------- | -------------------------- |
+| Native Splash Display | 0-100ms          | Pre-configured in app.json |
+| Bundle Load           | 500-2000ms       | Code splitting, Hermes     |
+| Custom Splash Mount   | 50-100ms         | Minimal initial render     |
+| Animations            | 500-3000ms       | useNativeDriver            |
+| **Total**             | **1000-4000ms**  | -                          |
 
 #### Bundle Size Impact
 
 The splash screen adds minimal bundle overhead:
 
-| Component | Size |
-|-----------|------|
-| Core component | ~2KB (minified) |
+| Component       | Size              |
+| --------------- | ----------------- |
+| Core component  | ~2KB (minified)   |
 | Animation hooks | ~1.5KB (minified) |
-| Theme | ~0.5KB (minified) |
+| Theme           | ~0.5KB (minified) |
 
 ### 🎬 Animation Performance
 
@@ -1077,20 +1080,20 @@ All animations use `useNativeDriver: true` for optimal performance:
 ```typescript
 // Animation using native driver
 Animated.timing(logoOpacity, {
-    toValue: 1,
-    duration: 500,
-    useNativeDriver: true, // Key for performance
+  toValue: 1,
+  duration: 500,
+  useNativeDriver: true, // Key for performance
 });
 ```
 
 #### Why Native Driver Matters
 
-| Aspect | JavaScript Driver | Native Driver |
-|--------|-------------------|---------------|
-| Frame Rate | 30-60fps (variable) | 60fps (consistent) |
+| Aspect      | JavaScript Driver   | Native Driver      |
+| ----------- | ------------------- | ------------------ |
+| Frame Rate  | 30-60fps (variable) | 60fps (consistent) |
 | Main Thread | Blocks JS execution | Runs independently |
-| Memory | Higher overhead | Lower overhead |
-| Smoothness | May stutter | Smooth animations |
+| Memory      | Higher overhead     | Lower overhead     |
+| Smoothness  | May stutter         | Smooth animations  |
 
 ### 💾 Memory Management
 
@@ -1099,11 +1102,11 @@ Animated.timing(logoOpacity, {
 ```typescript
 // useSplashDuration.ts - Lines 50-56
 useEffect(() => {
-    return () => {
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-        }
-    };
+  return () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+  };
 }, []);
 ```
 
@@ -1125,10 +1128,10 @@ useEffect(() => {
 // Add performance logging
 const startTime = Date.now();
 useEffect(() => {
-    const loadTime = Date.now() - startTime;
-    if (loadTime > 1000) {
-        console.warn('[SplashScreen] Slow load time:', loadTime);
-    }
+  const loadTime = Date.now() - startTime;
+  if (loadTime > 1000) {
+    console.warn('[SplashScreen] Slow load time:', loadTime);
+  }
 }, []);
 ```
 
@@ -1142,12 +1145,12 @@ The splash screen includes test IDs for automated testing, but for screen reader
 
 ```typescript
 // Adding accessibility props
-<Animated.View 
+<Animated.View
     accessible={true}
     accessibilityLabel="App splash screen"
     accessibilityHint="Displays app logo and name while loading"
 >
-    <Animated.Text 
+    <Animated.Text
         accessibilityRole="header"
         style={styles.appName}
     >
@@ -1160,11 +1163,11 @@ The splash screen includes test IDs for automated testing, but for screen reader
 
 #### What Works Well
 
-| ✅ Feature | 📝 Description |
-|-----------|----------------|
+| ✅ Feature             | 📝 Description                         |
+| ---------------------- | -------------------------------------- |
 | **High Contrast Text** | White text on dark gradient background |
-| **Adequate Size** | 40px app name, 18px tagline |
-| **Reduced Motion** | Consider respecting system preferences |
+| **Adequate Size**      | 40px app name, 18px tagline            |
+| **Reduced Motion**     | Consider respecting system preferences |
 
 #### Recommendations for Improvement
 
@@ -1176,12 +1179,12 @@ import { useWindowDimensions } from 'react-native';
 import { Platform, UIManager } from 'react-native';
 
 function SplashScreen({ onFinish }: SplashScreenProps) {
-    const { reduceMotionEnabled } = useAccessibility(); // Hypothetical hook
-    
-    // Respect reduced motion preference
-    const animationDuration = reduceMotionEnabled ? 0 : 500;
-    
-    // ...
+  const { reduceMotionEnabled } = useAccessibility(); // Hypothetical hook
+
+  // Respect reduced motion preference
+  const animationDuration = reduceMotionEnabled ? 0 : 500;
+
+  // ...
 }
 ```
 
@@ -1213,20 +1216,20 @@ function SplashScreen({ onFinish }: SplashScreenProps) {
 
 #### Platform Guidelines
 
-| Platform | Guideline | Compliance |
-|----------|-----------|------------|
-| iOS | Human Interface Guidelines | ✅ No problematic patterns |
-| Android | Material Design | ✅ Follows best practices |
+| Platform | Guideline                  | Compliance                 |
+| -------- | -------------------------- | -------------------------- |
+| iOS      | Human Interface Guidelines | ✅ No problematic patterns |
+| Android  | Material Design            | ✅ Follows best practices  |
 
 ### 🎨 Color Contrast
 
 The default color scheme meets WCAG AA standards:
 
-| Element | Foreground | Background | Contrast Ratio |
-|---------|------------|------------|----------------|
-| App Name | `#FFFFFF` | Gradient | 7.1:1 ✅ |
-| Tagline | `rgba(255,255,255,0.9)` | Gradient | 6.8:1 ✅ |
-| Bottom Tagline | `rgba(255,255,255,0.8)` | Gradient | 6.0:1 ✅ |
+| Element        | Foreground              | Background | Contrast Ratio |
+| -------------- | ----------------------- | ---------- | -------------- |
+| App Name       | `#FFFFFF`               | Gradient   | 7.1:1 ✅       |
+| Tagline        | `rgba(255,255,255,0.9)` | Gradient   | 6.8:1 ✅       |
+| Bottom Tagline | `rgba(255,255,255,0.8)` | Gradient   | 6.0:1 ✅       |
 
 ---
 
@@ -1243,7 +1246,7 @@ The default color scheme meets WCAG AA standards:
 > A: You can override the default app name using the `appName` prop:
 
 ```typescript
-<SplashScreen 
+<SplashScreen
     appName="My Brand Name"
     onFinish={handleComplete}
 />
@@ -1271,7 +1274,7 @@ importcomponents/splash';
 
  SplashScreen from '@/function CustomLogo() {
     return (
-        <Image 
+        <Image
             source={require('./assets/logo.png')}
             style={{ width: 100, height: 100 }}
             resizeMode="contain"
@@ -1287,7 +1290,7 @@ Or modify the existing code in [`SplashScreen.tsx`](components/splash/SplashScre
 
 ```typescript
 <View style={styles.logoWrapper}>
-    <Image 
+    <Image
         source={require('@/assets/images/logo.png')}
         style={styles.logoIcon}
     />
@@ -1351,6 +1354,7 @@ function AppEntry() {
 **Q: Why use a separate useEffect for exit animation?**
 
 > A: Separating mount and completion logic prevents race conditions and ensures proper cleanup. The first `useEffect` handles initialization (runs once on mount), while the second responds to the `isComplete` state change. This pattern:
+>
 > - Prevents animation conflicts
 > - Ensures proper cleanup of timers
 > - Allows independent testing of each phase
@@ -1381,9 +1385,9 @@ return (
 ```typescript
 function AppEntry() {
     const { navigateToLogin, navigateBasedOnAuth } = useSplashNavigation();
-    
+
     return (
-        <SplashScreen 
+        <SplashScreen
             onFinish={() => {
                 // Custom navigation logic
                 if (needsOnboarding) {
@@ -1447,27 +1451,27 @@ function AppEntry() {
 
 ### 🔗 Related Documentation
 
-| Resource | Link |
-|----------|------|
-| Expo Splash Screen Documentation | [https://docs.expo.dev/guides/splash-screens/](https://docs.expo.dev/guides/splash-screens/) |
-| React Native Animated API | [https://reactnative.dev/docs/animated](https://reactnative.dev/docs/animated) |
-| React Navigation Integration | [https://reactnavigation.org/docs/splash-screen](https://reactnavigation.org/docs/splash-screen) |
-| Accessibility in React Native | [https://reactnative.dev/docs/accessibility](https://reactnative.dev/docs/accessibility) |
+| Resource                         | Link                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Expo Splash Screen Documentation | [https://docs.expo.dev/guides/splash-screens/](https://docs.expo.dev/guides/splash-screens/)     |
+| React Native Animated API        | [https://reactnative.dev/docs/animated](https://reactnative.dev/docs/animated)                   |
+| React Navigation Integration     | [https://reactnavigation.org/docs/splash-screen](https://reactnavigation.org/docs/splash-screen) |
+| Accessibility in React Native    | [https://reactnative.dev/docs/accessibility](https://reactnative.dev/docs/accessibility)         |
 
 ### 📁 File References
 
-| File | Description |
-|------|-------------|
-| [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx) | Main component |
-| [`components/splash/index.ts`](components/splash/index.ts) | Public exports |
-| [`hooks/splash/useSplashAnimation.ts`](hooks/splash/useSplashAnimation.ts) | Animation logic |
-| [`hooks/splash/useSplashDuration.ts`](hooks/splash/useSplashDuration.ts) | Timer logic |
-| [`hooks/splash/useSplashNavigation.ts`](hooks/splash/useSplashNavigation.ts) | Navigation |
-| [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts) | Theme configuration |
-| [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx) | Context provider |
-| [`app/_layout.tsx`](app/_layout.tsx) | Root layout |
-| [`app/index.tsx`](app/index.tsx) | Entry point |
-| [`app.json`](app.json) | Expo configuration |
+| File                                                                         | Description         |
+| ---------------------------------------------------------------------------- | ------------------- |
+| [`components/splash/SplashScreen.tsx`](components/splash/SplashScreen.tsx)   | Main component      |
+| [`components/splash/index.ts`](components/splash/index.ts)                   | Public exports      |
+| [`hooks/splash/useSplashAnimation.ts`](hooks/splash/useSplashAnimation.ts)   | Animation logic     |
+| [`hooks/splash/useSplashDuration.ts`](hooks/splash/useSplashDuration.ts)     | Timer logic         |
+| [`hooks/splash/useSplashNavigation.ts`](hooks/splash/useSplashNavigation.ts) | Navigation          |
+| [`core/theme/splashTheme.ts`](core/theme/splashTheme.ts)                     | Theme configuration |
+| [`core/providers/SplashProvider.tsx`](core/providers/SplashProvider.tsx)     | Context provider    |
+| [`app/_layout.tsx`](app/_layout.tsx)                                         | Root layout         |
+| [`app/index.tsx`](app/index.tsx)                                             | Entry point         |
+| [`app.json`](app.json)                                                       | Expo configuration  |
 
 ---
 

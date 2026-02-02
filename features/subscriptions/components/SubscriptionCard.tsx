@@ -63,21 +63,24 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
   // Use centralized utility functions
   const daysUntilDelivery = useMemo(
     () => calculateDaysUntil(subscription.next_delivery_date),
-    [subscription.next_delivery_date]
+    [subscription.next_delivery_date],
   );
 
   const urgencyColor = useMemo(
     () => getUrgencyColor(daysUntilDelivery),
-    [daysUntilDelivery]
+    [daysUntilDelivery],
   );
 
   const deliveryProgress = useMemo(
     () => calculateDeliveryProgress(daysUntilDelivery),
-    [daysUntilDelivery]
+    [daysUntilDelivery],
   );
 
   const gradientColors = useMemo(() => getGradientColors(isActive), [isActive]);
-  const overlayGradient = useMemo(() => getOverlayGradient(isActive), [isActive]);
+  const overlayGradient = useMemo(
+    () => getOverlayGradient(isActive),
+    [isActive],
+  );
 
   // Pulse animation for active status badge
   useEffect(() => {
@@ -85,10 +88,10 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
       pulseScale.value = withRepeat(
         withSequence(
           withTiming(1.05, { duration: 1000 }),
-          withTiming(1, { duration: 1000 })
+          withTiming(1, { duration: 1000 }),
         ),
         -1,
-        false
+        false,
       );
     } else {
       pulseScale.value = withTiming(1);
@@ -126,7 +129,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
         {
           text: 'Cancel',
           style: 'cancel',
-          onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
         },
         {
           text: 'Delete',
@@ -136,7 +139,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
             deleteSubscription.mutate({ id: subscription.id });
           },
         },
-      ]
+      ],
     );
   };
 
@@ -149,7 +152,12 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
           style={styles.pressable}
           disabled={isProcessing}
         >
-          <Card style={[styles.card, !isActive && !isProcessing && styles.pausedCard]}>
+          <Card
+            style={[
+              styles.card,
+              !isActive && !isProcessing && styles.pausedCard,
+            ]}
+          >
             {/* Gradient Background for Active */}
             {isActive && (
               <LinearGradient
@@ -189,7 +197,8 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                       color={colors.primary}
                     />
                     <Text variant="xs" color={colors.primary} weight="medium">
-                      {subscription.quantity} Unit{subscription.quantity > 1 ? 's' : ''}
+                      {subscription.quantity} Unit
+                      {subscription.quantity > 1 ? 's' : ''}
                     </Text>
                   </View>
                   <View style={styles.frequencyBadge}>
@@ -201,7 +210,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     <Text variant="xs" color={colors.textSecondary}>
                       {getFrequencyLabel(
                         subscription.frequency,
-                        subscription.custom_days
+                        subscription.custom_days,
                       )}
                     </Text>
                   </View>
@@ -222,12 +231,16 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                   textColor={
                     isProcessing
                       ? statusColors.PROCESSING.text
-                      : isActive ? statusColors.ACTIVE.text : statusColors.PAUSED.text
+                      : isActive
+                        ? statusColors.ACTIVE.text
+                        : statusColors.PAUSED.text
                   }
                   borderColor={
                     isProcessing
                       ? statusColors.PROCESSING.border
-                      : isActive ? statusColors.ACTIVE.border : statusColors.PAUSED.border
+                      : isActive
+                        ? statusColors.ACTIVE.border
+                        : statusColors.PAUSED.border
                   }
                 />
               </Animated.View>
@@ -262,14 +275,22 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     { backgroundColor: urgencyColor + '20' },
                   ]}
                 >
-                  <Ionicons name="time-outline" size={16} color={urgencyColor} />
+                  <Ionicons
+                    name="time-outline"
+                    size={16}
+                    color={urgencyColor}
+                  />
                 </View>
                 <View style={styles.detailContent}>
                   <Text variant="xs" color={colors.textTertiary}>
                     Next Delivery
                   </Text>
                   <View style={styles.deliveryInfo}>
-                    <Text variant="s" weight="medium" color={colors.textPrimary}>
+                    <Text
+                      variant="s"
+                      weight="medium"
+                      color={colors.textPrimary}
+                    >
                       {formatShortDate(subscription.next_delivery_date)}
                     </Text>
                     <View
@@ -309,7 +330,12 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
               {isProcessing ? (
                 <View style={styles.progressFooter}>
                   <ActivityIndicator size="small" color={colors.primary} />
-                  <Text variant="s" color={colors.primary} weight="medium" style={{ marginLeft: spacing.s }}>
+                  <Text
+                    variant="s"
+                    color={colors.primary}
+                    weight="medium"
+                    style={{ marginLeft: spacing.s }}
+                  >
                     Processing Subscription...
                   </Text>
                 </View>
@@ -336,7 +362,11 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     style={styles.deleteButton}
                     loading={deleteSubscription.isPending}
                     icon={
-                      <Ionicons name="close-circle-outline" size={22} color={colors.error} />
+                      <Ionicons
+                        name="close-circle-outline"
+                        size={22}
+                        color={colors.error}
+                      />
                     }
                   />
                 </>

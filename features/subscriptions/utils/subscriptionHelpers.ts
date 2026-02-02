@@ -11,16 +11,16 @@ import { colors } from '@/core/theme/colors';
  * @returns Number of days until the date (0 if today or past)
  */
 export function calculateDaysUntil(dateString: string): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    const targetDate = new Date(dateString);
-    targetDate.setHours(0, 0, 0, 0);
+  const targetDate = new Date(dateString);
+  targetDate.setHours(0, 0, 0, 0);
 
-    const diffTime = targetDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffTime = targetDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return Math.max(0, diffDays);
+  return Math.max(0, diffDays);
 }
 
 /**
@@ -29,10 +29,10 @@ export function calculateDaysUntil(dateString: string): number {
  * @returns Color string from theme
  */
 export function getUrgencyColor(daysRemaining: number): string {
-    if (daysRemaining === 0) return colors.success;
-    if (daysRemaining <= 2) return colors.error;
-    if (daysRemaining <= 4) return colors.warning;
-    return colors.primary;
+  if (daysRemaining === 0) return colors.success;
+  if (daysRemaining <= 2) return colors.error;
+  if (daysRemaining <= 4) return colors.warning;
+  return colors.primary;
 }
 
 /**
@@ -41,9 +41,9 @@ export function getUrgencyColor(daysRemaining: number): string {
  * @returns Progress percentage (0-100)
  */
 export function calculateDeliveryProgress(daysRemaining: number): number {
-    if (daysRemaining === 0) return 100;
-    if (daysRemaining > 7) return 0;
-    return ((7 - daysRemaining) / 7) * 100;
+  if (daysRemaining === 0) return 100;
+  if (daysRemaining > 7) return 0;
+  return ((7 - daysRemaining) / 7) * 100;
 }
 
 /**
@@ -52,9 +52,9 @@ export function calculateDeliveryProgress(daysRemaining: number): number {
  * @returns Formatted countdown string
  */
 export function formatCountdown(daysRemaining: number): string {
-    if (daysRemaining === 0) return 'Today';
-    if (daysRemaining === 1) return 'Tomorrow';
-    return `${daysRemaining} days`;
+  if (daysRemaining === 0) return 'Today';
+  if (daysRemaining === 1) return 'Tomorrow';
+  return `${daysRemaining} days`;
 }
 
 /**
@@ -63,9 +63,7 @@ export function formatCountdown(daysRemaining: number): string {
  * @returns Array of gradient colors
  */
 export function getGradientColors(isActive: boolean): [string, string] {
-    return isActive
-        ? ['#3B82F6', '#2563EB']
-        : ['#9CA3AF', '#6B7280'];
+  return isActive ? ['#3B82F6', '#2563EB'] : ['#9CA3AF', '#6B7280'];
 }
 
 /**
@@ -74,9 +72,9 @@ export function getGradientColors(isActive: boolean): [string, string] {
  * @returns Array of overlay gradient colors
  */
 export function getOverlayGradient(isActive: boolean): [string, string] {
-    return isActive
-        ? ['rgba(59, 130, 246, 0.05)', 'rgba(37, 99, 235, 0.02)']
-        : ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'];
+  return isActive
+    ? ['rgba(59, 130, 246, 0.05)', 'rgba(37, 99, 235, 0.02)']
+    : ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)'];
 }
 
 /**
@@ -85,11 +83,11 @@ export function getOverlayGradient(isActive: boolean): [string, string] {
  * @returns Formatted date string
  */
 export function formatSubscriptionDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 /**
@@ -98,8 +96,8 @@ export function formatSubscriptionDate(dateString: string): string {
  * @returns Short formatted date string
  */
 export function formatShortDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-    });
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
 }

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
 import { AuthProvider } from './AuthProvider';
+import { NotificationProvider } from '../../features/notifications/context/NotificationContext';
 /**
  * QueryClient is the "brain" for React Query
  * It manages caching, retries, background updates
@@ -20,7 +21,9 @@ const queryClient = new QueryClient({
 export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <NotificationProvider>{children}</NotificationProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
