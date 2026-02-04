@@ -38,7 +38,7 @@ graph TB
         Context[NotificationContext]
         Hooks[Custom Hooks]
     end
-    
+
     subgraph Notification Feature
         Handler[useNotificationHandler]
         Permission[useNotificationPermission]
@@ -46,17 +46,17 @@ graph TB
         Service[notificationService]
         Mapper[notificationMapper]
     end
-    
+
     subgraph Native Layer
         Expo[Expo Notifications]
         OS[iOS/Android Push]
     end
-    
+
     subgraph Backend
         API[Backend API]
         FCM[FCM/APNs]
     end
-    
+
     UI --> Context
     Context --> Hooks
     Hooks --> Handler
@@ -122,9 +122,7 @@ import { useAuth } from '@/core/providers/AuthProvider';
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <NotificationProvider>
-        {/* Your app content */}
-      </NotificationProvider>
+      <NotificationProvider>{/* Your app content */}</NotificationProvider>
     </AuthProvider>
   );
 }
@@ -146,15 +144,15 @@ sequenceDiagram
     Provider->>Permission: Initialize with isAuthenticated
     Provider->>Push: Initialize with isAuthenticated
     Provider->>Handler: Initialize (no deps)
-    
+
     Note over Permission: Check existing permission status
     Note over Push: Set up token listener
     Note over Handler: Set up notification listeners
-    
+
     alt User is authenticated
         Permission->>Permission: checkPermissionOnMount
     end
-    
+
     alt Permission granted & no token
         Push->>Push: getToken()
         Push->>Service: registerPushToken()
@@ -164,6 +162,7 @@ sequenceDiagram
 ### 3.3 Platform-Specific Setup Requirements
 
 #### iOS
+
 - Requires `UIBackgroundModes` configuration in `app.json`:
   ```json
   {
@@ -178,10 +177,12 @@ sequenceDiagram
   ```
 
 #### Android
+
 - Requires `google-services.json` or Firebase configuration
 - Expo automatically handles FCM integration when properly configured
 
 #### Web
+
 - Push notifications are not supported on web platform
 - All hooks gracefully skip operations and return safe defaults
 - See [`useNotificationPermission.ts`](features/notifications/hooks/useNotificationPermission.ts:22) for web handling
@@ -196,12 +197,12 @@ sequenceDiagram
 
 **Public API**:
 
-| Type/Interface | Description |
-|----------------|-------------|
-| [`NotificationType`](features/notifications/types.ts:1) | Union type of valid notification types: `order_confirmed`, `order_processing`, `order_out_for_delivery`, `order_delivered`, `order_cancelled` |
-| [`PushToken`](features/notifications/types.ts:8) | Interface representing a registered push token with metadata |
-| [`NotificationRoute`](features/notifications/types.ts:17) | Interface for notification navigation targets |
-| [`NotificationPermissionStatus`](features/notifications/types.ts:22) | Interface representing the current permission status |
+| Type/Interface                                                       | Description                                                                                                                                   |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`NotificationType`](features/notifications/types.ts:1)              | Union type of valid notification types: `order_confirmed`, `order_processing`, `order_out_for_delivery`, `order_delivered`, `order_cancelled` |
+| [`PushToken`](features/notifications/types.ts:8)                     | Interface representing a registered push token with metadata                                                                                  |
+| [`NotificationRoute`](features/notifications/types.ts:17)            | Interface for notification navigation targets                                                                                                 |
+| [`NotificationPermissionStatus`](features/notifications/types.ts:22) | Interface representing the current permission status                                                                                          |
 
 **Dependencies**: None (pure type definitions)
 
@@ -216,11 +217,11 @@ sequenceDiagram
 ```tsx
 // Context interface
 interface NotificationContextType {
-  isEnabled: boolean;        // Whether notifications are enabled
-  isLoading: boolean;        // Whether token registration is in progress
-  token: string | null;      // Current push token
-  requestPermission: () =>   // Function to request permissions
-    Promise<boolean>;
+  isEnabled: boolean; // Whether notifications are enabled
+  isLoading: boolean; // Whether token registration is in progress
+  token: string | null; // Current push token
+  requestPermission: () => // Function to request permissions
+  Promise<boolean>;
 }
 
 // Hook to consume context
@@ -229,13 +230,14 @@ export function useNotifications(): NotificationContextType;
 
 **Internal Implementation**:
 
-| Component/Function | Purpose |
-|-------------------|---------|
-| [`setNotificationHandler`](features/notifications/context/NotificationContext.tsx:16) | Global configuration for foreground notification behavior (sound, vibration, banner display) |
-| [`triggerTokenFetch`](features/notifications/context/NotificationContext.tsx:63) | Automatic token fetching when notifications are enabled and user is authenticated |
-| [`handleRequestPermission`](features/notifications/context/NotificationContext.tsx:87) | Permission request handler with settings alert fallback |
+| Component/Function                                                                     | Purpose                                                                                      |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [`setNotificationHandler`](features/notifications/context/NotificationContext.tsx:16)  | Global configuration for foreground notification behavior (sound, vibration, banner display) |
+| [`triggerTokenFetch`](features/notifications/context/NotificationContext.tsx:63)       | Automatic token fetching when notifications are enabled and user is authenticated            |
+| [`handleRequestPermission`](features/notifications/context/NotificationContext.tsx:87) | Permission request handler with settings alert fallback                                      |
 
 **Dependencies**:
+
 - `react` - React hooks and context
 - `expo-notifications` - Native notification handling
 - `AuthProvider` - Authentication state
@@ -259,13 +261,14 @@ interface UseNotificationPermissionReturn {
 
 **Internal Implementation**:
 
-| Function | Purpose |
-|----------|---------|
-| [`requestPermission`](features/notifications/hooks/useNotificationPermission.ts:20) | Requests notification permission from the OS; returns cached status on web |
-| [`checkPermission`](features/notifications/hooks/useNotificationPermission.ts:49) | Checks current permission status without requesting |
-| [`checkPermissionOnMount`](features/notifications/hooks/useNotificationPermission.ts:74) | Initial permission check when user authenticates |
+| Function                                                                                 | Purpose                                                                    |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [`requestPermission`](features/notifications/hooks/useNotificationPermission.ts:20)      | Requests notification permission from the OS; returns cached status on web |
+| [`checkPermission`](features/notifications/hooks/useNotificationPermission.ts:49)        | Checks current permission status without requesting                        |
+| [`checkPermissionOnMount`](features/notifications/hooks/useNotificationPermission.ts:74) | Initial permission check when user authenticates                           |
 
 **Dependencies**:
+
 - `react` - Hooks
 - `react-native` - Platform detection
 - `expo-notifications` - Native permission APIs
@@ -280,34 +283,37 @@ interface UseNotificationPermissionReturn {
 
 ```typescript
 interface UsePushNotificationsReturn {
-  pushToken: string | null;      // Current push token
-  error: Error | null;           // Any registration errors
-  isLoading: boolean;            // Whether registration is in progress
-  getToken: () => Promise<string | null>;  // Force token refresh
-  registerToken: (token: string) => Promise<void>;  // Manual registration
+  pushToken: string | null; // Current push token
+  error: Error | null; // Any registration errors
+  isLoading: boolean; // Whether registration is in progress
+  getToken: () => Promise<string | null>; // Force token refresh
+  registerToken: (token: string) => Promise<void>; // Manual registration
 }
 ```
 
 **Internal Implementation**:
 
-| Function/Component | Purpose |
-|-------------------|---------|
-| [`handleRegistrationError`](features/notifications/hooks/usePushNotifications.ts:26) | Centralized error handler for registration failures |
+| Function/Component                                                                   | Purpose                                                        |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| [`handleRegistrationError`](features/notifications/hooks/usePushNotifications.ts:26) | Centralized error handler for registration failures            |
 | [`handleTokenRegistration`](features/notifications/hooks/usePushNotifications.ts:38) | Registers token with backend; prevents duplicate registrations |
-| [`getToken`](features/notifications/hooks/usePushNotifications.ts:111) | Generates new push token from device |
-| [`addPushTokenListener`](features/notifications/hooks/usePushNotifications.ts:83) | Listens for token refresh events |
+| [`getToken`](features/notifications/hooks/usePushNotifications.ts:111)               | Generates new push token from device                           |
+| [`addPushTokenListener`](features/notifications/hooks/usePushNotifications.ts:83)    | Listens for token refresh events                               |
 
 **Token Deduplication Logic**:
 
 ```typescript
 // Uses registeredTokenRef to prevent redundant API calls
 if (registeredTokenRef.current === token) {
-  console.log('[usePushNotifications] Token already registered, skipping API call');
+  console.log(
+    '[usePushNotifications] Token already registered, skipping API call',
+  );
   return;
 }
 ```
 
 **Dependencies**:
+
 - `react` - Hooks and refs
 - `react-native` - Platform and device info
 - `expo-device` - Device information
@@ -324,14 +330,15 @@ if (registeredTokenRef.current === token) {
 
 **Internal Implementation**:
 
-| Function/Component | Purpose |
-|-------------------|---------|
-| [`handleNotification`](features/notifications/hooks/useNotificationHandler.ts:9) | Processes notification tap events; invalidates queries and navigates |
-| [`addNotificationReceivedListener`](features/notifications/hooks/useNotificationHandler.ts:28) | Handles notifications received while app is in foreground |
-| [`addNotificationResponseReceivedListener`](features/notifications/hooks/useNotificationHandler.ts:40) | Handles user tap interactions on notifications |
-| [`getLastNotificationResponseAsync`](features/notifications/hooks/useNotificationHandler.ts:50) | Handles notifications that triggered app launch |
+| Function/Component                                                                                     | Purpose                                                              |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| [`handleNotification`](features/notifications/hooks/useNotificationHandler.ts:9)                       | Processes notification tap events; invalidates queries and navigates |
+| [`addNotificationReceivedListener`](features/notifications/hooks/useNotificationHandler.ts:28)         | Handles notifications received while app is in foreground            |
+| [`addNotificationResponseReceivedListener`](features/notifications/hooks/useNotificationHandler.ts:40) | Handles user tap interactions on notifications                       |
+| [`getLastNotificationResponseAsync`](features/notifications/hooks/useNotificationHandler.ts:50)        | Handles notifications that triggered app launch                      |
 
 **Dependencies**:
+
 - `react` - Hooks
 - `expo-router` - Navigation
 - `expo-notifications` - Notification event listeners
@@ -347,9 +354,7 @@ if (registeredTokenRef.current === token) {
 
 ```typescript
 class NotificationApiService {
-  async registerPushToken(
-    payload: RegisterTokenPayload
-  ): Promise<PushToken>;
+  async registerPushToken(payload: RegisterTokenPayload): Promise<PushToken>;
 }
 
 export const notificationService: NotificationApiService;
@@ -357,11 +362,12 @@ export const notificationService: NotificationApiService;
 
 **Internal Implementation**:
 
-| Function | Purpose |
-|----------|---------|
+| Function                                                                         | Purpose                                             |
+| -------------------------------------------------------------------------------- | --------------------------------------------------- |
 | [`registerPushToken`](features/notifications/services/notificationService.ts:27) | POSTs device token to backend registration endpoint |
 
 **Dependencies**:
+
 - `@/core/api/client` - HTTP client
 - `@/core/api/endpoints` - API endpoint definitions
 - `PushToken` - Response type
@@ -382,19 +388,20 @@ class NotificationMapper {
 
 export const notificationMapper: NotificationMapper;
 export function extractNotificationType(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): NotificationType | null;
 ```
 
 **Internal Implementation**:
 
-| Function | Purpose |
-|----------|---------|
-| [`VALID_TYPES`](features/notifications/utils/notificationMapper.ts:26) | Set of valid notification type strings for O(1) validation |
-| [`isValidNotificationType`](features/notifications/utils/notificationMapper.ts:38) | Type guard for notification type validation |
-| [`parsePayload`](features/notifications/utils/notificationMapper.ts:45) | Parses and validates raw notification payload |
+| Function                                                                           | Purpose                                                    |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [`VALID_TYPES`](features/notifications/utils/notificationMapper.ts:26)             | Set of valid notification type strings for O(1) validation |
+| [`isValidNotificationType`](features/notifications/utils/notificationMapper.ts:38) | Type guard for notification type validation                |
+| [`parsePayload`](features/notifications/utils/notificationMapper.ts:45)            | Parses and validates raw notification payload              |
 
 **Dependencies**:
+
 - `NotificationType` - Type definition from types.ts
 
 ---
@@ -408,17 +415,17 @@ flowchart TD
     A[User triggers permission request] --> B{Platform is web?}
     B -->|Yes| C[Return cached status]
     B -->|No| D[Check existing permissions]
-    
+
     D --> E{Already granted?}
     E -->|Yes| F[Return granted status]
     E -->|No| G[Request permissions from OS]
-    
+
     G --> H{Permission granted?}
     H -->|Yes| I[Set granted status]
     H -->|No| J{canAskAgain?}
     J -->|No| K[Show settings alert]
     J -->|Yes| L[Return denied status]
-    
+
     I --> M[Trigger token fetch]
     F --> M
     K --> N[User can open settings]
@@ -432,17 +439,17 @@ flowchart TD
     A[Token needed] --> B{Is physical device?}
     B -->|No| C[Throw error]
     B -->|Yes| D[Get device push token]
-    
+
     D --> E[Extract token string]
     E --> F{Token already registered?}
     F -->|Yes| G[Skip API call]
     F -->|No| H[Call notificationService.registerPushToken]
-    
+
     H --> I[POST to backend]
     I --> J{Success?}
     J -->|Yes| K[Store token in ref and state]
     J -->|No| L[Handle error]
-    
+
     K --> M[Emit onRegister callback]
     M --> N[Token ready for use]
 ```
@@ -452,15 +459,15 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Notification received] --> B{App state?}
-    
+
     B -->|Foreground| C[addNotificationReceivedListener]
     B -->|Background| D[Notification stored by OS]
     B -->|Terminated| E[Notification stored by OS]
-    
+
     C --> F[Log notification]
     D --> G{User taps notification}
     E --> G
-    
+
     G --> H[addNotificationResponseReceivedListener]
     H --> I[Extract notification data]
     I --> J[invalidateQueries orders]
@@ -472,12 +479,12 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Operation fails] --> B{Error type?}
-    
+
     B -->|Permission denied| C[Show settings alert]
     B -->|Token registration failed| D[Store error in state]
     B -->|Network error| E[Retry logic or store error]
     B -->|Invalid token| F[Throw with descriptive message]
-    
+
     C --> G[User can open settings]
     D --> H[UI can display error state]
     E --> I[User can retry later]
@@ -528,7 +535,9 @@ Use inline comments for complex logic or important decisions:
 ```typescript
 // Prevent redundant registration if token hasn't changed
 if (registeredTokenRef.current === token) {
-  console.log('[usePushNotifications] Token already registered, skipping API call');
+  console.log(
+    '[usePushNotifications] Token already registered, skipping API call',
+  );
   return;
 }
 ```
@@ -587,8 +596,8 @@ describe('useNotificationPermission', () => {
       canAskAgain: true,
     });
 
-    const { result } = renderHook(() => 
-      useNotificationPermission({ isAuthenticated: true })
+    const { result } = renderHook(() =>
+      useNotificationPermission({ isAuthenticated: true }),
     );
 
     await waitFor(() => {
@@ -646,23 +655,23 @@ npm test -- NotificationContext.test.tsx
 
 ### 8.1 Common Error Scenarios
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Push notifications require a physical device" | Running in simulator/emulator | Test on physical device only |
-| "Invalid push token received: token is empty" | Expo SDK or configuration issue | Verify `app.json` configuration |
-| Permission status stuck at `undetermined` | iOS permission already denied | User must manually enable in Settings |
-| Token never registered | Network error or API failure | Check backend logs, verify API endpoint |
+| Error                                          | Cause                           | Solution                                |
+| ---------------------------------------------- | ------------------------------- | --------------------------------------- |
+| "Push notifications require a physical device" | Running in simulator/emulator   | Test on physical device only            |
+| "Invalid push token received: token is empty"  | Expo SDK or configuration issue | Verify `app.json` configuration         |
+| Permission status stuck at `undetermined`      | iOS permission already denied   | User must manually enable in Settings   |
+| Token never registered                         | Network error or API failure    | Check backend logs, verify API endpoint |
 
 ### 8.2 Logging and Monitoring Points
 
 Key log prefixes for filtering:
 
-| Prefix | Component | Purpose |
-|--------|-----------|---------|
-| `[NotificationContext]` | Context provider | Permission and token fetch lifecycle |
-| `[useNotificationPermission]` | Permission hook | Permission request/check results |
-| `[usePushNotifications]` | Push token hook | Token generation and registration |
-| `[useNotificationHandler]` | Notification handler | Notification received/tap events |
+| Prefix                        | Component            | Purpose                              |
+| ----------------------------- | -------------------- | ------------------------------------ |
+| `[NotificationContext]`       | Context provider     | Permission and token fetch lifecycle |
+| `[useNotificationPermission]` | Permission hook      | Permission request/check results     |
+| `[usePushNotifications]`      | Push token hook      | Token generation and registration    |
+| `[useNotificationHandler]`    | Notification handler | Notification received/tap events     |
 
 ### 8.3 Debug Flags
 
@@ -700,6 +709,7 @@ if (DEBUG_NOTIFICATIONS) {
 ### 8.5 Tracing Notification Delivery Issues
 
 1. **Check device token**:
+
    ```typescript
    const { token } = useNotifications();
    console.log('Device token:', token);
@@ -736,7 +746,7 @@ export type NotificationType =
   | 'order_out_for_delivery'
   | 'order_delivered'
   | 'order_cancelled'
-  | 'new_promotion';  // Add new type here
+  | 'new_promotion'; // Add new type here
 ```
 
 2. **Update notificationMapper.ts**:
@@ -748,7 +758,7 @@ const VALID_TYPES: Set<NotificationType> = new Set([
   'order_out_for_delivery',
   'order_delivered',
   'order_cancelled',
-  'new_promotion',  // Add here
+  'new_promotion', // Add here
 ]);
 ```
 
@@ -790,7 +800,7 @@ import * as Notifications from 'expo-notifications';
 export async function scheduleLocalNotification(
   title: string,
   body: string,
-  trigger: Date
+  trigger: Date,
 ) {
   await Notifications.scheduleNotificationAsync({
     content: { title, body },
@@ -829,13 +839,13 @@ All new features should:
 interface NotificationContextType {
   /** Whether notifications are currently enabled and permitted */
   isEnabled: boolean;
-  
+
   /** Whether token registration is in progress */
   isLoading: boolean;
-  
+
   /** The current push token, or null if not registered */
   token: string | null;
-  
+
   /** Request notification permission from the OS
    * @returns Promise<boolean> - true if permission granted
    */
@@ -849,7 +859,7 @@ interface NotificationContextType {
 /**
  * Returns the notification context values.
  * Must be used inside NotificationProvider.
- * 
+ *
  * @throws Error if used outside NotificationProvider
  * @returns NotificationContextType
  */
@@ -863,12 +873,9 @@ import { useNotifications } from '@/features/notifications/context/NotificationC
 
 function MyComponent() {
   const { isEnabled, isLoading, token, requestPermission } = useNotifications();
-  
+
   return (
-    <Button 
-      onPress={requestPermission}
-      disabled={isLoading}
-    >
+    <Button onPress={requestPermission} disabled={isLoading}>
       {isEnabled ? 'Notifications Enabled' : 'Enable Notifications'}
     </Button>
   );
@@ -883,12 +890,12 @@ function MyComponent() {
 interface UseNotificationPermissionReturn {
   /** Current permission status */
   permissionStatus: NotificationPermissionStatus;
-  
+
   /** Request permission from OS
    * @returns Promise<NotificationPermissionStatus>
    */
   requestPermission: () => Promise<NotificationPermissionStatus>;
-  
+
   /** Check current permission status
    * @returns Promise<NotificationPermissionStatus>
    */
@@ -970,7 +977,7 @@ class NotificationMapper {
    * @returns true if type is valid NotificationType
    */
   isValidNotificationType(type: string): type is NotificationType;
-  
+
   /**
    * Parses and validates a raw notification payload
    * @param payload - Raw notification data
@@ -987,7 +994,7 @@ export const notificationMapper: NotificationMapper;
  * @returns NotificationType or null
  */
 export function extractNotificationType(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): NotificationType | null;
 ```
 
@@ -997,11 +1004,11 @@ export function extractNotificationType(
 
 ```typescript
 export type NotificationType =
-  | 'order_confirmed'      // Order has been confirmed
-  | 'order_processing'     // Order is being processed
-  | 'order_out_for_delivery'  // Order is out for delivery
-  | 'order_delivered'      // Order has been delivered
-  | 'order_cancelled';     // Order has been cancelled
+  | 'order_confirmed' // Order has been confirmed
+  | 'order_processing' // Order is being processed
+  | 'order_out_for_delivery' // Order is out for delivery
+  | 'order_delivered' // Order has been delivered
+  | 'order_cancelled'; // Order has been cancelled
 ```
 
 #### `PushToken`
@@ -1060,5 +1067,5 @@ EXPO_PROJECT_ID=your-expo-project-id
 
 ---
 
-*Last Updated: 2026-02-02*
-*Document Version: 1.0*
+_Last Updated: 2026-02-02_
+_Document Version: 1.0_

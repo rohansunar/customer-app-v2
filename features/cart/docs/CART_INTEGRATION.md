@@ -200,12 +200,8 @@ function CartScreen() {
       <FlatList
         data={cart.cartItems}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <CartItemRow item={item} />
-        )}
-        ListFooterComponent={() => (
-          <CartTotals cart={cart} />
-        )}
+        renderItem={({ item }) => <CartItemRow item={item} />}
+        ListFooterComponent={() => <CartTotals cart={cart} />}
       />
     </View>
   );
@@ -221,11 +217,7 @@ function CartTotals({ cart }) {
       <View style={styles.row}>
         <Text>Deposits:</Text>
         <Text>
-          ₹
-          {cart.cartItems.reduce(
-            (sum, item) => sum + (item.deposit ?? 0),
-            0
-          )}
+          ₹{cart.cartItems.reduce((sum, item) => sum + (item.deposit ?? 0), 0)}
         </Text>
       </View>
       <View style={[styles.row, styles.total]}>
@@ -290,7 +282,11 @@ function CartItemRow({ item }) {
       if (item.quantity === 1) {
         remove(item.id);
       } else {
-        const updated = updateCartItemQuantity(cart, item.id, item.quantity - 1);
+        const updated = updateCartItemQuantity(
+          cart,
+          item.id,
+          item.quantity - 1,
+        );
         queryClient.setQueryData(['cart'], updated);
       }
     }
@@ -304,11 +300,7 @@ function CartItemRow({ item }) {
         <Text>₹{item.price} each</Text>
       </View>
       <View style={styles.quantity}>
-        <Button
-          title="-"
-          onPress={handleDecrease}
-          loading={isRemoving}
-        />
+        <Button title="-" onPress={handleDecrease} loading={isRemoving} />
         <Text>{item.quantity}</Text>
         <Button title="+" onPress={handleIncrease} />
       </View>
@@ -369,9 +361,7 @@ export default function CartScreen() {
       <FlatList
         data={cart.cartItems}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <CartItemRow item={item} />
-        )}
+        renderItem={({ item }) => <CartItemRow item={item} />}
         contentContainerStyle={styles.list}
       />
 
@@ -507,7 +497,7 @@ function OrderSummary({ order }) {
             ₹
             {cart?.cartItems.reduce(
               (sum, item) => sum + (item.deposit ?? 0),
-              0
+              0,
             )}
           </Text>
         </View>
@@ -547,7 +537,7 @@ function ProductCard({ product }) {
             cartTotal: product.price,
           });
         },
-      }
+      },
     );
   };
 
@@ -576,7 +566,7 @@ function CartItemRow({ item }) {
             price: item.totalPrice,
           });
         },
-      }
+      },
     );
   };
 
@@ -609,10 +599,7 @@ function CheckoutButton() {
   };
 
   return (
-    <Button
-      title={`Pay ₹${cart?.grandTotal ?? 0}`}
-      onPress={handleCheckout}
-    />
+    <Button title={`Pay ₹${cart?.grandTotal ?? 0}`} onPress={handleCheckout} />
   );
 }
 ```
@@ -635,13 +622,8 @@ export function useUpdateCartItemQuantity() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      itemId,
-      quantity,
-    }: {
-      itemId: string;
-      quantity: number;
-    }) => cartService.updateQuantity(itemId, quantity),
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      cartService.updateQuantity(itemId, quantity),
 
     onMutate: async ({ itemId, quantity }) => {
       const cart = queryClient.getQueryData<CartResponse>(['cart']);
@@ -708,8 +690,7 @@ export function useApplyCoupon() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (couponCode: string) =>
-      cartService.applyCoupon(couponCode),
+    mutationFn: (couponCode: string) => cartService.applyCoupon(couponCode),
 
     onSuccess: (data) => {
       queryClient.setQueryData(['cart'], (oldCart: any) => ({
@@ -763,7 +744,7 @@ const handleAddToCart = () => {
       onSuccess: () => {
         showSuccess(`${product.name} added to cart`);
       },
-    }
+    },
   );
 };
 ```
@@ -771,9 +752,7 @@ const handleAddToCart = () => {
 ### 4. Use Memoization
 
 ```tsx
-export const ProductCard = memo(function ProductCard({
-  product,
-}: Props) {
+export const ProductCard = memo(function ProductCard({ product }: Props) {
   const handleAddToCart = useCallback(() => {
     // ...
   }, [product.id]);
@@ -813,9 +792,7 @@ import { ProductCard } from './ProductCard';
 
 const queryClient = new QueryClient();
 const wrapper = ({ children }) => (
-  <QueryClientProvider client={queryClient}>
-    {children}
-  </QueryClientProvider>
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
 test('adds product to cart', () => {
@@ -825,10 +802,9 @@ test('adds product to cart', () => {
     price: '50',
   };
 
-  const { getByText } = render(
-    <ProductCard product={mockProduct} />,
-    { wrapper }
-  );
+  const { getByText } = render(<ProductCard product={mockProduct} />, {
+    wrapper,
+  });
 
   const addButton = getByText('Add to Cart');
   fireEvent.press(addButton);

@@ -40,9 +40,9 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 it('optimistically updates cart count immediately', async () => {
   const { result } = renderHook(() => useAddToCart(), { wrapper });
-  
+
   result.current.mutate({ productId: 'prod-1', quantity: 1 });
-  
+
   await waitFor(() => {
     expect(result.current.isPending).toBe(true);
   });
@@ -57,14 +57,14 @@ import { useDebouncedAddToCart } from '../useDebouncedAddToCart';
 
 it('debounces rapid clicks', async () => {
   const { result } = renderHook(() => useDebouncedAddToCart(100), { wrapper });
-  
+
   // Rapid clicks
   act(() => {
     result.current.mutate({ productId: 'prod-1', quantity: 1 });
     result.current.mutate({ productId: 'prod-2', quantity: 1 });
     result.current.mutate({ productId: 'prod-3', quantity: 1 });
   });
-  
+
   // Should not have made 3 requests immediately
   expect(result.current.isDebounced).toBe(true);
 });
@@ -78,17 +78,18 @@ import { RequestDeduplicator } from '../requestDeduplicator';
 it('prevents duplicate requests', async () => {
   const deduplicator = new RequestDeduplicator(5000);
   let callCount = 0;
-  
-  const fn = () => Promise.resolve(() => {
-    callCount++;
-    return 'result';
-  });
-  
+
+  const fn = () =>
+    Promise.resolve(() => {
+      callCount++;
+      return 'result';
+    });
+
   // Execute same request multiple times
   await deduplicator.execute('key1', fn);
   await deduplicator.execute('key1', fn);
   await deduplicator.execute('key1', fn);
-  
+
   expect(callCount).toBe(1);
 });
 ```

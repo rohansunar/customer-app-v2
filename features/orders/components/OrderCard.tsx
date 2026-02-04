@@ -18,6 +18,8 @@ import {
   calculateTotalQuantity,
   canCancelOrder,
   formatOrderDate,
+  getPaymentStatusColor,
+  getPaymentStatusLabel,
   getPrimaryProductName,
   getStatusColor,
   getStatusLabel,
@@ -124,6 +126,14 @@ function OrderCardComponent({ order, loading }: Props) {
   const formattedDate = useMemo(
     () => formatOrderDate(order.created_at),
     [order.created_at],
+  );
+  const paymentStatusColor = useMemo(
+    () => getPaymentStatusColor(order.payment_status),
+    [order.payment_status],
+  );
+  const paymentStatusLabel = useMemo(
+    () => getPaymentStatusLabel(order.payment_status),
+    [order.payment_status],
   );
 
   return (
@@ -262,14 +272,37 @@ function OrderCardComponent({ order, loading }: Props) {
         )}
       </View>
 
-      {/* Footer: Amount */}
-      <View style={styles.amountRow}>
-        <Text variant="m" color={colors.textSecondary}>
-          Total Amount
-        </Text>
-        <Text variant="l" weight="bold" color={colors.primary}>
-          ₹{order.total_amount}
-        </Text>
+      {/* Footer: Amount and Payment Status */}
+      <View style={styles.footerContainer}>
+        <View style={styles.amountRow}>
+          <Text variant="m" color={colors.textSecondary}>
+            Total Amount
+          </Text>
+          <Text variant="l" weight="bold" color={colors.primary}>
+            ₹{order.total_amount}
+          </Text>
+        </View>
+        <View style={styles.paymentStatusContainer}>
+          <Text variant="xs" color={colors.textTertiary} style={styles.paymentLabel}>
+            Payment:
+          </Text>
+          <View
+            style={[
+              styles.paymentStatusBadge,
+              { borderColor: paymentStatusColor, backgroundColor: colors.surface },
+            ]}
+          >
+            <Ionicons
+              name={order.payment_status === 'PAID' ? 'checkmark-circle-outline' : 'time-outline'}
+              size={12}
+              color={paymentStatusColor}
+              style={{ marginRight: 3 }}
+            />
+            <Text variant="xs" weight="medium" color={paymentStatusColor}>
+              {paymentStatusLabel}
+            </Text>
+          </View>
+        </View>
       </View>
 
       {/* Tracker */}
@@ -465,6 +498,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.s,
     paddingHorizontal: spacing.xs,
+  },
+  footerContainer: {
+    marginBottom: spacing.s,
+  },
+  paymentStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.xs,
+  },
+  paymentLabel: {
+    marginRight: spacing.xs,
+  },
+  paymentStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.s,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 1,
   },
   trackerContainer: {
     backgroundColor: '#FAFAFA',

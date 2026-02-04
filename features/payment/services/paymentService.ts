@@ -21,7 +21,7 @@ export const paymentService = {
       currency: 'INR',
       order_id: order.payment.provider_payment_id,
       name: 'My App',
-      description:order.description,
+      description: order.description,
       prefill: {
         name: order.customer.name,
         email: order.customer.email,
@@ -41,8 +41,8 @@ export const paymentService = {
       const message =
         error?.description || error?.message || 'Payment cancelled or failed';
 
-        console.log(message)
-      if(message.error.code === "BAD_REQUEST_ERROR"){
+      console.log(message);
+      if (message.error.code === 'BAD_REQUEST_ERROR') {
         return showError('Payment Cancelled');
       }
       showError(message);

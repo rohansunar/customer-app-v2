@@ -24,15 +24,18 @@ This guide provides comprehensive debugging instructions for the cart feature, i
 ### Issue 1: Cart Not Updating Instantly
 
 **Symptoms:**
+
 - User clicks "Add to Cart" but UI doesn't update immediately
 - Loading spinner appears instead of instant feedback
 
 **Possible Causes:**
+
 1. Not using optimistic update hooks
 2. React Query cache not properly configured
 3. Component not subscribed to cart query
 
 **Diagnosis:**
+
 ```tsx
 // Check if useCart is returning data
 const { data: cart, isLoading } = useCart();
@@ -42,6 +45,7 @@ console.log('Is loading:', isLoading);
 ```
 
 **Solutions:**
+
 1. Use `useDebouncedAddToCart` instead of direct mutations
 2. Ensure component is using `useCart` to subscribe to changes
 3. Check React Query cache configuration
@@ -51,15 +55,18 @@ console.log('Is loading:', isLoading);
 ### Issue 2: Duplicate Items in Cart
 
 **Symptoms:**
+
 - Same product appears multiple times after clicking "Add to Cart" rapidly
 - Cart shows incorrect quantities
 
 **Possible Causes:**
+
 1. Not using debounced hook
 2. Race condition in optimistic updates
 3. Server merging duplicates incorrectly
 
 **Diagnosis:**
+
 ```tsx
 // Check cart items for duplicates
 const { data: cart } = useCart();
@@ -73,6 +80,7 @@ console.log('Product counts:', productCounts);
 ```
 
 **Solutions:**
+
 1. Always use `useDebouncedAddToCart` for user-facing buttons
 2. Verify merge logic in `mergeCartItems` function
 3. Check server-side duplicate handling
@@ -82,15 +90,18 @@ console.log('Product counts:', productCounts);
 ### Issue 3: Rollback Not Working
 
 **Symptoms:**
+
 - Cart stays in incorrect state after failed API call
 - Item remains in cart even though server rejected it
 
 **Possible Causes:**
+
 1. `onMutate` not returning context
 2. `onError` not accessing context properly
 3. Cache manually modified outside hooks
 
 **Diagnosis:**
+
 ```tsx
 // Add logging to hooks
 const { mutate } = useAddToCart({
@@ -110,6 +121,7 @@ const { mutate } = useAddToCart({
 ```
 
 **Solutions:**
+
 1. Ensure `onMutate` returns context object
 2. Verify `onError` accesses `context.previousCart`
 3. Don't manually modify cache outside hooks
@@ -119,22 +131,25 @@ const { mutate } = useAddToCart({
 ### Issue 4: Totals Not Recalculating
 
 **Symptoms:**
+
 - Cart total doesn't update after adding/removing items
 - Subtotal shows incorrect values
 
 **Possible Causes:**
+
 1. Not using calculation utilities
 2. Missing deposit calculations
 3. Cache updated with incorrect values
 
 **Diagnosis:**
+
 ```tsx
 // Manually calculate and compare
 const { data: cart } = useCart();
 
 const calculatedSubtotal = cart?.cartItems.reduce(
   (sum, item) => sum + Number(item.totalPrice),
-  0
+  0,
 );
 
 const calculatedGrandTotal = cart?.cartItems.reduce((sum, item) => {
@@ -142,11 +157,22 @@ const calculatedGrandTotal = cart?.cartItems.reduce((sum, item) => {
   return sum + Number(item.totalPrice) + deposit;
 }, 0);
 
-console.log('Cart subtotal:', cart?.subtotal, 'Calculated:', calculatedSubtotal);
-console.log('Cart grandTotal:', cart?.grandTotal, 'Calculated:', calculatedGrandTotal);
+console.log(
+  'Cart subtotal:',
+  cart?.subtotal,
+  'Calculated:',
+  calculatedSubtotal,
+);
+console.log(
+  'Cart grandTotal:',
+  cart?.grandTotal,
+  'Calculated:',
+  calculatedGrandTotal,
+);
 ```
 
 **Solutions:**
+
 1. Use `calculateSubtotal` and `calculateGrandTotal` utilities
 2. Always recalculate after cart modifications
 3. Verify deposit amounts are included in totals
@@ -156,15 +182,18 @@ console.log('Cart grandTotal:', cart?.grandTotal, 'Calculated:', calculatedGrand
 ### Issue 5: Cart Disappears on Refresh
 
 **Symptoms:**
+
 - Cart data is lost after navigating away and back
 - Cache doesn't persist between sessions
 
 **Possible Causes:**
+
 1. React Query garbage collection
 2. App restart clears memory cache
 3. No persistent storage
 
 **Solutions:**
+
 1. Implement AsyncStorage persistence for cart
 2. Adjust `gcTime` to longer duration
 3. Add manual cache persistence
@@ -206,6 +235,7 @@ function App() {
 ```
 
 **Features:**
+
 - View all queries and their status
 - Inspect cache data
 - Manually refetch or invalidate queries
@@ -232,11 +262,7 @@ export const cartDebugger = {
     });
   },
 
-  logMutation: (
-    label: string,
-    status: string,
-    data?: any
-  ) => {
+  logMutation: (label: string, status: string, data?: any) => {
     console.log(`[Cart Mutation] ${label} - ${status}`, data);
   },
 
@@ -251,6 +277,7 @@ export const cartDebugger = {
 ```
 
 **Usage:**
+
 ```tsx
 import { cartDebugger } from '@/utils/cartDebugger';
 
@@ -372,13 +399,11 @@ export const apiLogger = {
 ```
 
 **Apply to API Client:**
+
 ```tsx
 // core/api/client.ts
 apiClient.interceptors.request.use(apiLogger.request);
-apiClient.interceptors.response.use(
-  apiLogger.response,
-  apiLogger.error
-);
+apiClient.interceptors.response.use(apiLogger.response, apiLogger.error);
 ```
 
 ### Mutation Lifecycle Logging
@@ -386,7 +411,7 @@ apiClient.interceptors.response.use(
 ```tsx
 function withMutationLogger<T>(
   mutationFn: (data: T) => Promise<any>,
-  operationName: string
+  operationName: string,
 ) {
   return async (data: T) => {
     console.log(`[Mutation] ${operationName} started`, data);
@@ -431,7 +456,7 @@ function withMutationLogger<T>(
 // Add performance markers to track timing
 const withPerformanceTracking = (
   componentName: string,
-  operation: () => void
+  operation: () => void,
 ) => {
   console.time(`[Performance] ${componentName}`);
   operation();
@@ -451,10 +476,12 @@ withPerformanceTracking('AddToCart', () => {
 ### Network Errors
 
 **Symptoms:**
+
 - Request fails without clear error message
 - Cart state becomes inconsistent
 
 **Debug Steps:**
+
 ```tsx
 // Add error boundary
 class CartErrorBoundary extends React.Component {
@@ -481,10 +508,12 @@ class CartErrorBoundary extends React.Component {
 ### Validation Errors
 
 **Symptoms:**
+
 - Server rejects add-to-cart request
 - Error message about invalid data
 
 **Debug Steps:**
+
 ```tsx
 const { mutate } = useAddToCart();
 
@@ -498,17 +527,19 @@ mutate(
         validationErrors: error.response?.data?.errors,
       });
     },
-  }
+  },
 );
 ```
 
 ### Race Conditions
 
 **Symptoms:**
+
 - Cart shows unexpected state after rapid operations
 - Items disappear or duplicate unexpectedly
 
 **Debug Steps:**
+
 ```tsx
 // Enable concurrent mode logging
 const { mutate } = useAddToCart();
@@ -538,9 +569,7 @@ function CartCacheInspector() {
     console.log('Cache Keys:', queryClient.getQueryCache().getAll());
   };
 
-  return (
-    <Button title="Inspect Cache" onPress={inspectCartCache} />
-  );
+  return <Button title="Inspect Cache" onPress={inspectCartCache} />;
 }
 ```
 
@@ -582,11 +611,13 @@ function CartCacheControls() {
 ### Using Flipper (React Native)
 
 1. **Install Flipper:**
+
    ```bash
    npm install -g flipper
    ```
 
 2. **Open Flipper:**
+
    ```bash
    flipper
    ```
@@ -599,11 +630,13 @@ function CartCacheControls() {
 ### Using React Native Debugger
 
 1. **Install:**
+
    ```bash
    npm install -g react-native-debugger
    ```
 
 2. **Open Debugger:**
+
    ```bash
    react-native-debugger
    ```
@@ -632,13 +665,13 @@ function CartCacheControls() {
 
 ### Common Fixes
 
-| Issue | Common Fix |
-|-------|------------|
-| UI not updating | Use `useDebouncedAddToCart` |
-| Duplicates | Enable debouncing |
-| Wrong totals | Use calculation utilities |
-| Lost data | Extend cache duration |
-| Slow performance | Memoize components |
+| Issue            | Common Fix                  |
+| ---------------- | --------------------------- |
+| UI not updating  | Use `useDebouncedAddToCart` |
+| Duplicates       | Enable debouncing           |
+| Wrong totals     | Use calculation utilities   |
+| Lost data        | Extend cache duration       |
+| Slow performance | Memoize components          |
 
 ---
 
