@@ -1,29 +1,76 @@
+import React, { memo, useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useAddToCart } from '@/features/cart/hooks/useAddToCart';
+import { useDebouncedAddToCart } from '@/features/cart/hooks/useDebouncedAddToCart';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { Product } from '../types';
 import { DistanceBadge } from './DistanceBadge';
 import { ProductImageSlider } from './ProductImageSlider';
 
 type Props = {
   product: Product;
+  /**
+   * Optional callback for when item is added to cart
+   * Useful for analytics or other side effects
+   */
+  onAddToCart?: (productId: string) => void;
 };
 
-export function ProductCard({ product }: Props) {
+/**
+ * ProductCard component with memoization and optimized add-to-cart.
+ *
+ * Performance Optimizations:
+ * - React.memo to prevent unnecessary re-renders when parent re-renders
+ * - useCallback for event handlers to maintain referential equality
+ * - useDebouncedAddToCart to prevent rapid multiple API calls
+ *
+ * SOLID Principles:
+ * - Single Responsibility: Component focuses on product display and cart interaction
+ * - Dependency Inversion: Depends on abstractions (hooks) not concrete implementations
+ */
+export const ProductCard = memo(function ProductCard({
+  product,
+  onAddToCart,
+}: Props) {
   const [isSubscriptionModalVisible, setIsSubscriptionModalVisible] =
     useState(false);
-  const addToCartMutation = useAddToCart();
 
-  const handleAddToCart = () => {
-    addToCartMutation.mutate({ productId: product.id, quantity: 1 });
-  };
+  const addToCartMutation = useDebouncedAddToCart(500);
+
+  /**
+   * Memoized handler for add to cart button press
+   * Prevents creating new function references on each render
+   */
+  const handleAddToCart = useCallback(() => {
+    addToCartMutation.mutate({
+      productId: product.id,
+      quantity: 1,
+    });
+
+    // Optional callback for analytics or other side effects
+    if (onAddToCart) {
+      onAddToCart(product.id);
+    }
+  }, [product.id, addToCartMutation, onAddToCart]);
+
+  /**
+   * Memoized handler for subscribe button press
+   */
+  const handleSubscribe = useCallback(() => {
+    setIsSubscriptionModalVisible(true);
+  }, []);
+
+  /**
+   * Memoized handler for closing subscription modal
+   */
+  const closeSubscriptionModal = useCallback(() => {
+    setIsSubscriptionModalVisible(false);
+  }, []);
 
   return (
     <Card style={styles.card}>
@@ -73,13 +120,14 @@ export function ProductCard({ product }: Props) {
             variant="outline"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
+            disabled={addToCartMutation.isPending}
             icon={
               <IconSymbol name="cart.fill" color={colors.primary} size={20} />
             }
           />
           <Button
             title="Subscribe"
-            onPress={() => setIsSubscriptionModalVisible(true)}
+            onPress={handleSubscribe}
             variant="primary"
             style={styles.subscribeButton}
             icon={
@@ -95,13 +143,13 @@ export function ProductCard({ product }: Props) {
 
       <SubscriptionModal
         visible={isSubscriptionModalVisible}
-        onClose={() => setIsSubscriptionModalVisible(false)}
+        onClose={closeSubscriptionModal}
         productId={product.id}
         productName={product.name}
       />
     </Card>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
