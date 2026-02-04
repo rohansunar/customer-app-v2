@@ -7,25 +7,25 @@ import { PaymentRequest } from '../types';
 
 export const paymentService = {
   /**
-   * Process payment
+   * Create Order and Process Payment
    */
-  async processPayment(data: PaymentRequest) {
-    const response = await apiClient.post(API_ENDPOINTS.PAYMENT, data);
+  async createOrder(data: PaymentRequest) {
+    const response = await apiClient.post(API_ENDPOINTS.CUSTOMER_ORDER, data);
     const order = response.data;
-    if (order.provider_payload == null) {
+    if (order.payment.provider_payload == null) {
       return;
     }
     const options = {
       key: ENV.RAZORPAY_KEY,
-      amount: order.provider_payload.amount,
+      amount: order.payment.provider_payload.amount,
       currency: 'INR',
-      order_id: order.provider_payment_id,
+      order_id: order.payment.provider_payment_id,
       name: 'My App',
-      description: 'First Payment',
+      description:order.description,
       prefill: {
-        name: 'Rohan Sunar',
-        email: 'test@example.com',
-        contact: '9999999999',
+        name: order.customer.name,
+        email: order.customer.email,
+        contact: order.customer.phone,
       },
     };
 
@@ -36,11 +36,15 @@ export const paymentService = {
         );
       }
 
-      const result = await RazorpayCheckout.open(options);
-      return result;
+      return await RazorpayCheckout.open(options);
     } catch (error: any) {
       const message =
         error?.description || error?.message || 'Payment cancelled or failed';
+
+        console.log(message)
+      if(message.error.code === "BAD_REQUEST_ERROR"){
+        return showError('Payment Cancelled');
+      }
       showError(message);
     }
   },

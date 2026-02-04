@@ -18,7 +18,7 @@ export function useHandlePayment(cartId: string) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (data: PaymentRequest) => paymentService.processPayment(data),
+    mutationFn: (data: PaymentRequest) => paymentService.createOrder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });

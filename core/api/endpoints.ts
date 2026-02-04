@@ -7,7 +7,6 @@ export const API_ENDPOINTS = {
   CART: '/cart',
   CUSTOMER_ORDER: '/customer/orders',
   CUSTOMER_ORDER_CANCEL: '/customer/orders/:orderId/cancel',
-  PAYMENT: '/payments',
   SUBSCRIPTION: '/customer/subscriptions',
   NOTIFICATION_REGISTER: '/tokens/register',
 };
