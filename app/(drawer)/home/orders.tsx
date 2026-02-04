@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
@@ -18,14 +19,10 @@ import {
  * Divided into "Active" and "History" sections.
  */
 export default function OrdersTab() {
-  const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
-
-  const activeStatuses = [
-    'PENDING',
-    'CONFIRMED',
-    'PROCESSING',
-    'OUT_FOR_DELIVERY',
-  ];
+  const { tab } = useLocalSearchParams();
+  const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>(
+    tab === 'HISTORY' ? 'HISTORY' : 'ACTIVE'
+  );
   const historyStatuses = ['DELIVERED', 'CANCELLED'];
 
   const { isEnabled, requestPermission } = useNotifications();
@@ -43,7 +40,7 @@ export default function OrdersTab() {
     refetch: refetchActive,
     isFetching: activeFetching,
     error: activeError,
-  } = useOrders(activeStatuses);
+  } = useOrders();
 
   const {
     data: historyData,

@@ -127,6 +127,10 @@ function OrderCardComponent({ order, loading }: Props) {
     () => formatOrderDate(order.created_at),
     [order.created_at],
   );
+   const canShowActionsMenu = useMemo(
+    () => canCancel && order.payment_status !== 'FAILED',
+    [canCancel, order.payment_status],
+  );
   const paymentStatusColor = useMemo(
     () => getPaymentStatusColor(order.payment_status),
     [order.payment_status],
@@ -187,7 +191,7 @@ function OrderCardComponent({ order, loading }: Props) {
         </View>
 
         {/* Menu Button */}
-        {canCancel && (
+        {canShowActionsMenu && (
           <TouchableOpacity
             ref={menuAnchorRef}
             onPress={toggleMenu}
@@ -271,7 +275,8 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
         )}
       </View>
-
+      
+     
       {/* Footer: Amount and Payment Status */}
       <View style={styles.footerContainer}>
         <View style={styles.amountRow}>
@@ -304,12 +309,13 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
         </View>
       </View>
-
+     
       {/* Tracker */}
-      <View style={styles.trackerContainer}>
-        <OrderTracker status={order.delivery_status} />
-      </View>
-
+      {order.payment_status !== "FAILED" && (
+        <View style={styles.trackerContainer}>
+          <OrderTracker status={order.delivery_status} />
+        </View>
+      )}
       {/* OTP Segment */}
       {order.delivery_status === 'OUT_FOR_DELIVERY' && (
         <View style={styles.otpContainer}>

@@ -1,5 +1,3 @@
-import { showError } from '@/core/ui/toast';
-import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { paymentService } from '../services/paymentService';
@@ -24,8 +22,10 @@ export function useHandlePayment(cartId: string) {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       router.push('/home/orders' as any);
     },
-    onError: (error) => {
-      showError(getErrorMessage(error));
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      router.push({ pathname: '/home/orders', params: { tab: 'HISTORY' } });
     },
   });
 
