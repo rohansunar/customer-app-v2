@@ -8,13 +8,7 @@ import { useRequestOtp } from '@/features/auth/hooks/useRequestOtp';
 import { usePhoneValidation } from '@/shared/hooks/usePhoneValidation';
 import { router } from 'expo-router';
 
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
 export default function LoginScreen() {
   const { phone, error, isValidPhone, onChange } = usePhoneValidation();
@@ -52,41 +46,39 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text variant="xl" weight="bold" color={colors.primary} centered>
-            Welcome Back
-          </Text>
-          <Text
-            variant="m"
-            color={colors.textSecondary}
-            centered
-            style={styles.subtitle}
-          >
-            Enter your phone number to continue
-          </Text>
-        </View>
+      <View style={styles.header}>
+        <Text variant="xl" weight="bold" color={colors.primary} centered>
+          Welcome Back
+        </Text>
+        <Text
+          variant="m"
+          color={colors.textSecondary}
+          centered
+          style={styles.subtitle}
+        >
+          Enter your phone number to continue
+        </Text>
+      </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Phone Number"
-            placeholder="9876543210"
-            value={phone}
-            onChangeText={onChange}
-            keyboardType="phone-pad"
-            maxLength={10}
-            autoFocus
-          />
-          {error && <Text style={{ color: 'red', marginTop: 6 }}>{error}</Text>}
-          <Button
-            title={isPending ? 'Sending...' : 'Send OTP'}
-            onPress={handleRequestOtp}
-            loading={isPending}
-            disabled={!isValidPhone || isPending}
-            style={styles.button}
-          />
-        </View>
-      </ScrollView>
+      <View style={styles.form}>
+        <Input
+          label="Phone Number"
+          placeholder="9876543210"
+          value={phone}
+          onChangeText={onChange}
+          keyboardType="phone-pad"
+          maxLength={10}
+          autoFocus
+        />
+        {error && <Text style={{ color: 'red', marginTop: 6 }}>{error}</Text>}
+        <Button
+          title={isPending ? 'Sending...' : 'Send OTP'}
+          onPress={handleRequestOtp}
+          loading={isPending}
+          disabled={!isValidPhone || isPending}
+          style={styles.button}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -95,11 +87,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: spacing.l,
   },
   header: {
     marginBottom: spacing.xl,
