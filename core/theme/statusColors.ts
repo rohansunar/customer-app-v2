@@ -34,6 +34,11 @@ export const statusColors = {
     text: colors.textSecondary,
     border: colors.border,
   },
+  PROCESSING: {
+    background: '#1de91654',
+    text: '#0369A1',
+    border: '#7DD3FC',
+  },
 } as const;
 
 export type AppStatus = keyof typeof statusColors;

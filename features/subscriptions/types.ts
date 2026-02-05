@@ -18,9 +18,10 @@ export interface SubscriptionRequest {
 }
 
 export interface Subscription extends SubscriptionRequest {
+  [x: string]: any;
   id: string;
   productId: string;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'PROCESSING';
   createdAt: string;
   next_delivery_date: string;
 }

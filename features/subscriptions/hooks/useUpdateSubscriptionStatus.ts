@@ -12,7 +12,7 @@ export function useUpdateSubscriptionStatus() {
   return useMutation({
     mutationFn: ({ id }: { id: string }) =>
       subscriptionService.updateSubscriptionStatus(id),
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
       showToast.success(
         `Subscription ${data.status === 'ACTIVE' ? 'Resumed' : 'Paused'}`,
