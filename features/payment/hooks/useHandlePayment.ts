@@ -1,5 +1,3 @@
-import { getErrorMessage } from '@/core/utils/getErrorMessage';
-import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { paymentService } from '../services/paymentService';
@@ -16,7 +14,6 @@ import { PaymentMode, PaymentRequest } from '../types';
  */
 export function useHandlePayment(cartId: string) {
   const queryClient = useQueryClient();
-  const showToast = useToastHelpers();
 
   const mutation = useMutation({
     mutationFn: (data: PaymentRequest) => paymentService.createOrder(data),
@@ -25,8 +22,10 @@ export function useHandlePayment(cartId: string) {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       router.push('/home/orders' as any);
     },
-    onError: (error) => {
-      showToast.error(getErrorMessage(error));
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      router.push({ pathname: '/home/orders', params: { tab: 'HISTORY' } });
     },
   });
 
