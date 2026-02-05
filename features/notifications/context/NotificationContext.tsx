@@ -63,9 +63,9 @@ export function NotificationProvider({
   useEffect(() => {
     const triggerTokenFetch = async () => {
       if (isAuthenticated && isEnabled && !pushToken && !isLoading && !error) {
-        console.log(
-          `[NotificationContext] Triggering token fetch (isAuthenticated: ${isAuthenticated}, isEnabled: ${isEnabled}, pushToken: ${pushToken}, isLoading: ${isLoading})...`,
-        );
+        // console.log(
+        //   `[NotificationContext] Triggering token fetch (isAuthenticated: ${isAuthenticated}, isEnabled: ${isEnabled}, pushToken: ${pushToken}, isLoading: ${isLoading})...`,
+        // );
         await getToken();
       } else if (error) {
         console.warn(
