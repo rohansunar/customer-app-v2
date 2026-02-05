@@ -1,11 +1,16 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
-import { OrdersResponse } from '../types';
+import { OrderStatus,OrdersResponse } from '../types';
 
 export const orderService = {
   getOrders(statuses?: string[]): Promise<OrdersResponse> {
-    const params =
-      statuses && statuses.length > 0 ? { delivery_status: statuses.join(',') } : {};
+    const params: Record<string, string> = {};
+
+    // Add delivery_status filter if statuses are provided
+    if (statuses && statuses.length > 0) {
+      params.delivery_status = statuses.join(',');
+    }
+
     return apiClient
       .get(`${API_ENDPOINTS.CUSTOMER_ORDER}`, { params })
       .then((res) => res.data);

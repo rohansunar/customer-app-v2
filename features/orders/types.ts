@@ -1,5 +1,13 @@
 // src/types/order.ts
 
+// Payment mode type
+export type PaymentMode = 'ONLINE' | 'COD';
+
+// Payment status type
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED';
+
+// Existing types below
+
 export type OrderStatus =
   | 'PENDING'
   | 'CONFIRMED'
@@ -7,12 +15,6 @@ export type OrderStatus =
   | 'OUT_FOR_DELIVERY'
   | 'DELIVERED'
   | 'CANCELLED';
-
-// export interface Product {
-//   id: string;
-//   name: string;
-//   price: string;
-// }
 
 export interface OrderItem {
   id: string;
@@ -33,6 +35,7 @@ export interface Order {
   total_amount: string;
   delivery_status: OrderStatus;
   payment_status: string;
+  payment_mode: string;
   created_at: string;
   orderItems: OrderItem[];
   address: Address;
@@ -47,3 +50,4 @@ export interface OrdersResponse {
   limit: number;
   totalPages: number;
 }
+
