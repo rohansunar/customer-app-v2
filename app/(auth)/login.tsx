@@ -28,7 +28,7 @@ export default function LoginScreen() {
         });
       },
       onError: (error) => {
-        console.log(error);
+        console.log(error.message);
         showError(
           'Error',
           'Failed to send OTP. Please check your connection and try again.',
@@ -87,9 +87,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   header: {
+    width: '100%',
+    maxWidth: 400,
     marginBottom: spacing.xl,
+    alignItems: 'center',
   },
   subtitle: {
     marginTop: spacing.s,
@@ -103,6 +109,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 4,
+    width: '100%',
+    maxWidth: 400,
   },
   button: {
     marginTop: spacing.m,
