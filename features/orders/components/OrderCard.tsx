@@ -45,9 +45,6 @@ function OrderCardComponent({ order, loading }: Props) {
   const menuAnchorRef = useRef<View>(null);
   const cancelOrderMutation = useCancelOrder();
 
-  // Mock OTP - memoized to prevent regeneration on re-renders
-  const otp = useMemo(() => Math.floor(Math.random() * 9000) + 1000, []);
-
   // Memoized callbacks to prevent function recreation on each render
   const toggleExpanded = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -138,9 +135,15 @@ function OrderCardComponent({ order, loading }: Props) {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTitleContainer}>
-          <Text variant="l" weight="bold" color={colors.textPrimary} style={styles.productName}>
+          <Text
+            variant="l"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.productName}
+          >
             {productName}
-            {order.orderItems.length > 1 && ` + ${order.orderItems.length - 1} more`}
+            {order.orderItems.length > 1 &&
+              ` + ${order.orderItems.length - 1} more`}
           </Text>
           <Text variant="s" color={colors.textTertiary} style={styles.orderNo}>
             Order #{order.orderNo}
@@ -148,13 +151,27 @@ function OrderCardComponent({ order, loading }: Props) {
         </View>
 
         <View style={styles.headerRightContainer}>
-          <View style={[styles.statusBadge, { borderColor: statusColor, backgroundColor: colors.surface }]}>
-            <Ionicons name="time-outline" size={14} color={statusColor} style={{ marginRight: 4 }} />
+          <View
+            style={[
+              styles.statusBadge,
+              { borderColor: statusColor, backgroundColor: colors.surface },
+            ]}
+          >
+            <Ionicons
+              name="time-outline"
+              size={14}
+              color={statusColor}
+              style={{ marginRight: 4 }}
+            />
             <Text variant="xs" weight="bold" color={statusColor}>
               {statusLabel}
             </Text>
           </View>
-          <Text variant="xs" color={colors.textTertiary} style={styles.dateText}>
+          <Text
+            variant="xs"
+            color={colors.textTertiary}
+            style={styles.dateText}
+          >
             {formattedDate}
           </Text>
         </View>
@@ -166,7 +183,11 @@ function OrderCardComponent({ order, loading }: Props) {
             onPress={toggleMenu}
             style={styles.menuTrigger}
           >
-            <Ionicons name="ellipsis-vertical" size={20} color={colors.textTertiary} />
+            <Ionicons
+              name="ellipsis-vertical"
+              size={20}
+              color={colors.textTertiary}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -176,9 +197,18 @@ function OrderCardComponent({ order, loading }: Props) {
         {/* Address */}
         <View style={styles.detailRow}>
           <View style={[styles.iconBox, { backgroundColor: '#E0F2FE' }]}>
-            <Ionicons name="location-outline" size={18} color={colors.primary} />
+            <Ionicons
+              name="location-outline"
+              size={18}
+              color={colors.primary}
+            />
           </View>
-          <Text variant="s" color={colors.textSecondary} style={styles.detailText} numberOfLines={1}>
+          <Text
+            variant="s"
+            color={colors.textSecondary}
+            style={styles.detailText}
+            numberOfLines={1}
+          >
             {order.address.address}, {order.address.pincode}
           </Text>
         </View>
@@ -193,11 +223,15 @@ function OrderCardComponent({ order, loading }: Props) {
             <Ionicons name="cube-outline" size={18} color="#9333EA" />
           </View>
           <View style={styles.quantityRow}>
-            <Text variant="s" color={colors.textSecondary} style={styles.detailText}>
+            <Text
+              variant="s"
+              color={colors.textSecondary}
+              style={styles.detailText}
+            >
               Quantity: {totalQuantity} Items
             </Text>
             <Ionicons
-              name={isExpanded ? "chevron-up" : "chevron-down"}
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
               size={16}
               color={colors.textTertiary}
             />
@@ -209,11 +243,18 @@ function OrderCardComponent({ order, loading }: Props) {
           <View style={styles.itemsList}>
             {order.orderItems.map((item, index) => (
               <View key={item.id || index} style={styles.itemRow}>
-                <Text variant="xs" color={colors.textPrimary} style={styles.itemName}>
+                <Text
+                  variant="xs"
+                  color={colors.textPrimary}
+                  style={styles.itemName}
+                >
                   {item.product.name}
                 </Text>
                 <Text variant="xs" color={colors.textSecondary}>
-                  {item.quantity} x ₹{item.price} = <Text weight="medium">₹{item.quantity * Number(item.price)}</Text>
+                  {item.quantity} x ₹{item.price} ={' '}
+                  <Text weight="medium">
+                    ₹{item.quantity * Number(item.price)}
+                  </Text>
                 </Text>
               </View>
             ))}
@@ -223,7 +264,9 @@ function OrderCardComponent({ order, loading }: Props) {
 
       {/* Footer: Amount */}
       <View style={styles.amountRow}>
-        <Text variant="m" color={colors.textSecondary}>Total Amount</Text>
+        <Text variant="m" color={colors.textSecondary}>
+          Total Amount
+        </Text>
         <Text variant="l" weight="bold" color={colors.primary}>
           ₹{order.total_amount}
         </Text>
@@ -237,9 +280,16 @@ function OrderCardComponent({ order, loading }: Props) {
       {/* OTP Segment */}
       {order.delivery_status === 'OUT_FOR_DELIVERY' && (
         <View style={styles.otpContainer}>
-          <Text variant="s" color={colors.textSecondary}>OTP for Delivery:</Text>
-          <Text variant="l" weight="bold" color={colors.primary} style={styles.otpText}>
-            {otp}
+          <Text variant="s" color={colors.textSecondary}>
+            OTP for Delivery:
+          </Text>
+          <Text
+            variant="l"
+            weight="bold"
+            color={colors.primary}
+            style={styles.otpText}
+          >
+            {order.delivery_otp}
           </Text>
         </View>
       )}

@@ -37,6 +37,7 @@ export interface Order {
   orderItems: OrderItem[];
   address: Address;
   assigned_rider_phone: string;
+  delivery_otp:string;
 }
 
 export interface OrdersResponse {

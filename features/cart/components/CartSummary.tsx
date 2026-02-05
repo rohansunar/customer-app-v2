@@ -116,17 +116,17 @@ export function CartSummary() {
     label: string;
     description: string;
   }[] = [
-      {
-        mode: 'ONLINE',
-        label: 'Pay Online',
-        description: 'Card, UPI, Netbanking',
-      },
-      {
-        mode: 'COD',
-        label: 'COD',
-        description: 'Pay on delivery',
-      },
-    ];
+    {
+      mode: 'ONLINE',
+      label: 'Pay Online',
+      description: 'Card, UPI, Netbanking',
+    },
+    {
+      mode: 'COD',
+      label: 'COD',
+      description: 'Pay on delivery',
+    },
+  ];
 
   if (cartItems.length === 0) {
     return (
@@ -170,7 +170,9 @@ export function CartSummary() {
             >
               <View style={styles.paymentOptionContent}>
                 <Ionicons
-                  name={option.mode === 'ONLINE' ? 'card-outline' : 'cash-outline'}
+                  name={
+                    option.mode === 'ONLINE' ? 'card-outline' : 'cash-outline'
+                  }
                   size={24}
                   color={isSelected ? colors.primary : colors.textSecondary}
                   style={styles.paymentIcon}

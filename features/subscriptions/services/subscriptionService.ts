@@ -13,11 +13,9 @@ export const subscriptionService = {
   /**
    * Creating a new subscription.
    */
-  createSubscription: async (
-    request: SubscriptionRequest,
-  ) => {
+  createSubscription: async (request: SubscriptionRequest) => {
     const response = await apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
-    const {customer , payment}  = response.data;
+    const { customer, payment } = response.data;
 
     if (payment.provider_payload == null) {
       return;
@@ -45,11 +43,11 @@ export const subscriptionService = {
 
       const result = await RazorpayCheckout.open(options);
       return result;
-      } catch (error: any) {
-        const message =
-          error?.description || error?.message || 'Payment cancelled or failed';
-        showError(message);
-      }
+    } catch (error: any) {
+      const message =
+        error?.description || error?.message || 'Payment cancelled or failed';
+      showError(message);
+    }
   },
 
   /**
@@ -71,9 +69,9 @@ export const subscriptionService = {
   updateSubscriptionStatus: async (id: string): Promise<Subscription> => {
     return await apiClient.post(`${API_ENDPOINTS.SUBSCRIPTION}/${id}/toggle`);
   },
-/**
- * Delete subscription details.
- */
+  /**
+   * Delete subscription details.
+   */
   /**
    * Delete subscription details.
    */

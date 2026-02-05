@@ -60,7 +60,7 @@ export function SubscriptionModal({
           : undefined,
       quantity: form.state.quantity,
     };
-    
+
     createSubscription.mutate(payload, {
       onSuccess: () => {
         onClose();

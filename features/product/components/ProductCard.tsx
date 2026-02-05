@@ -73,14 +73,22 @@ export function ProductCard({ product }: Props) {
             variant="outline"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
-            icon={<IconSymbol name="cart.fill" color={colors.primary} size={20} />}
+            icon={
+              <IconSymbol name="cart.fill" color={colors.primary} size={20} />
+            }
           />
           <Button
             title="Subscribe"
             onPress={() => setIsSubscriptionModalVisible(true)}
             variant="primary"
             style={styles.subscribeButton}
-            icon={<IconSymbol name="arrow.clockwise" color={colors.surface} size={20} />}
+            icon={
+              <IconSymbol
+                name="arrow.clockwise"
+                color={colors.surface}
+                size={20}
+              />
+            }
           />
         </View>
       </View>
