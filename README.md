@@ -48,3 +48,23 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+You must run Razorpay inside a custom native build, not Expo Go.
+
+1. Prebuild native project (this is what enables native modules)
+```
+   npx expo prebuild
+```
+
+2. Rebuild the app on device (mandatory)
+This is not the same as expo start
+This installs a custom dev client containing Razorpay’s native SDK.
+```
+   npx expo run:android
+```
+
+3. ALWAYS start Metro separately
+```
+npx expo start --dev-client
+```

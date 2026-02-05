@@ -107,13 +107,13 @@ function OrderCardComponent({ order, loading }: Props) {
   }
 
   const canCancel =
-    order.status !== 'CANCELLED' && order.status !== 'DELIVERED';
+    order.delivery_status !== 'CANCELLED' && order.delivery_status !== 'DELIVERED';
 
   return (
     <Card
       style={styles.card}
       accessible={true}
-      accessibilityLabel={`Order ${order.orderNo}, status ${order.status}, total ${order.total_amount}`}
+      accessibilityLabel={`Order ${order.orderNo}, status ${order.delivery_status}, total ${order.total_amount}`}
     >
       <View style={styles.headerRow}>
         <OrderHeader orderNo={order.orderNo} createdAt={order.created_at} />
@@ -196,7 +196,7 @@ function OrderCardComponent({ order, loading }: Props) {
       )}
 
       <View style={styles.content}>
-        <OrderSection
+        {/* <OrderSection
           icon="location-outline"
           title={`Delivery Address: ${order.address.label}`}
         >
@@ -207,10 +207,10 @@ function OrderCardComponent({ order, loading }: Props) {
           >
             {order.address.address}, {order.address.pincode}
           </Text>
-        </OrderSection>
+        </OrderSection> */}
 
         <OrderSection icon="list-outline" title="Items">
-          {order.cart.cartItems.map((item) => (
+          {order.orderItems.map((item) => (
             <View key={item.id} style={styles.itemRow}>
               <Text variant="xs" color={colors.textPrimary}>
                 {item.quantity} x {item.product.name}
@@ -231,10 +231,10 @@ function OrderCardComponent({ order, loading }: Props) {
               ₹ {order.total_amount}
             </Text>
           </View>
-          <StatusBadge status={order.status} />
+          <StatusBadge status={order.delivery_status} />
         </View>
 
-        {order.status === 'OUT_FOR_DELIVERY' && <OTPSegment otp={otp} />}
+        {order.delivery_status === 'OUT_FOR_DELIVERY' && <OTPSegment otp={otp} />}
       </View>
 
       <OrderModal

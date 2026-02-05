@@ -11,6 +11,9 @@ export const paymentService = {
   async processPayment(data: PaymentRequest) {
     const response = await apiClient.post(API_ENDPOINTS.PAYMENT, data);
     const order = response.data;
+    if(order.provider_payload == null){
+      return;
+    }
     const options = {
       key: ENV.RAZORPAY_KEY,
       amount: order.provider_payload.amount,
