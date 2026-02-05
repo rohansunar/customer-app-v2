@@ -130,7 +130,7 @@ export function useDebouncedAddToCart(debounceMs: number = 500) {
         }, debounceMs - timeSinceLastRequest);
       }
     },
-    [addToCartMutation, debounceMs]
+    [addToCartMutation, debounceMs],
   );
 
   /**

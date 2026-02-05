@@ -12,7 +12,10 @@ export function useNotificationHandler() {
       const data = notification.request.content.data as Record<string, unknown>;
       const notificationType = data?.type as string;
 
-      console.log('[useNotificationHandler] Handling notification:', notificationType);
+      console.log(
+        '[useNotificationHandler] Handling notification:',
+        notificationType,
+      );
 
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['orders'] });

@@ -113,6 +113,8 @@ export function canCancelOrder(status: OrderStatus): boolean {
   return status !== 'CANCELLED' && status !== 'DELIVERED';
 }
 
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
+
 /**
  * Calculates the progress percentage for the order tracker
  * @param stepIndex - Current step index
@@ -128,5 +130,42 @@ export function calculateTrackerProgress(stepIndex: number): number {
       return 1; // Full for delivered
     default:
       return 0;
+  }
+}
+
+/**
+ * Gets the color associated with a payment status
+ * @param status - Payment status
+ * @returns Color string from theme
+ */
+export function getPaymentStatusColor(status: string): string {
+  switch (status) {
+    case 'PAID':
+      return colors.success;
+    case 'FAILED':
+    case 'CANCELLED':
+      return colors.error;
+    case 'PENDING':
+    default:
+      return colors.warning;
+  }
+}
+
+/**
+ * Gets the human-readable label for a payment status
+ * @param status - Payment status
+ * @returns Display label for the status
+ */
+export function getPaymentStatusLabel(status: string): string {
+  switch (status) {
+    case 'PAID':
+      return 'Paid';
+    case 'FAILED':
+      return 'Failed';
+    case 'CANCELLED':
+      return 'Cancelled';
+    case 'PENDING':
+    default:
+      return 'Pending';
   }
 }

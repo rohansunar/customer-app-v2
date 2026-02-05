@@ -43,10 +43,7 @@ export class RequestDeduplicator {
    * @param requestFn - Function that returns a Promise
    * @returns Promise resolving to the request result
    */
-  async execute<T>(
-    key: string,
-    requestFn: () => Promise<T>
-  ): Promise<T> {
+  async execute<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
     const now = Date.now();
     const existing = this.pendingRequests.get(key);
 

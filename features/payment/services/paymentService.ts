@@ -20,7 +20,7 @@ export const paymentService = {
       currency: 'INR',
       order_id: order.payment.provider_payment_id,
       name: 'My App',
-      description:order.description,
+      description: order.description,
       prefill: {
         name: order.customer.name,
         email: order.customer.email,

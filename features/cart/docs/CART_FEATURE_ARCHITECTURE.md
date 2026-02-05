@@ -116,11 +116,13 @@ The cart feature is built with a modern, performant architecture using React Que
 The cart feature uses optimistic UI updates to provide instant user feedback. Instead of waiting for server confirmation, the UI is updated immediately and then synced with the server.
 
 **Benefits:**
+
 - Reduced perceived latency (from ~500-2000ms to <50ms)
 - Smoother user experience
 - Instant feedback on all operations
 
 **Trade-offs:**
+
 - Requires rollback mechanism for failed requests
 - More complex state management
 
@@ -129,6 +131,7 @@ The cart feature uses optimistic UI updates to provide instant user feedback. In
 React Query handles all data fetching, caching, and synchronization.
 
 **Configuration:**
+
 - `staleTime`: 2 minutes (data considered fresh)
 - `gcTime`: 10 minutes (data kept in cache)
 - `refetchOnMount`: false (no unnecessary fetches)
@@ -139,6 +142,7 @@ React Query handles all data fetching, caching, and synchronization.
 Rapid user actions (like double-clicking) are debounced to prevent duplicate API calls.
 
 **Implementation:**
+
 - 500ms debounce window
 - Only the most recent request is queued
 - Previous pending requests are cancelled
@@ -148,6 +152,7 @@ Rapid user actions (like double-clicking) are debounced to prevent duplicate API
 The `RequestDeduplicator` class prevents duplicate API calls for the same request.
 
 **Features:**
+
 - Singleton instance for app-wide use
 - Configurable maxAge (default: 5 seconds)
 - Automatic cleanup after requests complete
@@ -155,19 +160,25 @@ The `RequestDeduplicator` class prevents duplicate API calls for the same reques
 ## SOLID Principles Compliance
 
 ### Single Responsibility
+
 Each module has a clear, focused purpose:
+
 - **Hooks**: Single operation (add/remove/fetch)
 - **Utilities**: Single calculation type
 - **Service**: Single API interaction
 
 ### Open-Closed
+
 Code is extensible without modification:
+
 - Custom optimistic strategies via callback props
 - Configurable debounce timing
 - Extensible calculation utilities
 
 ### Dependency Inversion
+
 Dependencies are abstractions, not concretions:
+
 - Hooks depend on `cartService` abstraction
 - Calculations depend on interfaces, not implementations
 
@@ -193,12 +204,14 @@ features/cart/
 ## Performance Characteristics
 
 ### Before Optimizations
+
 - Add to Cart latency: ~500-2000ms
 - Full cart refetch on every change
 - No debouncing (duplicate requests)
 - React re-renders on every action
 
 ### After Optimizations
+
 - Perceived latency: <50ms (optimistic update)
 - Reduced API calls (caching + deduplication)
 - No duplicate requests (debouncing)
@@ -207,11 +220,13 @@ features/cart/
 ## Scaling Considerations
 
 ### Current Limitations
+
 - Singleton request deduplicator may grow unbounded
 - Cart calculations are synchronous (could be offloaded)
 - No offline persistence
 
 ### Future Improvements
+
 - Add size limit to request deduplicator
 - Implement Web Workers for heavy calculations
 - Add AsyncStorage persistence for offline support

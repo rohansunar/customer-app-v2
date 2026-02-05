@@ -62,9 +62,7 @@ function CartItemsList() {
     <FlatList
       data={cart.cartItems}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <CartItemRow item={item} />
-      )}
+      renderItem={({ item }) => <CartItemRow item={item} />}
     />
   );
 }
@@ -103,10 +101,8 @@ function CartAnalytics() {
   // Derived state - no need to store separately
   const itemCount = cart?.cartItems.length ?? 0;
   const hasDeposits = cart?.cartItems.some((item) => item.deposit !== null);
-  const totalDeposit = cart?.cartItems.reduce(
-    (sum, item) => sum + (item.deposit ?? 0),
-    0
-  ) ?? 0;
+  const totalDeposit =
+    cart?.cartItems.reduce((sum, item) => sum + (item.deposit ?? 0), 0) ?? 0;
 
   return (
     <View>
@@ -135,11 +131,7 @@ function AddToCartButton({ productId, price }) {
   };
 
   return (
-    <Button
-      title="Add to Cart"
-      onPress={handlePress}
-      loading={isPending}
-    />
+    <Button title="Add to Cart" onPress={handlePress} loading={isPending} />
   );
 }
 ```
@@ -219,13 +211,11 @@ function AddToCartWithAnalytics({ product }) {
             price: product.price,
           });
         },
-      }
+      },
     );
   };
 
-  return (
-    <Button title="Add to Cart" onPress={handleAddToCart} />
-  );
+  return <Button title="Add to Cart" onPress={handleAddToCart} />;
 }
 ```
 
@@ -239,7 +229,7 @@ function ProductPage({ product }) {
   // The cart updates INSTANTLY when you call mutate
   // You can see the change immediately
   const isInCart = cart?.cartItems.some(
-    (item) => item.productId === product.id
+    (item) => item.productId === product.id,
   );
 
   return (
@@ -247,9 +237,7 @@ function ProductPage({ product }) {
       <Text>{product.name}</Text>
       <Button
         title={isInCart ? 'Add Another' : 'Add to Cart'}
-        onPress={() =>
-          mutate({ productId: product.id, quantity: 1 })
-        }
+        onPress={() => mutate({ productId: product.id, quantity: 1 })}
       />
       {/* Cart count updates immediately */}
       <Text>Cart: {cart?.totalItems ?? 0} items</Text>
@@ -276,14 +264,10 @@ function ProductCard({ product }) {
       <Text>{product.name}</Text>
       <Button
         title={isPending ? 'Adding...' : 'Add to Cart'}
-        onPress={() =>
-          mutate({ productId: product.id, quantity: 1 })
-        }
+        onPress={() => mutate({ productId: product.id, quantity: 1 })}
         disabled={isPending}
       />
-      {isDebounced && (
-        <Text>Processing...</Text>
-      )}
+      {isDebounced && <Text>Processing...</Text>}
     </View>
   );
 }
@@ -310,16 +294,12 @@ function RapidAddButton({ product }) {
     <View>
       <Button
         title="Add to Cart"
-        onPress={() =>
-          mutate({ productId: product.id, quantity: 1 })
-        }
+        onPress={() => mutate({ productId: product.id, quantity: 1 })}
         loading={isPending}
         disabled={isPending || isDebounced}
       />
       {isDebounced && (
-        <Text style={{ color: 'orange' }}>
-          Please wait, processing...
-        </Text>
+        <Text style={{ color: 'orange' }}>Please wait, processing...</Text>
       )}
     </View>
   );
@@ -340,11 +320,7 @@ function AddToCartWithFeedback({ product }) {
     <View>
       <Button
         title={
-          isPending
-            ? 'Adding...'
-            : isDebounced
-            ? 'Queued...'
-            : 'Add to Cart'
+          isPending ? 'Adding...' : isDebounced ? 'Queued...' : 'Add to Cart'
         }
         onPress={handlePress}
         loading={isPending}
@@ -392,23 +368,17 @@ function RemovableCartItem({ item }) {
   const { mutate } = useRemoveFromCart();
 
   const handleRemove = () => {
-    Alert.alert(
-      'Remove Item',
-      `Remove ${item.name} from cart?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => mutate(item.id),
-        },
-      ]
-    );
+    Alert.alert('Remove Item', `Remove ${item.name} from cart?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => mutate(item.id),
+      },
+    ]);
   };
 
-  return (
-    <Button title="Remove" onPress={handleRemove} variant="outline" />
-  );
+  return <Button title="Remove" onPress={handleRemove} variant="outline" />;
 }
 ```
 
@@ -424,9 +394,7 @@ function CartItemWithInstantRemove({ item }) {
   return (
     <View style={[styles.item, isPending && styles.removing]}>
       <Text>{item.name}</Text>
-      {isPending && (
-        <ActivityIndicator size="small" color="gray" />
-      )}
+      {isPending && <ActivityIndicator size="small" color="gray" />}
       <Button
         title="Remove"
         onPress={() => mutate(item.id)}
@@ -497,11 +465,7 @@ const total = calculateTotalItems(items);
 ```tsx
 import { calculateSubtotal } from '@/features/cart/utils/cartCalculations';
 
-const items = [
-  { totalPrice: 50 },
-  { totalPrice: 75.50 },
-  { totalPrice: 25 },
-];
+const items = [{ totalPrice: 50 }, { totalPrice: 75.5 }, { totalPrice: 25 }];
 
 const subtotal = calculateSubtotal(items);
 // Result: 150.50
@@ -615,7 +579,7 @@ const handleAddToCart = () => {
           showError('Failed to add to cart. Please try again.');
         }
       },
-    }
+    },
   );
 };
 ```
@@ -645,7 +609,7 @@ const { mutate, isPending } = useAddToCart();
   onPress={handleAddToCart}
   disabled={isPending}
   loading={isPending}
-/>
+/>;
 ```
 
 ### 3. Use Optimistic Updates in Components
@@ -655,7 +619,7 @@ const { mutate, isPending } = useAddToCart();
 const { data: cart } = useCart();
 
 // Show instant feedback
-<Text>Cart updated: {cart.totalItems} items</Text>
+<Text>Cart updated: {cart.totalItems} items</Text>;
 ```
 
 ### 4. Don't Duplicate State
