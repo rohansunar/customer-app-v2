@@ -70,3 +70,23 @@ You must run Razorpay inside a custom native build, not Expo Go.
 ```
 npx expo start --dev-client
 ```
+
+
+I want to implement custom splash screen
+1. Remove the previous native splash screen that shows "customer-app" as text and loads native icon
+2. When app loads user must see the custom splash first for 3 to 5  sec screen should auto redirect login screen
+3. I will provide custom splash screen codes modified it according to existing files and folders and where, how and on which files it should implemented and it should production grade.
+4. Create a doc inside plans doc stating what , how to implement dont code yet
+5. When splash loads app shouldn't lag, animation should glitch free , codes should be maintainable , scaleble, testable and with proper comments what codes does  
+
+Implement a custom splash screen for the application following these specifications:
+
+Remove all existing native splash screen configurations that currently display "customer-app" text and load the native icon, ensuring complete removal from all configuration files and resources where native splash screen settings are defined.
+
+Design and implement a custom splash screen that displays immediately when the application launches, remaining visible for a duration of 3 to 5 seconds before automatically redirecting users to the login screen with smooth transition handling.
+
+Integrate the provided custom splash screen code by adapting it to match the existing project structure, file organization, and naming conventions, while providing detailed implementation instructions that specify exactly which files require modification, where new files should be placed, how each component connects to the existing codebase, and which files depend on the new splash screen implementation, all written at production-grade quality standards.
+
+Create comprehensive documentation inside the plans document that outlines what needs to be implemented and how each component should be integrated without including any actual code implementation, serving as a blueprint for the development process.
+
+Ensure the implementation meets production-grade performance and quality standards including zero application lag or stuttering during the splash screen display, glitch-free and smooth animations with proper frame rate optimization, clean and modular code architecture that supports future enhancements and feature additions, comprehensive testability with unit tests and integration tests covering all splash screen functionality, fully maintainable code with descriptive variable and function names following established coding conventions, proper inline and block comments explaining the purpose and behavior of each code section, and scalable design patterns that accommodate potential future requirements such as themed splash screens, animated logos, or conditional display logic based on user authentication state or first-time launch detection.

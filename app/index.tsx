@@ -1,6 +1,7 @@
-import { Redirect } from 'expo-router';
-import React from 'react';
+import { SplashScreen, useSplashNavigation } from '@/components/splash';
 
-export default function index() {
-  return <Redirect href="/(drawer)/home"></Redirect>;
+export default function AppEntry() {
+  const { navigateBasedOnAuth } = useSplashNavigation();
+
+  return <SplashScreen onFinish={navigateBasedOnAuth} />;
 }
