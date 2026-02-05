@@ -30,6 +30,29 @@ import { removeItemFromCart } from '../utils/cartCalculations';
  * This hook implements optimistic updates for instant UI feedback.
  * If the server request fails, the cart is rolled back to its previous state.
  *
+ * This hook implements optimistic updates for instant UI feedback.
+ * If the server request fails, the cart is rolled back to its previous state.
+ *
+ * @returns Mutation object containing:
+ *   - mutate: Function to remove item by ID
+ *   - isPending: Boolean indicating if request is in progress
+ *   - isError: Boolean indicating if request failed
+ *   - Other mutation state properties
+ *
+ * @example
+ * ```typescript
+ * const { mutate, isPending } = useRemoveFromCart();
+ *
+ * // Remove item from cart
+ * mutate('item-123');
+ *
+ * // In a list component
+ * <Button
+ *   title="Remove"
+ *   onPress={() => mutate(item.id)}
+ *   loading={isPending}
+ * />
+ * ```
  * @returns Mutation object containing:
  *   - mutate: Function to remove item by ID
  *   - isPending: Boolean indicating if request is in progress
@@ -53,10 +76,15 @@ import { removeItemFromCart } from '../utils/cartCalculations';
  */
 export function useRemoveFromCart() {
   // QueryClient instance for managing React Query cache
+  // QueryClient instance for managing React Query cache
   const queryClient = useQueryClient();
   const showToast = useToastHelpers();
 
   return useMutation({
+    /**
+     * The mutation function that makes the actual API call
+     * @param id - The ID of the cart item to remove
+     */
     /**
      * The mutation function that makes the actual API call
      * @param id - The ID of the cart item to remove
@@ -119,6 +147,14 @@ export function useRemoveFromCart() {
 
       // Show error feedback to user
       showToast.error(getErrorMessage(error));
+    },
+
+    /**
+     * Called when mutation is SETTLED
+     * Ensures final cache consistency
+     */
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
 
     /**
