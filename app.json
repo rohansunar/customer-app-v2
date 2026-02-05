@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "customer-app",
+    "name": "QuickServe",
     "slug": "customer-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"],
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby services.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide services even when the app is not in use."
       },
@@ -25,6 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
@@ -39,8 +41,29 @@
     },
     "plugins": [
       "expo-router",
-      "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#E6F4FE",
+          "defaultChannel": "orders",
+          "channels": [
+            {
+              "id": "orders",
+              "name": "Order Updates",
+              "description": "Notifications about your order status",
+              "priority": "high"
+            },
+            {
+              "id": "marketing",
+              "name": "Offers & Promotions",
+              "description": "Special offers and marketing messages",
+              "priority": "default"
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

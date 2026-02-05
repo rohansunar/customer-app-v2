@@ -17,6 +17,7 @@ import { useToastHelpers } from '@/core/utils/toastHelpers';
 import CartButton from '@/features/cart/components/CartButton';
 import { ReferralBanner } from '@/features/promotion/components/ReferralBanner';
 import { ReferralModal } from '@/features/promotion/components/ReferralModal';
+import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import React, { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
@@ -33,10 +34,16 @@ export default function HomeScreen() {
   const { data: cartData, error: cartError, isError } = useCart();
   const [isReferralModalVisible, setIsReferralModalVisible] = useState(false);
 
+  const { requestPermission } = useNotifications();
+
   const totalItems = cartData?.totalItems || 0;
 
   const products = data?.pages.flatMap((page) => page.data) || [];
   const showToast = useToastHelpers();
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   useEffect(() => {
     if (isError) {

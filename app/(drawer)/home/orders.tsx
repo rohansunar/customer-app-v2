@@ -3,7 +3,8 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import OrderCard from '@/features/orders/components/OrderCard';
 import { useOrders } from '@/features/orders/hooks/useOrders';
-import React, { useState } from 'react';
+import { useNotifications } from '@/features/notifications/context/NotificationContext';
+import React, { useState, useEffect } from 'react';
 import {
   FlatList,
   RefreshControl,
@@ -19,8 +20,21 @@ import {
 export default function OrdersTab() {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
 
-  const activeStatuses = ['PENDING', 'PROCESSING', 'OUT_FOR_DELIVERY'];
+  const activeStatuses = [
+    'PENDING',
+    'CONFIRMED',
+    'PROCESSING',
+    'OUT_FOR_DELIVERY',
+  ];
   const historyStatuses = ['DELIVERED', 'CANCELLED'];
+
+  const { isEnabled, requestPermission } = useNotifications();
+
+  useEffect(() => {
+    if (!isEnabled) {
+      requestPermission();
+    }
+  }, [isEnabled, requestPermission]);
 
   // Fetch both to show counts
   const {

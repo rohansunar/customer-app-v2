@@ -57,7 +57,66 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
   const deleteSubscription = useDeleteSubscription();
   const isActive = subscription.status === 'ACTIVE';
-  const { showConfirm } = useAlert();
+  const isProcessing = subscription.status === 'PROCESSING';
+
+  // Animation values
+  const pulseScale = useSharedValue(1);
+  const pressScale = useSharedValue(1);
+
+  // Use centralized utility functions
+  const daysUntilDelivery = useMemo(
+    () => calculateDaysUntil(subscription.next_delivery_date),
+    [subscription.next_delivery_date],
+  );
+
+  const urgencyColor = useMemo(
+    () => getUrgencyColor(daysUntilDelivery),
+    [daysUntilDelivery],
+  );
+
+  const deliveryProgress = useMemo(
+    () => calculateDeliveryProgress(daysUntilDelivery),
+    [daysUntilDelivery],
+  );
+
+  const gradientColors = useMemo(() => getGradientColors(isActive), [isActive]);
+  const overlayGradient = useMemo(
+    () => getOverlayGradient(isActive),
+    [isActive],
+  );
+
+  // Pulse animation for active status badge
+  useEffect(() => {
+    if (isActive) {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.05, { duration: 1000 }),
+          withTiming(1, { duration: 1000 }),
+        ),
+        -1,
+        false,
+      );
+    } else {
+      pulseScale.value = withTiming(1);
+    }
+  }, [isActive, pulseScale]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
+  const pressStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
+  const handlePressIn = () => {
+    pressScale.value = withSpring(0.98);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handlePressOut = () => {
+    pressScale.value = withSpring(1);
+  };
 
   const handleToggleStatus = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -73,7 +132,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
         {
           text: 'Cancel',
           style: 'cancel',
-          onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
         },
         {
           text: 'Delete',
@@ -83,7 +142,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
             deleteSubscription.mutate({ id: subscription.id });
           },
         },
-      ]
+      ],
     );
   };
 
@@ -96,7 +155,12 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
           style={styles.pressable}
           disabled={isProcessing}
         >
-          <Card style={[styles.card, !isActive && !isProcessing && styles.pausedCard]}>
+          <Card
+            style={[
+              styles.card,
+              !isActive && !isProcessing && styles.pausedCard,
+            ]}
+          >
             {/* Gradient Background for Active */}
             {isActive && (
               <LinearGradient
@@ -136,7 +200,8 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                       color={colors.primary}
                     />
                     <Text variant="xs" color={colors.primary} weight="medium">
-                      {subscription.quantity} Unit{subscription.quantity > 1 ? 's' : ''}
+                      {subscription.quantity} Unit
+                      {subscription.quantity > 1 ? 's' : ''}
                     </Text>
                   </View>
                   <View style={styles.frequencyBadge}>
@@ -148,7 +213,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     <Text variant="xs" color={colors.textSecondary}>
                       {getFrequencyLabel(
                         subscription.frequency,
-                        subscription.custom_days
+                        subscription.custom_days,
                       )}
                     </Text>
                   </View>
@@ -169,12 +234,16 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                   textColor={
                     isProcessing
                       ? statusColors.PROCESSING.text
-                      : isActive ? statusColors.ACTIVE.text : statusColors.PAUSED.text
+                      : isActive
+                        ? statusColors.ACTIVE.text
+                        : statusColors.PAUSED.text
                   }
                   borderColor={
                     isProcessing
                       ? statusColors.PROCESSING.border
-                      : isActive ? statusColors.ACTIVE.border : statusColors.PAUSED.border
+                      : isActive
+                        ? statusColors.ACTIVE.border
+                        : statusColors.PAUSED.border
                   }
                 />
               </Animated.View>
@@ -201,47 +270,115 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                 </View>
               </View>
 
-        <View style={styles.footer}>
-          <Button
-            title={isActive ? 'Pause' : 'Resume'}
-            onPress={handleToggleStatus}
-            variant={isActive ? 'outline' : 'primary'}
-            style={styles.actionButton}
-            loading={updateStatus.isPending}
-            icon={
-              <Ionicons
-                name={isActive ? 'pause' : 'play'}
-                size={18}
-                color={isActive ? colors.primary : colors.white}
-              />
-            }
-          />
-          <Button
-            title=""
-            onPress={() =>
-              showConfirm(
-                'Delete Subscription', // title
-                'Are you sure you want to delete this Subscription?', // message
-                () => {
-                  deleteSubscription.mutate({ id: subscription.id });
-                },
-                () => {
-                  console.log('Deletion cancelled');
-                },
-                'Delete', // confirmText
-                'Cancel', // cancelText
-              )
-            }
-            variant="ghost"
-            style={styles.deleteButton}
-            loading={deleteSubscription.isPending}
-            icon={
-              <Ionicons name="trash-outline" size={18} color={colors.error} />
-            }
-          />
-        </View>
-      </Card>
-    </>
+              {/* Next Delivery with Countdown */}
+              <View style={styles.detailRow}>
+                <View
+                  style={[
+                    styles.iconBox,
+                    { backgroundColor: urgencyColor + '20' },
+                  ]}
+                >
+                  <Ionicons
+                    name="time-outline"
+                    size={16}
+                    color={urgencyColor}
+                  />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text variant="xs" color={colors.textTertiary}>
+                    Next Delivery
+                  </Text>
+                  <View style={styles.deliveryInfo}>
+                    <Text
+                      variant="s"
+                      weight="medium"
+                      color={colors.textPrimary}
+                    >
+                      {formatShortDate(subscription.next_delivery_date)}
+                    </Text>
+                    <View
+                      style={[
+                        styles.countdownBadge,
+                        { backgroundColor: urgencyColor + '15' },
+                      ]}
+                    >
+                      <Text variant="xs" weight="bold" color={urgencyColor}>
+                        {formatCountdown(daysUntilDelivery)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Progress Bar */}
+            {isActive && daysUntilDelivery <= 7 && (
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBarBg}>
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      {
+                        width: `${deliveryProgress}%`,
+                        backgroundColor: urgencyColor,
+                      },
+                    ]}
+                  />
+                </View>
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <View style={styles.footer}>
+              {isProcessing ? (
+                <View style={styles.progressFooter}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text
+                    variant="s"
+                    color={colors.primary}
+                    weight="medium"
+                    style={{ marginLeft: spacing.s }}
+                  >
+                    Processing Subscription...
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <Button
+                    title={isActive ? 'Pause' : 'Resume'}
+                    onPress={handleToggleStatus}
+                    variant={isActive ? 'outline' : 'primary'}
+                    style={styles.actionButton}
+                    loading={updateStatus.isPending}
+                    icon={
+                      <Ionicons
+                        name={isActive ? 'pause' : 'play'}
+                        size={18}
+                        color={isActive ? colors.primary : colors.white}
+                      />
+                    }
+                  />
+                  <Button
+                    title=""
+                    onPress={handleDelete}
+                    variant="ghost"
+                    style={styles.deleteButton}
+                    loading={deleteSubscription.isPending}
+                    icon={
+                      <Ionicons
+                        name="close-circle-outline"
+                        size={22}
+                        color={colors.error}
+                      />
+                    }
+                  />
+                </>
+              )}
+            </View>
+          </Card>
+        </Pressable>
+      </Animated.View>
+    </Animated.View>
   );
 }
 

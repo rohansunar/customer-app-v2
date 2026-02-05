@@ -9,4 +9,5 @@ export const API_ENDPOINTS = {
   CUSTOMER_ORDER_CANCEL: '/customer/orders/:orderId/cancel',
   PAYMENT: '/payments',
   SUBSCRIPTION: '/customer/subscriptions',
+  NOTIFICATION_REGISTER: '/tokens/register',
 };

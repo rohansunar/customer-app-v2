@@ -71,13 +71,21 @@ You must run Razorpay inside a custom native build, not Expo Go.
 npx expo start --dev-client
 ```
 
+4. Build a development build using EAS:
+
+```
+eas build --profile development --platform android
+```
+
+https://expo.dev/blog/how-to-increase-mobile-app-downloads-and-retention
 
 I want to implement custom splash screen
+
 1. Remove the previous native splash screen that shows "customer-app" as text and loads native icon
-2. When app loads user must see the custom splash first for 3 to 5  sec screen should auto redirect login screen
+2. When app loads user must see the custom splash first for 3 to 5 sec screen should auto redirect login screen
 3. I will provide custom splash screen codes modified it according to existing files and folders and where, how and on which files it should implemented and it should production grade.
 4. Create a doc inside plans doc stating what , how to implement dont code yet
-5. When splash loads app shouldn't lag, animation should glitch free , codes should be maintainable , scaleble, testable and with proper comments what codes does  
+5. When splash loads app shouldn't lag, animation should glitch free , codes should be maintainable , scaleble, testable and with proper comments what codes does
 
 Implement a custom splash screen for the application following these specifications:
 
