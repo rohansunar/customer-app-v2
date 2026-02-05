@@ -24,6 +24,7 @@ export function useHandlePayment(cartId: string) {
       { cartId, paymentMode },
       {
         onSuccess: () => {
+          console.log('handlePaymentSuccess');
           queryClient.setQueryData(['cart'], null);
           router.push('/home/orders' as any);
         },
