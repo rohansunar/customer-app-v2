@@ -19,7 +19,9 @@ export function useUpdateSubscriptionStatus() {
       );
     },
     onError: (error) => {
-      showToast.error('Could not update subscription status. Please try again.');
+      showToast.error(
+        'Could not update subscription status. Please try again.',
+      );
     },
   });
 }

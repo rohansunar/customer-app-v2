@@ -129,9 +129,22 @@ function OrderCardComponent({ order, loading }: Props) {
     () => formatOrderDate(order.created_at),
     [order.created_at],
   );
-   const canShowActionsMenu = useMemo(
+  const canShowActionsMenu = useMemo(
     () => canCancel && order.payment_status !== 'FAILED',
     [canCancel, order.payment_status],
+  );
+
+  /**
+   * Determines whether to hide the Menu button and Order Tracker.
+   * Hidden when payment mode is ONLINE, payment status is PENDING,
+   * and delivery status is PENDING (payment verification in progress).
+   */
+  const shouldHideActionsAndTracker = useMemo(
+    () =>
+      order.payment_mode === 'ONLINE' &&
+      order.payment_status === 'PENDING' &&
+      order.delivery_status === 'PENDING',
+    [order.payment_mode, order.payment_status, order.delivery_status],
   );
   const paymentStatusColor = useMemo(
     () => getPaymentStatusColor(order.payment_status),
@@ -201,7 +214,7 @@ function OrderCardComponent({ order, loading }: Props) {
         </View>
 
         {/* Menu Button */}
-        {canShowActionsMenu && (
+        {canShowActionsMenu && !shouldHideActionsAndTracker && (
           <TouchableOpacity
             ref={menuAnchorRef}
             onPress={toggleMenu}
@@ -285,8 +298,7 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
         )}
       </View>
-      
-     
+
       {/* Footer: Amount and Payment Status */}
       <View style={styles.footerContainer}>
         <View style={styles.amountRow}>
@@ -298,17 +310,28 @@ function OrderCardComponent({ order, loading }: Props) {
           </Text>
         </View>
         <View style={styles.paymentStatusContainer}>
-          <Text variant="xs" color={colors.textTertiary} style={styles.paymentLabel}>
+          <Text
+            variant="xs"
+            color={colors.textTertiary}
+            style={styles.paymentLabel}
+          >
             Payment:
           </Text>
           <View
             style={[
               styles.paymentStatusBadge,
-              { borderColor: paymentStatusColor, backgroundColor: colors.surface },
+              {
+                borderColor: paymentStatusColor,
+                backgroundColor: colors.surface,
+              },
             ]}
           >
             <Ionicons
-              name={order.payment_status === 'PAID' ? 'checkmark-circle-outline' : 'time-outline'}
+              name={
+                order.payment_status === 'PAID'
+                  ? 'checkmark-circle-outline'
+                  : 'time-outline'
+              }
               size={12}
               color={paymentStatusColor}
               style={{ marginRight: 3 }}
@@ -320,11 +343,18 @@ function OrderCardComponent({ order, loading }: Props) {
           <View
             style={[
               styles.paymentModeBadge,
-              { borderColor: paymentModeColor, backgroundColor: `${paymentModeColor}15` },
+              {
+                borderColor: paymentModeColor,
+                backgroundColor: `${paymentModeColor}15`,
+              },
             ]}
           >
             <Ionicons
-              name={order.payment_mode?.toUpperCase() === 'ONLINE' ? 'card-outline' : 'cash-outline'}
+              name={
+                order.payment_mode?.toUpperCase() === 'ONLINE'
+                  ? 'card-outline'
+                  : 'cash-outline'
+              }
               size={12}
               color={paymentModeColor}
               style={{ marginRight: 3 }}
@@ -335,9 +365,9 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
         </View>
       </View>
-     
+
       {/* Tracker */}
-      {order.payment_status !== "FAILED" && (
+      {!shouldHideActionsAndTracker && order.payment_status !== 'FAILED' && (
         <View style={styles.trackerContainer}>
           <OrderTracker status={order.delivery_status} />
         </View>

@@ -8,6 +8,7 @@ Imagine you have an app with light/dark mode. Without Context, you'd have to pas
 jsx
 // ❌ WITHOUT CONTEXT - Prop Drilling Hell
 <App theme="dark">
+
   <Header theme="dark">
     <Navbar theme="dark">
       <Button theme="dark" />
@@ -18,12 +19,12 @@ With Context, you create a "theme bucket" that any component can dip into:
 
 jsx
 // ✅ WITH CONTEXT - Clean Access
-<ThemeProvider>  {/* Creates the "theme bucket" */}
-  <App>
-    <Header>
-      <Navbar>
-        <Button /> {/* Can access theme directly */}
-      </Navbar>
-    </Header>
-  </App>
+<ThemeProvider> {/_ Creates the "theme bucket" _/}
+<App>
+<Header>
+<Navbar>
+<Button /> {/_ Can access theme directly _/}
+</Navbar>
+</Header>
+</App>
 </ThemeProvider>

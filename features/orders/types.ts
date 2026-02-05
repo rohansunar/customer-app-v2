@@ -50,4 +50,3 @@ export interface OrdersResponse {
   limit: number;
   totalPages: number;
 }
-

@@ -21,7 +21,7 @@ import {
 export default function OrdersTab() {
   const { tab } = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>(
-    tab === 'HISTORY' ? 'HISTORY' : 'ACTIVE'
+    tab === 'HISTORY' ? 'HISTORY' : 'ACTIVE',
   );
   const historyStatuses = ['PENDING'];
 

@@ -48,7 +48,9 @@ export function useAddressValidation() {
       return false;
     }
     if (!state) {
-      showToast.error('State is required. Please select a location on the map.');
+      showToast.error(
+        'State is required. Please select a location on the map.',
+      );
       return false;
     }
     if (!lng || !lat) {

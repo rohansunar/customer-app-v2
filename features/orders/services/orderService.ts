@@ -1,6 +1,6 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
-import { OrderStatus,OrdersResponse } from '../types';
+import { OrderStatus, OrdersResponse } from '../types';
 
 export const orderService = {
   getOrders(statuses?: string[]): Promise<OrdersResponse> {
