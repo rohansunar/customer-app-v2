@@ -22,12 +22,6 @@ export function useGeocodingLogic(
     error: geocodeError,
     reverseGeocode,
   } = useReverseGeocode();
-  const {
-    result: geocodeResult,
-    loading: geocodeLoading,
-    error: geocodeError,
-    reverseGeocode,
-  } = useReverseGeocode();
 
   // Reverse geocode when coordinates change
   // Note: Debouncing is assumed to be handled by the caller or we can add it here if needed.

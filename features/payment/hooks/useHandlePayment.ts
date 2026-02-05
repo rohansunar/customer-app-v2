@@ -28,21 +28,6 @@ export function useHandlePayment(cartId: string) {
       router.push({ pathname: '/home/orders', params: { tab: 'HISTORY' } });
     },
   });
-  const showToast = useToastHelpers();
-
-  const mutation = useMutation({
-    mutationFn: (data: PaymentRequest) => paymentService.createOrder(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      router.push('/home/orders' as any);
-    },
-    onError: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      router.push({ pathname: '/home/orders', params: { tab: 'HISTORY' } });
-    },
-  });
 
   const handlePayment = (paymentMode: PaymentMode) => {
     mutation.mutate({ cartId, paymentMode });
