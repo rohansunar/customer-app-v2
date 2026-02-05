@@ -18,6 +18,8 @@ import {
   calculateTotalQuantity,
   canCancelOrder,
   formatOrderDate,
+  getPaymentModeColor,
+  getPaymentModeLabel,
   getPaymentStatusColor,
   getPaymentStatusLabel,
   getPrimaryProductName,
@@ -138,6 +140,14 @@ function OrderCardComponent({ order, loading }: Props) {
   const paymentStatusLabel = useMemo(
     () => getPaymentStatusLabel(order.payment_status),
     [order.payment_status],
+  );
+  const paymentModeColor = useMemo(
+    () => getPaymentModeColor(order.payment_mode || ''),
+    [order.payment_mode],
+  );
+  const paymentModeLabel = useMemo(
+    () => getPaymentModeLabel(order.payment_mode || ''),
+    [order.payment_mode],
   );
 
   return (
@@ -305,6 +315,22 @@ function OrderCardComponent({ order, loading }: Props) {
             />
             <Text variant="xs" weight="medium" color={paymentStatusColor}>
               {paymentStatusLabel}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.paymentModeBadge,
+              { borderColor: paymentModeColor, backgroundColor: `${paymentModeColor}15` },
+            ]}
+          >
+            <Ionicons
+              name={order.payment_mode?.toUpperCase() === 'ONLINE' ? 'card-outline' : 'cash-outline'}
+              size={12}
+              color={paymentModeColor}
+              style={{ marginRight: 3 }}
+            />
+            <Text variant="xs" weight="medium" color={paymentModeColor}>
+              {paymentModeLabel}
             </Text>
           </View>
         </View>
@@ -525,6 +551,15 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 12,
     borderWidth: 1,
+  },
+  paymentModeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.s,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginLeft: spacing.xs,
   },
   trackerContainer: {
     backgroundColor: '#FAFAFA',

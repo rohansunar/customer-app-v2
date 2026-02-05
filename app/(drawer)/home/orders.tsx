@@ -23,7 +23,7 @@ export default function OrdersTab() {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>(
     tab === 'HISTORY' ? 'HISTORY' : 'ACTIVE'
   );
-  const historyStatuses = ['DELIVERED', 'CANCELLED'];
+  const historyStatuses = ['PENDING'];
 
   const { isEnabled, requestPermission } = useNotifications();
 
@@ -40,7 +40,7 @@ export default function OrdersTab() {
     refetch: refetchActive,
     isFetching: activeFetching,
     error: activeError,
-  } = useOrders();
+  } = useOrders(undefined);
 
   const {
     data: historyData,

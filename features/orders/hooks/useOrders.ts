@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { orderService } from '../services/orderService';
 
 /**
- * Custom hook to fetch orders list with optional status filtering
+ * Custom hook to fetch orders list with optional status and filter filtering
  * Optimized with staleTime and cacheTime for better performance
  */
 export function useOrders(statuses?: string[]) {

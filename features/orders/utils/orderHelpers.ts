@@ -169,3 +169,35 @@ export function getPaymentStatusLabel(status: string): string {
       return 'Pending';
   }
 }
+
+/**
+ * Gets the color associated with a payment mode
+ * @param paymentMode - Payment mode (e.g., 'ONLINE', 'COD')
+ * @returns Color string from theme
+ */
+export function getPaymentModeColor(paymentMode: string): string {
+  switch (paymentMode.toUpperCase()) {
+    case 'ONLINE':
+      return colors.success;
+    case 'COD':
+      return colors.warning;
+    default:
+      return colors.textSecondary;
+  }
+}
+
+/**
+ * Gets the human-readable label for a payment mode
+ * @param paymentMode - Payment mode
+ * @returns Display label for the payment mode
+ */
+export function getPaymentModeLabel(paymentMode: string): string {
+  switch (paymentMode.toUpperCase()) {
+    case 'ONLINE':
+      return 'Online Payment';
+    case 'COD':
+      return 'Cash on Delivery';
+    default:
+      return paymentMode;
+  }
+}
