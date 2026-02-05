@@ -15,13 +15,6 @@ export function useGeocodingLogic(
   setState: (state: string) => void,
   setCity: (city: string) => void,
   address?: Address,
-  lat: number,
-  lng: number,
-  setAddressText: (text: string) => void,
-  setPincode: (text: string) => void,
-  setState: (state: string) => void,
-  setCity: (city: string) => void,
-  address?: Address,
 ) {
   const {
     result: geocodeResult,
@@ -46,16 +39,6 @@ export function useGeocodingLogic(
     const EPSILON = 0.0001;
     const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
     const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
-  useEffect(() => {
-    const EPSILON = 0.0001;
-    const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
-    const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
-
-    if (lat !== 0 && lng !== 0 && (latChanged || lngChanged)) {
-      lastGeocodedCoords.current = { lat, lng };
-      reverseGeocode(lat, lng);
-    }
-  }, [lat, lng, reverseGeocode]);
     if (lat !== 0 && lng !== 0 && (latChanged || lngChanged)) {
       lastGeocodedCoords.current = { lat, lng };
       reverseGeocode(lat, lng);
@@ -88,10 +71,6 @@ export function useGeocodingLogic(
     }
   }, [geocodeResult, address, setPincode, setState, setCity]);
 
-  return {
-    geocodeResult,
-    geocodeLoading,
-  };
   return {
     geocodeResult,
     geocodeLoading,

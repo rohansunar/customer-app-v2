@@ -13,11 +13,6 @@ export function useLocationLogic(
   setLat: (lat: number) => void,
   setLng: (lng: number) => void,
   address?: Address,
-  lat: number,
-  lng: number,
-  setLat: (lat: number) => void,
-  setLng: (lng: number) => void,
-  address?: Address,
 ) {
   const {
     location: currentLocation,
@@ -54,11 +49,6 @@ export function useLocationLogic(
     }
   };
 
-  return {
-    currentLocation,
-    locationLoading,
-    handleUseCurrentLocation,
-  };
   return {
     currentLocation,
     locationLoading,

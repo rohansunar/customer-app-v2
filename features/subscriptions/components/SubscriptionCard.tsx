@@ -1,4 +1,3 @@
-import { useAlert } from '@/core/context/AlertContext';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { statusColors } from '@/core/theme/statusColors';
@@ -26,22 +25,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
 import { getFrequencyLabel } from '../utils/subscriptionUtils';
-import {
-  calculateDaysUntil,
-  calculateDeliveryProgress,
-  formatCountdown,
-  formatShortDate,
-  formatSubscriptionDate,
-  getGradientColors,
-  getOverlayGradient,
-  getUrgencyColor,
-} from '../utils/subscriptionHelpers';
 import {
   calculateDaysUntil,
   calculateDeliveryProgress,
@@ -64,78 +51,9 @@ interface Props {
  * Refactored following SOLID principles
  */
 export function SubscriptionCard({ subscription, productName, index }: Props) {
-  productName: string;
-  index: number;
-}
-
-/**
- * Modern SubscriptionCard with gradients, animations, and enhanced UI
- * Refactored following SOLID principles
- */
-export function SubscriptionCard({ subscription, productName, index }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
   const deleteSubscription = useDeleteSubscription();
   const isActive = subscription.status === 'ACTIVE';
-  const isProcessing = subscription.status === 'PROCESSING';
-
-  // Animation values
-  const pulseScale = useSharedValue(1);
-  const pressScale = useSharedValue(1);
-
-  // Use centralized utility functions
-  const daysUntilDelivery = useMemo(
-    () => calculateDaysUntil(subscription.next_delivery_date),
-    [subscription.next_delivery_date],
-  );
-
-  const urgencyColor = useMemo(
-    () => getUrgencyColor(daysUntilDelivery),
-    [daysUntilDelivery],
-  );
-
-  const deliveryProgress = useMemo(
-    () => calculateDeliveryProgress(daysUntilDelivery),
-    [daysUntilDelivery],
-  );
-
-  const gradientColors = useMemo(() => getGradientColors(isActive), [isActive]);
-  const overlayGradient = useMemo(
-    () => getOverlayGradient(isActive),
-    [isActive],
-  );
-
-  // Pulse animation for active status badge
-  useEffect(() => {
-    if (isActive) {
-      pulseScale.value = withRepeat(
-        withSequence(
-          withTiming(1.05, { duration: 1000 }),
-          withTiming(1, { duration: 1000 }),
-        ),
-        -1,
-        false,
-      );
-    } else {
-      pulseScale.value = withTiming(1);
-    }
-  }, [isActive, pulseScale]);
-
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
-  }));
-
-  const pressStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pressScale.value }],
-  }));
-
-  const handlePressIn = () => {
-    pressScale.value = withSpring(0.98);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const handlePressOut = () => {
-    pressScale.value = withSpring(1);
-  };
   const isProcessing = subscription.status === 'PROCESSING';
 
   // Animation values

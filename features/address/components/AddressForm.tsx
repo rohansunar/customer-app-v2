@@ -80,14 +80,6 @@ export function AddressForm({
     formState.setLat,
     formState.setLng,
   );
-  // Map interactions: Hook handles map region changes, updating coordinates in form state.
-  // Ensures real-time sync between map position and form data.
-  const { handleMapRegionChangeComplete } = useMapLogic(
-    formState.lat,
-    formState.lng,
-    formState.setLat,
-    formState.setLng,
-  );
 
   // Location services: Provides current location fetching and integration.
   // Updates form coordinates when user selects current location.
