@@ -21,6 +21,7 @@ jsx
 // ✅ WITH CONTEXT - Clean Access
 <ThemeProvider> {/_ Creates the "theme bucket" _/}
 <App>
+
 <Header>
 <Navbar>
 <Button /> {/_ Can access theme directly _/}

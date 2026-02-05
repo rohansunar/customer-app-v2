@@ -16,11 +16,16 @@ export const paymentService = {
     if (order.payment.provider_payload == null) {
       return;
     }
-    if (order.payment.provider_payload == null) {
-      return;
+
+    if (!ENV.RAZORPAY_KEY || !ENV.RAZORPAY_KEY.startsWith('rzp_')) {
+      throw new Error(
+        'Payment service is temporarily unavailable. Please try later.',
+      );
     }
+
     const options = {
       key: ENV.RAZORPAY_KEY,
+      // image: "https://yourlogo.com/logo.png",
       amount: order.payment.provider_payload.amount,
       currency: 'INR',
       order_id: order.payment.provider_payment_id,
@@ -33,18 +38,10 @@ export const paymentService = {
       },
     };
 
-    try {
-      if (!RazorpayCheckout) {
-        throw new Error(
-          'Razorpay SDK not linked. Are you using Expo Dev Client?',
-        );
-      }
-
-      return await RazorpayCheckout.open(options);
-    } catch (error: any) {
-      const message =
-        error?.description || error?.message || 'Payment cancelled or failed';
-      return message;
+    if (!RazorpayCheckout) {
+      throw new Error('Razorpay not linked.');
     }
+
+    return await RazorpayCheckout.open(options);
   },
 };
