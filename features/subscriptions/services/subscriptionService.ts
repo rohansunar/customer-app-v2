@@ -1,10 +1,13 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
+import { ENV } from '@/core/config/env';
 import {
   PaginatedSubscriptionsResponse,
   Subscription,
   SubscriptionRequest,
 } from '../types';
+import RazorpayCheckout from 'react-native-razorpay';
+import { showError } from '@/core/ui/toast';
 
 export const subscriptionService = {
   /**
@@ -12,8 +15,41 @@ export const subscriptionService = {
    */
   createSubscription: async (
     request: SubscriptionRequest,
-  ): Promise<Subscription> => {
-    return await apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
+  ) => {
+    const response = await apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
+    const {customer , payment}  = response.data;
+
+    if (payment.provider_payload == null) {
+      return;
+    }
+    const options = {
+      key: ENV.RAZORPAY_KEY,
+      amount: payment.provider_payload.amount,
+      currency: 'INR',
+      order_id: payment.provider_payment_id,
+      name: 'My App',
+      description: 'Product Subscription Payment',
+      prefill: {
+        name: customer.name,
+        email: customer.email,
+        contact: customer.phone,
+      },
+    };
+
+    try {
+      if (!RazorpayCheckout) {
+        throw new Error(
+          'Razorpay SDK not linked. Are you using Expo Dev Client?',
+        );
+      }
+
+      const result = await RazorpayCheckout.open(options);
+      return result;
+      } catch (error: any) {
+        const message =
+          error?.description || error?.message || 'Payment cancelled or failed';
+        showError(message);
+      }
   },
 
   /**
@@ -35,16 +71,9 @@ export const subscriptionService = {
   updateSubscriptionStatus: async (id: string): Promise<Subscription> => {
     return await apiClient.post(`${API_ENDPOINTS.SUBSCRIPTION}/${id}/toggle`);
   },
-
-  /**
-   * Update subscription details.
-   */
-  updateSubscription: async (
-    id: string,
-    request: Partial<SubscriptionRequest>,
-  ): Promise<Subscription> => {
-    return await apiClient.put(`${API_ENDPOINTS.SUBSCRIPTION}/${id}`, request);
-  },
+/**
+ * Delete subscription details.
+ */
   /**
    * Delete subscription details.
    */

@@ -15,7 +15,6 @@ import {
 import { subscriptionTypeConfigs } from '../config/subscriptionTypes';
 import { useCreateSubscription } from '../hooks/useCreateSubscription';
 import { useSubscriptionForm } from '../hooks/useSubscriptionForm';
-import { useUpdateSubscription } from '../hooks/useUpdateSubscription';
 import { DayOfWeek, Subscription, SubscriptionRequest } from '../types';
 import { CalendarPicker } from './CalendarPicker';
 
@@ -24,6 +23,7 @@ interface Props {
   onClose: () => void;
   productId: string;
   productName: string;
+  isEditing?: boolean;
   existingSubscription?: Subscription;
 }
 
@@ -42,16 +42,12 @@ export function SubscriptionModal({
   onClose,
   productId,
   productName,
-  existingSubscription,
 }: Props) {
-  const isEditing = !!existingSubscription;
-
   // Dependency Inversion Principle: Depend on abstraction (hook interface) rather than concrete state
-  const form = useSubscriptionForm(existingSubscription);
+  const form = useSubscriptionForm();
 
   const router = useRouter();
   const createSubscription = useCreateSubscription();
-  const updateSubscription = useUpdateSubscription();
 
   const handleSave = () => {
     const payload: SubscriptionRequest = {
@@ -64,26 +60,13 @@ export function SubscriptionModal({
           : undefined,
       quantity: form.state.quantity,
     };
-
-    if (isEditing && existingSubscription) {
-      const { productId, ...updatePayload } = payload;
-      updateSubscription.mutate(
-        {
-          id: existingSubscription.id,
-          request: updatePayload,
-        },
-        {
-          onSuccess: () => onClose(),
-        },
-      );
-    } else {
-      createSubscription.mutate(payload, {
-        onSuccess: () => {
-          onClose();
-          router.push('/(drawer)/home/subscriptions' as any);
-        },
-      });
-    }
+    
+    createSubscription.mutate(payload, {
+      onSuccess: () => {
+        onClose();
+        router.push('/(drawer)/home/subscriptions' as any);
+      },
+    });
   };
 
   return (
@@ -92,9 +75,6 @@ export function SubscriptionModal({
         <View style={styles.container}>
           <View style={styles.header}>
             <View>
-              <Text variant="l" weight="bold">
-                {isEditing ? 'Edit' : 'Subscribe'}
-              </Text>
               <Text variant="s" color={colors.textSecondary}>
                 {productName}
               </Text>
