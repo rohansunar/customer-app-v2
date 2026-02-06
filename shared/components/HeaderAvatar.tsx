@@ -2,12 +2,18 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { useProfile } from '@/features/profile/hooks/useProfile';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export function HeaderAvatar() {
   const { data } = useProfile();
+  const pathname = usePathname();
+
+  // Hide avatar if user is already on profile page
+  if (pathname === '/profile') {
+    return null;
+  }
 
   const getInitials = (name: string) => {
     if (!name || name.trim() === '') return 'U';
@@ -18,9 +24,13 @@ export function HeaderAvatar() {
 
   const initials = getInitials(data?.name ?? '');
 
+  const handlePress = () => {
+    router.push('/profile');
+  };
+
   return (
     <TouchableOpacity
-      onPress={() => router.push('/profile')}
+      onPress={handlePress}
       activeOpacity={0.7}
       style={styles.container}
     >
