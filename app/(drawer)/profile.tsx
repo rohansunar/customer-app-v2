@@ -16,14 +16,7 @@ export default function ProfileScreen() {
   const { mutate, isPending } = useUpdateProfile();
   const { logout } = useAuth();
 
-  const { form, errors, updateField, validate } = useProfileForm(
-    data
-      ? {
-          name: data.name ?? undefined,
-          email: data.email ?? undefined,
-        }
-      : undefined,
-  );
+  const { form, errors, isDirty, updateField, validate } = useProfileForm(data);
 
   async function handleLogout() {
     await logout();
@@ -63,6 +56,7 @@ export default function ProfileScreen() {
   }
 
   function handleSave() {
+    if (!isDirty) return;
     if (!validate()) return;
 
     mutate({
@@ -138,6 +132,7 @@ export default function ProfileScreen() {
           title={isPending ? 'Saving...' : 'Save Changes'}
           onPress={handleSave}
           loading={isPending}
+          disabled={!isDirty || isPending}
           style={styles.button}
         />
       </View>

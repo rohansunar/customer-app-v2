@@ -1,24 +1,29 @@
-import { ZodError } from 'zod';
 import { useEffect, useState } from 'react';
-import { profileSchema, ProfileFormData } from '@/shared/utils/profileValidator';
+import {
+  profileSchema,
+  ProfileFormData,
+} from '@/shared/utils/profileValidator';
+import { Profile } from '../types';
 
 type FormErrors = Partial<Record<keyof ProfileFormData, string>>;
 
-export function useProfileForm(initialData?: Partial<ProfileFormData>) {
+export function useProfileForm(initialData?: Profile | undefined) {
   const [form, setForm] = useState<ProfileFormData>({
     name: '',
     email: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isDirty, setIsDirty] = useState(false);
 
-  // Populate from backend ONCE
+  // Populate from backend ONCE and track original values
   useEffect(() => {
     if (initialData) {
-      setForm({
+      const initialForm = {
         name: initialData.name ?? '',
         email: initialData.email ?? '',
-      });
+      };
+      setForm(initialForm);
     }
   }, [initialData]);
 
@@ -26,7 +31,21 @@ export function useProfileForm(initialData?: Partial<ProfileFormData>) {
     field: K,
     value: ProfileFormData[K],
   ) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const newForm = { ...prev, [field]: value };
+      // Check if form differs from initial
+      if (initialData) {
+        const initialForm = {
+          name: initialData.name ?? '',
+          email: initialData.email ?? '',
+        };
+        setIsDirty(
+          newForm.name !== initialForm.name ||
+            newForm.email !== initialForm.email,
+        );
+      }
+      return newForm;
+    });
 
     // Clear error as user edits
     if (errors[field]) {
@@ -54,6 +73,7 @@ export function useProfileForm(initialData?: Partial<ProfileFormData>) {
   return {
     form,
     errors,
+    isDirty,
     updateField,
     validate,
   };
