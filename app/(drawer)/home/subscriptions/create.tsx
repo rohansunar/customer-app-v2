@@ -54,7 +54,7 @@ export default function CreateSubscriptionScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={styles.safeArea}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
@@ -128,7 +128,7 @@ export default function CreateSubscriptionScreen() {
                     variant="primary"
                 />
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 

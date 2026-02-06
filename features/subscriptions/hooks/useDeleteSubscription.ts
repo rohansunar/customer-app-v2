@@ -12,8 +12,8 @@ export function useDeleteSubscription() {
   return useMutation({
     mutationFn: ({ id }: { id: string }) =>
       subscriptionService.deleteSubscription(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ['subscriptions'] });
       showToast.success('Subscription deleted');
     },
     onError: (error) => {
