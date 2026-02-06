@@ -70,7 +70,7 @@ export const AddressItem = memo(
           </Text>
           {/* cspell:ignore pincode */}
           <Text variant="xs" color={colors.textTertiary}>
-            {address.location.name}, {address.pincode}
+            {address.location?.name}, {address.pincode}
           </Text>
         </View>
 
