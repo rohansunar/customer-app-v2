@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { DayOfWeek, Subscription, SubscriptionType } from '../types';
-import { calculateUpcomingDates } from '../utils/subscriptionUtils';
+import { calculateUpcomingDates, convertDaysToNames } from '../utils/subscriptionUtils';
 
 // Interface for subscription form state - Interface Segregation Principle: Segregated from component props
 export interface ISubscriptionFormState {
@@ -36,8 +36,11 @@ export function useSubscriptionForm(
   const [frequency, setFrequency] = useState<SubscriptionType>(
     existingSubscription?.frequency || 'DAILY',
   );
+  // Convert numeric days from existing subscription to day names for form state
   const [customDays, setCustomDays] = useState<DayOfWeek[]>(
-    existingSubscription?.custom_days || [],
+    existingSubscription?.custom_days
+      ? convertDaysToNames(existingSubscription.custom_days)
+      : [],
   );
   const [quantity, setQuantity] = useState(existingSubscription?.quantity || 1);
   const [selectedDate, setSelectedDate] = useState(() => {

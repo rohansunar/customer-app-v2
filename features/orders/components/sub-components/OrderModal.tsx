@@ -30,16 +30,44 @@ interface CancelOption {
 }
 
 const CANCEL_REASONS: CancelOption[] = [
-  { label: 'Changed my mind', value: 'Changed my mind', icon: 'heart-dislike-outline' },
+  {
+    label: 'Changed my mind',
+    value: 'Changed my mind',
+    icon: 'heart-dislike-outline',
+  },
   { label: 'Wrong item ordered', value: 'Wrong item', icon: 'cart-outline' },
   { label: 'Delivery delay', value: 'Delivery delay', icon: 'time-outline' },
-  { label: 'Found a better deal', value: 'Found a better deal', icon: 'pricetag-outline' },
+  {
+    label: 'Found a better deal',
+    value: 'Found a better deal',
+    icon: 'pricetag-outline',
+  },
   { label: 'Price too high', value: 'Price too high', icon: 'cash-outline' },
-  { label: 'Ordered by mistake', value: 'Ordered by mistake', icon: 'alert-circle-outline' },
-  { label: 'Want to change items', value: 'Want to change items', icon: 'swap-horizontal-outline' },
-  { label: 'Delivery address issue', value: 'Delivery address issue', icon: 'location-outline' },
-  { label: 'Changed my schedule', value: 'Changed my schedule', icon: 'calendar-outline' },
-  { label: 'Other reasons', value: 'Other', icon: 'ellipsis-horizontal-circle-outline' },
+  {
+    label: 'Ordered by mistake',
+    value: 'Ordered by mistake',
+    icon: 'alert-circle-outline',
+  },
+  {
+    label: 'Want to change items',
+    value: 'Want to change items',
+    icon: 'swap-horizontal-outline',
+  },
+  {
+    label: 'Delivery address issue',
+    value: 'Delivery address issue',
+    icon: 'location-outline',
+  },
+  {
+    label: 'Changed my schedule',
+    value: 'Changed my schedule',
+    icon: 'calendar-outline',
+  },
+  {
+    label: 'Other reasons',
+    value: 'Other',
+    icon: 'ellipsis-horizontal-circle-outline',
+  },
 ];
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -59,7 +87,12 @@ function ReasonCard({
       onPress={() => onSelect(option.value)}
       activeOpacity={0.7}
     >
-      <View style={[styles.reasonIconContainer, isSelected && styles.reasonIconContainerSelected]}>
+      <View
+        style={[
+          styles.reasonIconContainer,
+          isSelected && styles.reasonIconContainerSelected,
+        ]}
+      >
         <Ionicons
           name={option.icon}
           size={20}
@@ -68,20 +101,26 @@ function ReasonCard({
       </View>
       <Text
         variant="m"
-        weight={isSelected ? "bold" : "medium"}
+        weight={isSelected ? 'bold' : 'medium'}
         color={isSelected ? colors.primary : colors.textPrimary}
         style={styles.reasonText}
       >
         {option.label}
       </Text>
-      <View style={[styles.radioCircle, isSelected && styles.radioCircleSelected]}>
+      <View
+        style={[styles.radioCircle, isSelected && styles.radioCircleSelected]}
+      >
         {isSelected && <View style={styles.radioInner} />}
       </View>
     </TouchableOpacity>
   );
 }
 
-export default function OrderModal({ visible, onClose, onConfirm }: OrderModalProps) {
+export default function OrderModal({
+  visible,
+  onClose,
+  onConfirm,
+}: OrderModalProps) {
   const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0].value);
   const [otherReason, setOtherReason] = useState('');
 
@@ -108,7 +147,8 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
   }, [visible, fadeAnimation, scaleAnimation]);
 
   const handleConfirm = () => {
-    const finalReason = cancelReason === 'Other' ? otherReason.trim() : cancelReason;
+    const finalReason =
+      cancelReason === 'Other' ? otherReason.trim() : cancelReason;
     if (cancelReason === 'Other' && !finalReason) {
       // Basic validation for "Other"
       return;
@@ -134,7 +174,10 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
           <Animated.View
             style={[
               styles.modalContent,
-              { opacity: fadeAnimation, transform: [{ scale: scaleAnimation }] },
+              {
+                opacity: fadeAnimation,
+                transform: [{ scale: scaleAnimation }],
+              },
             ]}
           >
             {/* Header */}
@@ -143,7 +186,11 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
                 <Text variant="xl" weight="bold" color={colors.textPrimary}>
                   Cancel Order
                 </Text>
-                <Text variant="s" color={colors.textSecondary} style={styles.subtitle}>
+                <Text
+                  variant="s"
+                  color={colors.textSecondary}
+                  style={styles.subtitle}
+                >
                   {"We're sorry to see you go. Please let us know why."}
                 </Text>
               </View>
@@ -192,7 +239,11 @@ export default function OrderModal({ visible, onClose, onConfirm }: OrderModalPr
                 onPress={onClose}
                 activeOpacity={0.7}
               >
-                <Text variant="m" weight="semibold" color={colors.textSecondary}>
+                <Text
+                  variant="m"
+                  weight="semibold"
+                  color={colors.textSecondary}
+                >
                   Keep Order
                 </Text>
               </TouchableOpacity>

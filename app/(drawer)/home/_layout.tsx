@@ -41,6 +41,7 @@ export default function HomeTabsLayout() {
 
       {/* HIDDEN ROUTES */}
       <Tabs.Screen name="cart" options={{ href: null }} />
+      <Tabs.Screen name="subscriptions/create" options={{ href: null }} />
     </Tabs>
   );
 }

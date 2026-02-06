@@ -12,7 +12,7 @@ export type DayOfWeek =
 export interface SubscriptionRequest {
   productId: string;
   frequency: SubscriptionType;
-  custom_days?: DayOfWeek[];
+  custom_days?: number[];
   start_date: string;
   quantity: number;
 }

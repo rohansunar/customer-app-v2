@@ -7,7 +7,7 @@ import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useDebouncedAddToCart } from '@/features/cart/hooks/useDebouncedAddToCart';
-import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
+import { useRouter } from 'expo-router';
 import { Product } from '../types';
 import { DistanceBadge } from './DistanceBadge';
 import { ProductImageSlider } from './ProductImageSlider';
@@ -37,9 +37,7 @@ export const ProductCard = memo(function ProductCard({
   product,
   onAddToCart,
 }: Props) {
-  const [isSubscriptionModalVisible, setIsSubscriptionModalVisible] =
-    useState(false);
-
+  const router = useRouter();
   const addToCartMutation = useDebouncedAddToCart(500);
 
   /**
@@ -62,15 +60,17 @@ export const ProductCard = memo(function ProductCard({
    * Memoized handler for subscribe button press
    */
   const handleSubscribe = useCallback(() => {
-    setIsSubscriptionModalVisible(true);
-  }, []);
-
-  /**
-   * Memoized handler for closing subscription modal
-   */
-  const closeSubscriptionModal = useCallback(() => {
-    setIsSubscriptionModalVisible(false);
-  }, []);
+    router.push({
+      pathname: '/(drawer)/home/subscriptions/create' as any,
+      params: {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price.toString(),
+        productImage: product.images?.[0] || '',
+        productDescription: product.description || '',
+      },
+    });
+  }, [product, router]);
 
   return (
     <Card style={styles.card}>
@@ -140,13 +140,6 @@ export const ProductCard = memo(function ProductCard({
           />
         </View>
       </View>
-
-      <SubscriptionModal
-        visible={isSubscriptionModalVisible}
-        onClose={closeSubscriptionModal}
-        productId={product.id}
-        productName={product.name}
-      />
     </Card>
   );
 });

@@ -3,12 +3,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { subscriptionService } from '../services/subscriptionService';
 import { SubscriptionRequest } from '../types';
+import { useToastHelpers } from '@/core/utils/toastHelpers';
 
 /**
  * Hook to handle subscription creation.
  */
 export function useCreateSubscription() {
   const queryClient = useQueryClient();
+  const showToast = useToastHelpers();
 
   return useMutation({
     mutationFn: (request: SubscriptionRequest) =>
@@ -16,17 +18,9 @@ export function useCreateSubscription() {
     onSuccess: () => {
       // Invalidate relevant queries if any (e.g., user's subscriptions list)
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-
-      Toast.show({
-        type: 'success',
-        text1: 'Subscription Created!',
-      });
     },
     onError: (error) => {
-      Toast.show({
-        type: 'error',
-        text1: `${getErrorMessage(error)}`,
-      });
+      showToast.error(`${getErrorMessage(error)}`);
     },
   });
 }

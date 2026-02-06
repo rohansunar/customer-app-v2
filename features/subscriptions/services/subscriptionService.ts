@@ -14,39 +14,38 @@ export const subscriptionService = {
    * Creating a new subscription.
    */
   createSubscription: async (request: SubscriptionRequest) => {
-    const response = await apiClient.post(API_ENDPOINTS.SUBSCRIPTION, request);
-    const { customer, payment } = response.data;
-
-    if (payment.provider_payload == null) {
-      return;
-    }
-    const options = {
-      key: ENV.RAZORPAY_KEY,
-      amount: payment.provider_payload.amount,
-      currency: 'INR',
-      order_id: payment.provider_payment_id,
-      name: 'My App',
-      description: 'Product Subscription Payment',
-      prefill: {
-        name: customer.name,
-        email: customer.email,
-        contact: customer.phone,
-      },
-    };
-
     try {
+      const response = await apiClient.post(
+        API_ENDPOINTS.SUBSCRIPTION,
+        request,
+      );
+      const { customer, payment } = response.data;
+      if (!payment?.provider_payload) {
+        return;
+      }
+      const options = {
+        key: ENV.RAZORPAY_KEY,
+        amount: payment.provider_payload.amount,
+        currency: 'INR',
+        order_id: payment.provider_payment_id,
+        name: 'My App',
+        description: 'Product Subscription Payment',
+        prefill: {
+          name: customer.name,
+          email: customer.email,
+          contact: customer.phone,
+        },
+      };
       if (!RazorpayCheckout) {
         throw new Error(
           'Razorpay SDK not linked. Are you using Expo Dev Client?',
         );
       }
 
-      const result = await RazorpayCheckout.open(options);
-      return result;
-    } catch (error: any) {
-      const message =
-        error?.description || error?.message || 'Payment cancelled or failed';
-      showError(message);
+      return await RazorpayCheckout.open(options);
+    } catch (error) {
+      console.error('Create Subscription Error:', error);
+      throw error;
     }
   },
 
@@ -69,9 +68,7 @@ export const subscriptionService = {
   updateSubscriptionStatus: async (id: string): Promise<Subscription> => {
     return await apiClient.post(`${API_ENDPOINTS.SUBSCRIPTION}/${id}/toggle`);
   },
-  /**
-   * Delete subscription details.
-   */
+
   /**
    * Delete subscription details.
    */

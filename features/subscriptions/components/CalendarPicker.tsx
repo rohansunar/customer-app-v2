@@ -2,6 +2,7 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -16,8 +17,20 @@ const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export function CalendarPicker({
   selectedDate,
   onSelectDate,
-  minDate = new Date(),
+  minDate: propMinDate,
 }: Props) {
+  // Logic: minDate should be at least tomorrow
+  const minDate = React.useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    if (propMinDate && propMinDate > tomorrow) {
+      return propMinDate;
+    }
+    return tomorrow;
+  }, [propMinDate]);
+
   const [viewDate, setViewDate] = useState(new Date(selectedDate));
 
   const month = viewDate.getMonth();
@@ -44,9 +57,8 @@ export function CalendarPicker({
 
   const isPast = (day: number) => {
     const d = new Date(year, month, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return d < today;
+    d.setHours(0, 0, 0, 0);
+    return d < minDate;
   };
 
   const isToday = (day: number) => {
@@ -74,32 +86,46 @@ export function CalendarPicker({
       days.push(
         <TouchableOpacity
           key={day}
-          style={[
-            styles.dayCell,
-            selected && styles.selectedDay,
-            today && !selected && styles.todayCell,
-          ]}
+          style={[styles.dayCell, today && !selected && styles.todayCell]}
           disabled={disabled}
           onPress={() => onSelectDate(new Date(year, month, day))}
         >
-          <Text
-            variant="s"
-            weight={selected ? 'bold' : 'medium'}
-            color={
-              disabled
-                ? colors.textSecondary + '66'
-                : selected
-                  ? colors.white
+          {selected ? (
+            <LinearGradient
+              colors={[colors.primary, '#6366F1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.selectedGradient}
+            >
+              <Text variant="s" weight="bold" color={colors.white}>
+                {day}
+              </Text>
+            </LinearGradient>
+          ) : (
+            <Text
+              variant="s"
+              weight={today ? 'bold' : 'medium'}
+              color={
+                disabled
+                  ? colors.textSecondary + '44'
                   : today
                     ? colors.primary
                     : colors.textPrimary
-            }
-          >
-            {day}
-          </Text>
+              }
+            >
+              {day}
+            </Text>
+          )}
         </TouchableOpacity>,
       );
     }
+
+    // Fill the remaining cells to maintain grid alignment
+    const totalCells = Math.ceil((firstDayOfMonth + daysInMonth) / 7) * 7;
+    for (let i = firstDayOfMonth + daysInMonth; i < totalCells; i++) {
+      days.push(<View key={`empty-end-${i}`} style={styles.dayCell} />);
+    }
+
     return days;
   };
 
@@ -107,7 +133,12 @@ export function CalendarPicker({
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={prevMonth} style={styles.navButton}>
-          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+          <Ionicons
+            name="chevron-back"
+            size={20}
+            color={colors.textPrimary}
+            style={styles.navIcon}
+          />
         </TouchableOpacity>
 
         <Text weight="bold" style={styles.monthLabel}>
@@ -122,6 +153,7 @@ export function CalendarPicker({
             name="chevron-forward"
             size={20}
             color={colors.textPrimary}
+            style={styles.navIcon}
           />
         </TouchableOpacity>
       </View>
@@ -131,7 +163,8 @@ export function CalendarPicker({
           <Text
             key={d}
             variant="xs"
-            color={colors.textSecondary}
+            weight="semibold"
+            color={colors.textTertiary}
             style={styles.weekDayLabel}
           >
             {d}
@@ -146,31 +179,54 @@ export function CalendarPicker({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.background,
-    borderRadius: spacing.radius.m,
+    backgroundColor: colors.surface,
+    borderRadius: spacing.radius.l,
     padding: spacing.m,
     borderWidth: 1,
     borderColor: colors.border,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.m,
+    marginBottom: spacing.l,
+    paddingHorizontal: spacing.xs,
   },
   monthLabel: {
-    fontSize: 16,
+    fontSize: 17,
+    color: colors.textPrimary,
+    letterSpacing: 0.5,
   },
   navButton: {
-    padding: spacing.xs,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  navIcon: {
+    marginLeft: 0,
   },
   weekLabels: {
     flexDirection: 'row',
-    marginBottom: spacing.s,
+    marginBottom: spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border + '22',
+    paddingBottom: spacing.s,
   },
   weekDayLabel: {
     flex: 1,
     textAlign: 'center',
+    textTransform: 'uppercase',
+    fontSize: 11,
   },
   grid: {
     flexDirection: 'row',
@@ -178,17 +234,28 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   dayCell: {
-    width: '14.28%', // 100 / 7
+    width: '14.28%',
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: spacing.radius.s,
+    padding: 2,
   },
-  selectedDay: {
-    backgroundColor: colors.primary,
+  selectedGradient: {
+    width: '100%',
+    height: '100%',
+    borderRadius: spacing.radius.m,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   todayCell: {
+    borderRadius: spacing.radius.m,
+    backgroundColor: colors.primary + '10',
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.primary + '44',
   },
 });
