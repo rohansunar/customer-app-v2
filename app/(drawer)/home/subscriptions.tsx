@@ -1,9 +1,8 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
-import { useProducts } from '@/features/product/hooks/useProducts';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
-import { useInfiniteSubscriptions } from '@/features/subscriptions/hooks/useInfiniteSubscriptions';
+import { useSubscriptions } from '@/features/subscriptions/hooks/useSubscriptions';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
@@ -32,8 +31,7 @@ export default function SubscriptionsScreen() {
   }, [isEnabled, requestPermission]);
 
   const { subscriptions, loading, loadingMore, loadMore, error, refetch } =
-    useInfiniteSubscriptions();
-  const { data: productsData } = useProducts();
+    useSubscriptions();
 
   const isLoading = loading;
 
@@ -94,13 +92,6 @@ export default function SubscriptionsScreen() {
       />
     </Animated.View>
   );
-
-  const getProductName = (productId: string) => {
-    const product = productsData?.pages
-      .flatMap((page) => page.data)
-      .find((p) => p.id === productId);
-    return product?.name || 'Product';
-  };
 
   const renderFilterChip = (
     type: FilterType,
@@ -198,11 +189,7 @@ export default function SubscriptionsScreen() {
         data={filteredSubscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <SubscriptionCard
-            subscription={item}
-            productName={getProductName(item.productId)}
-            index={index}
-          />
+          <SubscriptionCard subscription={item} index={index} />
         )}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}

@@ -79,11 +79,17 @@ export default function HomeScreen() {
       <View style={styles.iconContainer}>
         <Ionicons name="location-outline" size={40} color={colors.primary} />
       </View>
-      <Text variant="xl" weight="bold" color={colors.textPrimary} style={styles.title}>
+      <Text
+        variant="xl"
+        weight="bold"
+        color={colors.textPrimary}
+        style={styles.title}
+      >
         Service Not Available
       </Text>
       <Text variant="m" color={colors.textSecondary} style={styles.message}>
-        We're working hard to bring our services to you. We'll notify you once we're available in your area.
+        We're working hard to bring our services to you. We'll notify you once
+        we're available in your area.
       </Text>
     </Animated.View>
   );
@@ -96,37 +102,39 @@ export default function HomeScreen() {
       <View style={styles.iconContainer}>
         <Ionicons name="cube-outline" size={40} color={colors.primary} />
       </View>
-      <Text variant="xl" weight="bold" color={colors.textPrimary} style={styles.title}>
+      <Text
+        variant="xl"
+        weight="bold"
+        color={colors.textPrimary}
+        style={styles.title}
+      >
         Products Coming Soon
       </Text>
       <Text variant="m" color={colors.textSecondary} style={styles.message}>
-        We're working hard to onboard our vendors and will list the products soon.
+        We're working hard to onboard our vendors and will list the products
+        soon.
       </Text>
     </Animated.View>
   );
 
   // Scenario 1: Service Unavailable
   if (isServiceUnavailable) {
-    return (
-      <View style={styles.container}>
-        {renderServiceUnavailable()}
-      </View>
-    );
+    return <View style={styles.container}>{renderServiceUnavailable()}</View>;
   }
 
   // Scenario 2: Empty Products (not loading, no error)
   if (!isLoading && !error && products.length === 0) {
-    return (
-      <View style={styles.container}>
-        {renderEmptyProducts()}
-      </View>
-    );
+    return <View style={styles.container}>{renderEmptyProducts()}</View>;
   }
 
   return (
     <View style={styles.container}>
       {isLoading ? (
-        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: spacing.xl }} />
+        <ActivityIndicator
+          size="large"
+          color={colors.primary}
+          style={{ marginTop: spacing.xl }}
+        />
       ) : error ? (
         <Text color={colors.error} centered style={styles.errorText}>
           {errorMessage}

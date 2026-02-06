@@ -46,7 +46,6 @@ import {
 
 interface Props {
   subscription: Subscription;
-  productName: string;
   index: number;
 }
 
@@ -54,7 +53,7 @@ interface Props {
  * Modern SubscriptionCard with gradients, animations, and enhanced UI
  * Refactored following SOLID principles
  */
-export function SubscriptionCard({ subscription, productName, index }: Props) {
+export function SubscriptionCard({ subscription, index }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
   const deleteSubscription = useDeleteSubscription();
   const isActive = subscription.status === 'ACTIVE';
@@ -205,7 +204,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                         isActive ? colors.textPrimary : colors.textSecondary
                       }
                     >
-                      {productName}
+                      {subscription.product.name}
                     </Text>
                     <View style={styles.quantityRow}>
                       <View style={styles.quantityBadge}>
@@ -451,7 +450,7 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
       <CustomAlert
         visible={alertVisible}
         title="Cancel Subscription"
-        message={`Are you sure you want to cancel your subscription for ${productName}? This action cannot be undone.`}
+        message={`Are you sure you want to cancel your subscription for ${subscription.product.name}? This action cannot be undone.`}
         type="error"
         icon="warning"
         primaryButtonText="Yes, Cancel"
