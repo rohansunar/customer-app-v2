@@ -20,6 +20,12 @@ export function useCreateSubscription() {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
     },
     onError: (error) => {
+      if (error.message === 'PAYMENT_CANCELLED') {
+        showToast.error(
+          'Subscription was not completed due to incomplete payment process.',
+        );
+        return;
+      }
       showToast.error(`${getErrorMessage(error)}`);
     },
   });

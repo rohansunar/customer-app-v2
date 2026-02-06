@@ -42,9 +42,24 @@ export const subscriptionService = {
         );
       }
 
-      return await RazorpayCheckout.open(options);
+      try {
+        return await RazorpayCheckout.open(options);
+      } catch (error: any) {
+        // Check for Razorpay cancellation or Bad Request Error (which happens on cancellation often)
+        const isCancelled =
+          error.code === 0 ||
+          (error.error && error.error.reason === 'payment_cancelled') ||
+          (error.error && error.error.code === 'BAD_REQUEST_ERROR');
+        if (isCancelled) {
+          // Cleanup the orphaned subscription
+          if (response.data?.id) {
+            await subscriptionService.deleteSubscription(response.data.id);
+          }
+          throw new Error('PAYMENT_CANCELLED');
+        }
+        throw error;
+      }
     } catch (error) {
-      console.error('Create Subscription Error:', error);
       throw error;
     }
   },
