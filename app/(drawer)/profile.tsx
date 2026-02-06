@@ -7,26 +7,23 @@ import { Text } from '@/core/ui/Text';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { IconSymbol } from '../../components/ui/icon-symbol';
+import { useProfileForm } from '@/features/profile/hooks/useProfileValidator';
 
 export default function ProfileScreen() {
   const { data, isLoading, error } = useProfile();
   const { mutate, isPending } = useUpdateProfile();
   const { logout } = useAuth();
 
-  // Local editable state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState<string | null>(null);
-
-  // Populate form when profile loads
-  useEffect(() => {
-    if (data) {
-      setName(data.name ?? '');
-      setEmail(data.email);
-    }
-  }, [data]);
+  const { form, errors, updateField, validate } = useProfileForm(
+    data
+      ? {
+          name: data.name ?? undefined,
+          email: data.email ?? undefined,
+        }
+      : undefined,
+  );
 
   async function handleLogout() {
     await logout();
@@ -41,7 +38,7 @@ export default function ProfileScreen() {
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <View style={styles.centered}>
         <Text
@@ -65,34 +62,12 @@ export default function ProfileScreen() {
     );
   }
 
-  if (!data) {
-    return (
-      <View style={styles.centered}>
-        <Text
-          variant="xl"
-          weight="bold"
-          color={colors.primary}
-          style={styles.emptyTitle}
-        >
-          No Profile Data Available
-        </Text>
-        <Text color={colors.textSecondary} style={styles.emptyMessage}>
-          It seems your profile data is not available. Please try logging out
-          and logging back in.
-        </Text>
-        <Button
-          title="Logout"
-          onPress={handleLogout}
-          style={styles.logoutButton}
-        />
-      </View>
-    );
-  }
-
   function handleSave() {
+    if (!validate()) return;
+
     mutate({
-      name,
-      email,
+      name: form.name,
+      email: form.email || null, // backend-safe
     });
   }
 
@@ -143,18 +118,20 @@ export default function ProfileScreen() {
         {/* Name */}
         <Input
           label="Full Name"
-          value={name}
-          onChangeText={setName}
+          value={form.name}
+          onChangeText={(val) => updateField('name', val)}
           placeholder="Enter your name"
+          error={errors.name}
         />
 
         {/* Email */}
         <Input
           label="Email Address"
-          value={email ?? ''}
-          onChangeText={setEmail}
+          value={form.email ?? ''}
+          onChangeText={(val) => updateField('email', val)}
           placeholder="Enter your email"
           keyboardType="email-address"
+          error={errors.email}
         />
 
         <Button
