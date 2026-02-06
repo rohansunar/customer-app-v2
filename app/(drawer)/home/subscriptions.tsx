@@ -16,6 +16,8 @@ import {
   View,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
+import { Button } from '@/core/ui/Button';
 
 type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
@@ -67,6 +69,8 @@ export default function SubscriptionsScreen() {
     );
   }
 
+  const router = useRouter();
+
   const renderEmpty = () => (
     <Animated.View
       entering={FadeInDown.springify()}
@@ -81,6 +85,13 @@ export default function SubscriptionsScreen() {
       <Text variant="m" color={colors.textSecondary} style={styles.emptyText}>
         Subscribe to your favorite products for hassle-free recurring deliveries
       </Text>
+      <Button
+        title="Start Subscribing"
+        onPress={() => router.push('/(drawer)/home')}
+        style={styles.emptyButton}
+        textStyle={styles.emptyButtonText}
+        variant="primary"
+      />
     </Animated.View>
   );
 
@@ -302,6 +313,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     maxWidth: 280,
+    marginBottom: spacing.l,
+  },
+  emptyButton: {
+    minWidth: 200,
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  emptyButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   loadingMore: {
     padding: spacing.m,

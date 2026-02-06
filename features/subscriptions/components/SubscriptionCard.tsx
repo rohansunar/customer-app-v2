@@ -201,7 +201,9 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     <Text
                       variant="l"
                       weight="bold"
-                      color={isActive ? colors.textPrimary : colors.textSecondary}
+                      color={
+                        isActive ? colors.textPrimary : colors.textSecondary
+                      }
                     >
                       {productName}
                     </Text>
@@ -212,7 +214,11 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                           size={14}
                           color={colors.primary}
                         />
-                        <Text variant="xs" color={colors.primary} weight="medium">
+                        <Text
+                          variant="xs"
+                          color={colors.primary}
+                          weight="medium"
+                        >
                           {subscription.quantity} Unit
                           {subscription.quantity > 1 ? 's' : ''}
                         </Text>
@@ -242,11 +248,20 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     style={styles.menuButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
-                    <Ionicons name="ellipsis-vertical" size={20} color={colors.textSecondary} />
+                    <Ionicons
+                      name="ellipsis-vertical"
+                      size={20}
+                      color={colors.textSecondary}
+                    />
                   </TouchableOpacity>
 
                   {/* Animated Status Badge */}
-                  <Animated.View style={[pulseStyle, { marginTop: spacing.s, alignSelf: 'flex-end' }]}>
+                  <Animated.View
+                    style={[
+                      pulseStyle,
+                      { marginTop: spacing.s, alignSelf: 'flex-end' },
+                    ]}
+                  >
                     <Badge
                       label={subscription.status}
                       backgroundColor={
@@ -279,7 +294,9 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
               <View style={styles.detailsContainer}>
                 {/* Start Date */}
                 <View style={styles.detailRow}>
-                  <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
+                  <View
+                    style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}
+                  >
                     <Ionicons
                       name="calendar-outline"
                       size={16}
@@ -290,7 +307,11 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                     <Text variant="xs" color={colors.textTertiary}>
                       Started
                     </Text>
-                    <Text variant="s" weight="medium" color={colors.textPrimary}>
+                    <Text
+                      variant="s"
+                      weight="medium"
+                      color={colors.textPrimary}
+                    >
                       {formatSubscriptionDate(subscription.start_date)}
                     </Text>
                   </View>
@@ -370,7 +391,9 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                   </View>
                 ) : (
                   <Button
-                    title={isActive ? 'Pause Subscription' : 'Resume Subscription'}
+                    title={
+                      isActive ? 'Pause Subscription' : 'Resume Subscription'
+                    }
                     onPress={handleToggleStatus}
                     variant={isActive ? 'outline' : 'primary'}
                     style={styles.actionButton}
@@ -408,7 +431,6 @@ export function SubscriptionCard({ subscription, productName, index }: Props) {
                 },
               ]}
             >
-
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={handleDeleteRequest}

@@ -13,6 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
+import { Button } from '@/core/ui/Button';
 
 /**
  * OrdersTab component displays a list of orders with pull-to-refresh functionality.
@@ -26,6 +30,7 @@ export default function OrdersTab() {
   const historyStatuses = ['PENDING'];
 
   const { isEnabled, requestPermission } = useNotifications();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isEnabled) {
@@ -95,11 +100,39 @@ export default function OrdersTab() {
 
     if (!currentData?.orders || currentData.orders.length === 0) {
       return (
-        <View style={styles.centered}>
-          <Text color={colors.textSecondary}>
-            No {activeTab === 'ACTIVE' ? 'active' : 'history'} orders found
+        <Animated.View
+          entering={FadeInDown.springify()}
+          style={styles.emptyContainer}
+        >
+          <View style={styles.emptyIconContainer}>
+            <Ionicons
+              name={activeTab === 'ACTIVE' ? 'cart-outline' : 'time-outline'}
+              size={64}
+              color={colors.primary}
+            />
+          </View>
+          <Text variant="xl" weight="bold" style={styles.emptyTitle}>
+            {activeTab === 'ACTIVE'
+              ? 'No Active Order Found'
+              : 'No Order History'}
           </Text>
-        </View>
+          <Text
+            variant="m"
+            color={colors.textSecondary}
+            style={styles.emptyText}
+          >
+            {activeTab === 'ACTIVE'
+              ? "Looks like you don't have any orders in progress."
+              : "You haven't placed any orders yet."}
+          </Text>
+          <Button
+            title="Start Shopping"
+            onPress={() => router.push('/(drawer)/home')}
+            style={styles.emptyButton}
+            textStyle={styles.emptyButtonText}
+            variant="primary"
+          />
+        </Animated.View>
       );
     }
 
@@ -203,5 +236,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xxl,
+    marginTop: spacing.xl,
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.primary + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.l,
+  },
+  emptyTitle: {
+    marginBottom: spacing.s,
+    textAlign: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 280,
+    marginBottom: spacing.l,
+  },
+  emptyButton: {
+    minWidth: 200,
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  emptyButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

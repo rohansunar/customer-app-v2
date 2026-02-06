@@ -152,14 +152,18 @@ export function getSubscriptionDetails(
     // Shift to next month
     effectiveStartDate = new Date(year, month + 1, 1);
     effectiveEndDate = new Date(year, month + 2, 0);
-    const nextMonthName = effectiveStartDate.toLocaleDateString(undefined, { month: 'long' });
+    const nextMonthName = effectiveStartDate.toLocaleDateString(undefined, {
+      month: 'long',
+    });
     periodLabel = `Full Month (${nextMonthName})`;
     isNextMonth = true;
   } else {
     // Stay in current month
     effectiveStartDate = new Date(startDate);
     effectiveEndDate = new Date(year, month + 1, 0);
-    const currentMonthName = effectiveStartDate.toLocaleDateString(undefined, { month: 'long' });
+    const currentMonthName = effectiveStartDate.toLocaleDateString(undefined, {
+      month: 'long',
+    });
     periodLabel = `Rest of ${currentMonthName}`;
   }
 
@@ -176,7 +180,8 @@ export function getSubscriptionDetails(
     } else if (frequency === 'ALTERNATIVE_DAYS') {
       // Calculate days difference from the *effective* start date to ensure consistent pattern
       const diffInDays = Math.floor(
-        (loopDate.getTime() - effectiveStartDate.getTime()) / (1000 * 60 * 60 * 24),
+        (loopDate.getTime() - effectiveStartDate.getTime()) /
+          (1000 * 60 * 60 * 24),
       );
       if (diffInDays % 2 === 0) {
         isDeliveryDay = true;
@@ -195,9 +200,11 @@ export function getSubscriptionDetails(
     loopDate.setDate(loopDate.getDate() + 1);
   }
 
-  const daysRemaining = Math.floor(
-    (effectiveEndDate.getTime() - effectiveStartDate.getTime()) / (1000 * 60 * 60 * 24)
-  ) + 1;
+  const daysRemaining =
+    Math.floor(
+      (effectiveEndDate.getTime() - effectiveStartDate.getTime()) /
+        (1000 * 60 * 60 * 24),
+    ) + 1;
 
   const totalAmount = totalDeliveries * quantity * price;
 

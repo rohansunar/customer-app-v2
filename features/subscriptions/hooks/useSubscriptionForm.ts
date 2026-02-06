@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { DayOfWeek, Subscription, SubscriptionType } from '../types';
-import { calculateUpcomingDates, convertDaysToNames } from '../utils/subscriptionUtils';
+import {
+  calculateUpcomingDates,
+  convertDaysToNames,
+} from '../utils/subscriptionUtils';
 
 // Interface for subscription form state - Interface Segregation Principle: Segregated from component props
 export interface ISubscriptionFormState {
