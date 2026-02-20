@@ -86,7 +86,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'android' ? 'padding' : 'height'}
       style={styles.container}
     >
       <LinearGradient
@@ -116,7 +116,9 @@ export default function LoginScreen() {
           </LinearGradient>
 
           <Text style={styles.title}>Welcome to AquaFlow</Text>
-          <Text style={styles.subtitle}>Enter your mobile number to continue</Text>
+          <Text style={styles.subtitle}>
+            Enter your mobile number to continue
+          </Text>
         </View>
 
         <View style={styles.form}>
@@ -138,7 +140,10 @@ export default function LoginScreen() {
           <Animated.View
             style={[
               styles.errorWrap,
-              { opacity: errorOpacity, transform: [{ translateY: errorTranslateY }] },
+              {
+                opacity: errorOpacity,
+                transform: [{ translateY: errorTranslateY }],
+              },
             ]}
           >
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
