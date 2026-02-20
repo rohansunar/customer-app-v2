@@ -2,6 +2,7 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
+import { addressTextSchema } from '@/shared/utils/addressValidator';
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
@@ -168,7 +169,13 @@ export function AddressForm({
         addressText={formState.addressText}
         onAddressTextChange={(text) => {
           formState.setAddressText(text);
-          clearFieldError('addressText');
+          const result = addressTextSchema.safeParse(text);
+          formState.setErrors((prev) => ({
+            ...prev,
+            addressText: result.success
+              ? undefined
+              : result.error.issues[0]?.message,
+          }));
         }}
         pincode={formState.pincode}
         onPincodeChange={(text) => {
