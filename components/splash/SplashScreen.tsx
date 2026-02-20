@@ -1,245 +1,257 @@
-import { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as ExpoSplashScreen from 'expo-splash-screen';
-
-import { useSplashAnimation } from '@/hooks/splash/useSplashAnimation';
-import { useSplashDuration } from '@/hooks/splash/useSplashDuration';
-import { splashTheme, splashGradientColors } from '@/core/theme/splashTheme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors } from '@/core/theme/colors';
 import type { SplashScreenProps } from './SplashScreen.types';
-
-const NO_OP = () => {};
 
 export default function SplashScreen({
   duration = 2500,
   onFinish,
+  appName = 'AquaFlow',
+  tagline = 'Pure water, delivered',
   testID = 'splash-screen',
 }: SplashScreenProps) {
-  const {
-    logoAnimations,
-    circleAnimations,
-    dotsAnimations,
-    fadeOutAnimation,
-    startAnimations,
-    startExitAnimation,
-  } = useSplashAnimation();
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.5)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const titleTranslateY = useRef(new Animated.Value(20)).current;
+  const subtitleOpacity = useRef(new Animated.Value(0)).current;
+  const subtitleTranslateY = useRef(new Animated.Value(20)).current;
+  const ripple1Progress = useRef(new Animated.Value(0)).current;
+  const ripple2Progress = useRef(new Animated.Value(0)).current;
 
-  // Stable callback for timer to prevent re-renders
-  const timerCallback = useMemo(() => NO_OP, []);
+  useEffect(() => {
+    ExpoSplashScreen.hideAsync().catch(() => {
+      // no-op: native splash may already be hidden
+    });
 
-  const { isComplete, start: startTimer } = useSplashDuration({
+    const entranceAnimation = Animated.parallel([
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.back(1.4)),
+        useNativeDriver: true,
+      }),
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.parallel([
+          Animated.timing(titleOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(titleTranslateY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]),
+      Animated.sequence([
+        Animated.delay(500),
+        Animated.parallel([
+          Animated.timing(subtitleOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(subtitleTranslateY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]),
+    ]);
+
+    const ripple1 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ripple1Progress, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.delay(300),
+      ]),
+    );
+
+    const ripple2 = Animated.loop(
+      Animated.sequence([
+        Animated.delay(300),
+        Animated.timing(ripple2Progress, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.delay(300),
+      ]),
+    );
+
+    entranceAnimation.start();
+    ripple1.start();
+    ripple2.start();
+
+    const timer = setTimeout(() => {
+      onFinish();
+    }, duration);
+
+    return () => {
+      clearTimeout(timer);
+      ripple1.stop();
+      ripple2.stop();
+      ripple1Progress.stopAnimation();
+      ripple2Progress.stopAnimation();
+    };
+  }, [
     duration,
-    onComplete: timerCallback,
+    logoOpacity,
+    logoScale,
+    onFinish,
+    ripple1Progress,
+    ripple2Progress,
+    subtitleOpacity,
+    subtitleTranslateY,
+    titleOpacity,
+    titleTranslateY,
+  ]);
+
+  const ripple1Scale = ripple1Progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 2.5],
   });
 
-  useEffect(() => {
-    // console.debug('[SplashScreen] Mounting and starting sequence');
-    // Hide native splash screen once custom splash is mounted
-    ExpoSplashScreen.hideAsync();
-    startAnimations();
-    startTimer();
-  }, [startAnimations, startTimer]);
+  const ripple1Opacity = ripple1Progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 0],
+  });
 
-  useEffect(() => {
-    if (isComplete) {
-      // console.debug('[SplashScreen] Duration complete, starting exit animation');
-      const exitAnimation = startExitAnimation();
-      exitAnimation.start(() => {
-        // console.debug('[SplashScreen] Exit animation complete, calling onFinish');
-        onFinish();
-      });
-    }
-  }, [isComplete, onFinish, startExitAnimation]);
+  const ripple2Scale = ripple2Progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 2.5],
+  });
+
+  const ripple2Opacity = ripple2Progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.6, 0],
+  });
 
   return (
-    <Animated.View
-      testID={`${testID}-container`}
-      style={[styles.container, { opacity: fadeOutAnimation }]}
-    >
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={splashGradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      />
-
-      {/* Animated Background Circles */}
-      <View style={styles.backgroundCircles}>
-        <Animated.View
-          style={[
-            styles.circle,
-            styles.circleTopLeft,
-            {
-              transform: [{ scale: circleAnimations.scale }],
-              opacity: circleAnimations.opacity,
-            },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.circle,
-            styles.circleBottomRight,
-            {
-              transform: [{ scale: circleAnimations.scale }],
-              opacity: circleAnimations.opacity,
-            },
-          ]}
-        />
-      </View>
-
-      {/* Main Content */}
+    <View testID={`${testID}-container`} style={styles.container}>
       <View style={styles.content}>
-        {/* Logo Container with Bounce */}
         <Animated.View
-          testID={`${testID}-logo`}
           style={[
             styles.logoContainer,
+            { opacity: logoOpacity, transform: [{ scale: logoScale }] },
+          ]}
+        >
+          <LinearGradient
+            colors={[colors.splashBlue500, colors.splashBlue700]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.logoBackground}
+          >
+            <Ionicons name="water" size={48} color={colors.splashWhite} />
+          </LinearGradient>
+
+          <Animated.View
+            style={[
+              styles.ripple,
+              styles.ripplePrimary,
+              { opacity: ripple1Opacity, transform: [{ scale: ripple1Scale }] },
+            ]}
+          />
+
+          <Animated.View
+            style={[
+              styles.ripple,
+              styles.rippleSecondary,
+              { opacity: ripple2Opacity, transform: [{ scale: ripple2Scale }] },
+            ]}
+          />
+        </Animated.View>
+
+        <Animated.Text
+          testID={`${testID}-app-name`}
+          style={[
+            styles.appName,
+            { opacity: titleOpacity, transform: [{ translateY: titleTranslateY }] },
+          ]}
+        >
+          {appName}
+        </Animated.Text>
+
+        <Animated.Text
+          style={[
+            styles.tagline,
             {
-              opacity: logoAnimations.opacity,
-              transform: [{ scale: logoAnimations.scale }],
+              opacity: subtitleOpacity,
+              transform: [{ translateY: subtitleTranslateY }],
             },
           ]}
         >
-          <View style={styles.logoWrapper}>
-            {/* Logo Icon Placeholder - Replace with actual icon */}
-            <View style={styles.logoIcon} />
-          </View>
-        </Animated.View>
-
-        {/* App Name */}
-        <Animated.Text
-          testID={`${testID}-app-name`}
-          style={[styles.appName, { opacity: logoAnimations.opacity }]}
-        >
-          QuickServe
+          {tagline}
         </Animated.Text>
-
-        {/* Tagline */}
-        <Animated.Text
-          style={[styles.tagline, { opacity: logoAnimations.opacity }]}
-        >
-          Your Daily Essentials Delivered
-        </Animated.Text>
-
-        {/* Loading Dots */}
-        <View style={styles.loadingDotsContainer}>
-          {dotsAnimations.opacity.map((opacity, index) => (
-            <Animated.View
-              key={index}
-              style={[
-                styles.loadingDot,
-                {
-                  opacity: opacity,
-                  transform: [{ scale: dotsAnimations.scale[index] }],
-                },
-              ]}
-            />
-          ))}
-        </View>
       </View>
-
-      {/* Bottom Tagline */}
-      <View style={styles.bottomTaglineContainer}>
-        <Text style={styles.bottomTagline}>Fast • Fresh • Reliable</Text>
-      </View>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  gradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  backgroundCircles: {
-    position: 'absolute',
-    inset: 0,
-    overflow: 'hidden',
-  },
-  circle: {
-    position: 'absolute',
-    borderRadius: 9999,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  circleTopLeft: {
-    top: -100,
-    left: -100,
-    width: 400,
-    height: 400,
-  },
-  circleBottomRight: {
-    bottom: -100,
-    right: -100,
-    width: 400,
-    height: 400,
+    backgroundColor: colors.splashWhite,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
   },
   logoContainer: {
-    marginBottom: 32,
-  },
-  logoWrapper: {
-    width: splashTheme.logoContainer.size,
-    height: splashTheme.logoContainer.size,
-    borderRadius: splashTheme.logoContainer.borderRadius,
-    backgroundColor: splashTheme.logoContainer.backgroundColor,
-    justifyContent: 'center',
+    width: 96,
+    height: 96,
     alignItems: 'center',
-    shadowColor: splashTheme.logoContainer.shadowColor,
-    shadowOffset: splashTheme.logoContainer.shadowOffset,
-    shadowOpacity: splashTheme.logoContainer.shadowOpacity,
-    shadowRadius: splashTheme.logoContainer.shadowRadius,
-    elevation: 8,
+    justifyContent: 'center',
+    marginBottom: 24,
   },
-  logoIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: '#9333EA',
+  logoBackground: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ripple: {
+    position: 'absolute',
+    width: 112,
+    height: 88,
+    borderRadius: 56,
+    left: -8,
+    top: 4,
+    borderWidth: 4,
+  },
+  ripplePrimary: {
+    borderColor: colors.splashBlue400,
+  },
+  rippleSecondary: {
+    borderColor: colors.splashBlue300,
   },
   appName: {
-    ...splashTheme.appName,
-    marginBottom: 12,
-    textAlign: 'center',
+    fontSize: 30,
+    color: colors.splashGray900,
+    marginTop: 2,
   },
   tagline: {
-    ...splashTheme.tagline,
-    textAlign: 'center',
-    marginBottom: 48,
-  },
-  loadingDotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-  },
-  loadingDot: {
-    width: splashTheme.loadingDots.size,
-    height: splashTheme.loadingDots.size,
-    borderRadius: splashTheme.loadingDots.size / 2,
-    backgroundColor: '#FFFFFF',
-  },
-  bottomTaglineContainer: {
-    position: 'absolute',
-    bottom: 48,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  bottomTagline: {
-    ...splashTheme.bottomTagline,
+    marginTop: 8,
+    fontSize: 16,
+    color: colors.splashGray500,
   },
 });

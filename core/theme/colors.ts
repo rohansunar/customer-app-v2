@@ -31,4 +31,13 @@ export const colors = {
   // Utils
   white: '#FFFFFF',
   black: '#000000',
+
+  // Splash (Figma)
+  splashWhite: '#FFFFFF',
+  splashBlue500: '#3B82F6',
+  splashBlue700: '#1D4ED8',
+  splashBlue400: '#60A5FA',
+  splashBlue300: '#93C5FD',
+  splashGray900: '#111827',
+  splashGray500: '#6B7280',
 };
