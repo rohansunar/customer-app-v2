@@ -3,6 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import React from 'react';
 import {
   ActivityIndicator,
+  StyleProp,
   StyleSheet,
   TextStyle,
   TouchableOpacity,
@@ -18,8 +19,8 @@ interface Props {
   variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   icon?: React.ReactNode;
 }
 

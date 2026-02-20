@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const { phone, error, isValidPhone, onChange } = usePhoneValidation();
   const { mutate, isPending } = useRequestOtp();
   const { showError } = useAlert();
+  const isSendDisabled = !isValidPhone || isPending;
 
   const cardOpacity = useRef(new Animated.Value(0)).current;
   const cardTranslateY = useRef(new Animated.Value(20)).current;
@@ -153,8 +154,8 @@ export default function LoginScreen() {
             title={isPending ? 'Sending OTP...' : 'Send OTP'}
             onPress={handleRequestOtp}
             loading={isPending}
-            disabled={!isValidPhone || isPending}
-            style={styles.button}
+            disabled={isSendDisabled}
+            style={[styles.button, isSendDisabled && styles.buttonDisabled]}
           />
         </View>
 
@@ -251,6 +252,9 @@ const styles = StyleSheet.create({
     minHeight: 56,
     borderRadius: spacing.radius.l,
     backgroundColor: '#2563EB',
+  },
+  buttonDisabled: {
+    backgroundColor: '#D1D5DB',
   },
   footer: {
     marginTop: spacing.s,
