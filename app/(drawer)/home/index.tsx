@@ -1,5 +1,6 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
+import { ProductListSkeleton } from '@/core/ui/Skeleton';
 import { Text } from '@/core/ui/Text';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { ProductCard } from '@/features/product/components/ProductCard';
@@ -130,11 +131,9 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {isLoading ? (
-        <ActivityIndicator
-          size="large"
-          color={colors.primary}
-          style={{ marginTop: spacing.xl }}
-        />
+        <View style={styles.loadingSkeleton}>
+          <ProductListSkeleton />
+        </View>
       ) : error ? (
         <Text color={colors.error} centered style={styles.errorText}>
           {errorMessage}
@@ -218,5 +217,8 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: spacing.m,
     alignItems: 'center',
+  },
+  loadingSkeleton: {
+    marginTop: spacing.m,
   },
 });

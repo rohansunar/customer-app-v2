@@ -6,7 +6,7 @@ export const colors = {
 
   // Secondary/Accent
   secondary: '#90E0EF', // Soft Blue
-  accent: '#CAF0F8', // Very Light Blue
+  accent: '#dce1e2', // Very Light Blue
 
   // UI Colors
   background: '#F8FAFC', // Very light grey-blue (Clean background)
