@@ -21,6 +21,13 @@ export type Address = {
   isDefault: boolean;
 };
 
+export type AddressFormErrors = {
+  addressText?: string;
+  state?: string;
+  city?: string;
+  pincode?: string;
+};
+
 /**
  * CreateAddressData Type
  *
@@ -74,6 +81,7 @@ export interface AddressFormState {
   lng: number;
   lat: number;
   state: string;
+  errors: AddressFormErrors;
 }
 
 /**
@@ -118,7 +126,9 @@ export interface AddressFormInputsProps {
   onPincodeChange: (text: string) => void;
   state: string;
   onStateChange: (text: string) => void;
-  addressError?: string | null;
+  city: string;
+  onCityChange: (text: string) => void;
+  errors: AddressFormErrors;
 }
 
 /**

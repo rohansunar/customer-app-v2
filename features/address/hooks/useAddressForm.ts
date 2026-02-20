@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Address, AddressFormState } from '../types';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Address, AddressFormErrors, AddressFormState } from '../types';
 
 /**
  * Custom hook for managing address form state.
@@ -16,6 +16,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   setLng: (lng: number) => void;
   setLat: (lat: number) => void;
   setState: (state: string) => void;
+  setErrors: Dispatch<SetStateAction<AddressFormErrors>>;
 } {
   const [label, setLabel] = useState(address?.label || 'Home');
   const [addressText, setAddressText] = useState(address?.address || '');
@@ -24,6 +25,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   const [lng, setLng] = useState(address?.lng || 0);
   const [lat, setLat] = useState(address?.lat || 0);
   const [state, setState] = useState('');
+  const [errors, setErrors] = useState<AddressFormErrors>({});
 
   useEffect(() => {
     if (address) {
@@ -43,6 +45,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
     lng,
     lat,
     state,
+    errors,
     setLabel,
     setAddressText,
     setPincode,
@@ -50,5 +53,6 @@ export function useAddressForm(address?: Address): AddressFormState & {
     setLng,
     setLat,
     setState,
+    setErrors,
   };
 }

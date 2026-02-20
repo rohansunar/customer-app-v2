@@ -1,67 +1,92 @@
+import { AddressFormErrors, AddressFormState } from '../types';
+import { addressFormSchema } from '@/shared/utils/addressValidator';
+import { ZodError } from 'zod';
 import { useToastHelpers } from '@/core/utils/toastHelpers';
-import { addressValidator } from '@/shared/utils/addressValidator';
-import { AddressFormState } from '../types';
-/**
- * Custom hook for validating address form data.
- * Provides validation logic for form submission.
- *
- * @returns Object containing validation function
- */
-export function useAddressValidation() {
+import { Dispatch, SetStateAction } from 'react';
+
+export const useAddressValidation = () => {
   const showToast = useToastHelpers();
 
-  // /**
-  //  * Validates the address form data and shows error messages if invalid.
-  //  *
-  //  * @param formState - The current form state
-  //  * @returns True if valid, false otherwise
-  //  */
-  const validateFullAddress = (addressText: string): string | null => {
-    const result = addressValidator.safeParse(addressText);
-    if (!result.success) {
-      return result.error.issues[0].message;
-    }
-    return null;
+  /* ---------------- ZOD VALIDATION ---------------- */
+
+  const mapZodErrors = (zodError: ZodError): AddressFormErrors => {
+    const fieldErrors: AddressFormErrors = {};
+
+    zodError.issues.forEach((issue) => {
+      const field = issue.path[0] as keyof AddressFormErrors;
+      if (!fieldErrors[field]) {
+        fieldErrors[field] = issue.message;
+      }
+    });
+
+    return fieldErrors;
   };
 
-  const validateForm = (formState: AddressFormState): boolean => {
-    const { label, addressText, pincode, city, state, lng, lat } = formState;
-    const addressError = validateFullAddress(formState.addressText);
-    if (addressError) {
-      showToast.error(addressError);
+  const validateZodFields = (
+    formState: AddressFormState,
+    setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
+  ): boolean => {
+    const result = addressFormSchema.safeParse({
+      addressText: formState.addressText,
+      pincode: formState.pincode,
+      city: formState.city,
+      state: formState.state,
+    });
+
+    if (!result.success) {
+      const zodError = result.error as ZodError;
+      setErrors(mapZodErrors(zodError));
+
+      // Show FIRST error only (better UX)
+      const firstError = zodError.issues[0]?.message;
+      if (firstError) {
+        showToast.error(firstError);
+      }
+
       return false;
     }
+
+    setErrors({});
+    return true;
+  };
+
+  /* ---------------- BUSINESS RULE VALIDATION ---------------- */
+
+  const validateRequiredFields = (formState: AddressFormState): boolean => {
+    const { label, lng, lat } = formState;
+
     if (!label) {
-      showToast.error('Please select an address type');
+      showToast.error('Please select an address type (Home, Work, Other)');
       return false;
     }
-    if (!addressText) {
-      showToast.error('Please enter your full address');
-      return false;
-    }
-    if (!pincode) {
-      showToast.error('Please enter your pincode');
-      return false;
-    }
-    if (!city) {
-      showToast.error('City is required. Please select a location on the map.');
-      return false;
-    }
-    if (!state) {
-      showToast.error(
-        'State is required. Please select a location on the map.',
-      );
-      return false;
-    }
+
+    // Map selection is CRITICAL for delivery apps
     if (!lng || !lat) {
-      showToast.error('Please select a location on the map');
+      showToast.error('Please select your location on the map');
       return false;
     }
+
+    return true;
+  };
+
+  /* ---------------- FINAL VALIDATOR ---------------- */
+
+  const validateForm = (
+    formState: AddressFormState,
+    setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
+  ): boolean => {
+    // Step 1 → Validate inputs (Zod)
+    const zodValid = validateZodFields(formState, setErrors);
+    if (!zodValid) return false;
+
+    // Step 2 → Validate delivery logic
+    const requiredFieldValid = validateRequiredFields(formState);
+    if (!requiredFieldValid) return false;
+
     return true;
   };
 
   return {
     validateForm,
-    validateFullAddress,
   };
-}
+};

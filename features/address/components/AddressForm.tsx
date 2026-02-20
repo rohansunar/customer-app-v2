@@ -3,14 +3,13 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
 import { useLocationLogic } from '../hooks/useLocationLogic';
 import { useMapLogic } from '../hooks/useMapLogic';
-import { AddressFormProps } from '../types';
+import { AddressFormErrors, AddressFormProps } from '../types';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressMapSection } from './AddressMapSection';
@@ -45,32 +44,7 @@ export function AddressForm({
 
   // Form validation: Hook provides validation logic for form data.
   // Ensures required fields and format correctness before submission.
-  const { validateForm, validateFullAddress } = useAddressValidation();
-
-  const [addressError, setAddressError] = useState<string | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  //  Debounced validation for address text
-  const handleAddressTextChange = (value: string) => {
-    formState.setAddressText(value);
-    setAddressError(null);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      const error = validateFullAddress(value);
-      setAddressError(error);
-    }, 3000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  const { validateForm } = useAddressValidation();
 
   // Map interactions: Hook handles map region changes, updating coordinates in form state.
   // Ensures real-time sync between map position and form data.
@@ -110,26 +84,26 @@ export function AddressForm({
   // Only proceeds if validation passes; prevents invalid data submission.
   // Maps internal form state to API-expected structure.
   const handleSave = () => {
-    const error = validateFullAddress(formState.addressText);
-    setAddressError(error);
-
-    if (error) return;
-
-    if (validateForm(formState)) {
-      onSave({
-        label: formState.label,
-        address: formState.addressText,
-        pincode: formState.pincode,
-        city: formState.city,
-        state: formState.state,
-        lng: formState.lng,
-        lat: formState.lat,
-      });
-    }
+    if (!validateForm(formState, formState.setErrors)) return;
+    onSave({
+      label: formState.label,
+      address: formState.addressText,
+      pincode: formState.pincode,
+      city: formState.city,
+      state: formState.state,
+      lng: formState.lng,
+      lat: formState.lat,
+    });
   };
 
   // Determines edit mode based on address prop presence.
   const isEdit = !!address;
+  const clearFieldError = (field: keyof AddressFormErrors) => {
+    formState.setErrors((prev) => {
+      if (!prev[field]) return prev;
+      return { ...prev, [field]: undefined };
+    });
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -145,11 +119,11 @@ export function AddressForm({
 
       {/* Map Section: Interactive map for coordinate selection.
          Updates form state on region changes. */}
-      <AddressMapSection
+      {/* <AddressMapSection
         lat={formState.lat}
         lng={formState.lng}
         onRegionChangeComplete={handleMapRegionChangeComplete}
-      />
+      /> */}
 
       {/* Location Buttons: Commented out feature for using current location.
          Could be re-enabled for enhanced UX, with permission handling. */}
@@ -179,10 +153,10 @@ export function AddressForm({
 
       {/* Geocode Info: Displays address derived from coordinates.
          Provides feedback on geocoding process. */}
-      <AddressGeocodeInfo
+      {/* <AddressGeocodeInfo
         geocodeResult={geocodeResult}
         geocodeLoading={geocodeLoading}
-      />
+      /> */}
 
       {/* Address Tabs: Selection for address label (Home, Work, etc.).
          Updates form label state. */}
@@ -192,12 +166,26 @@ export function AddressForm({
          Controlled inputs linked to form state. */}
       <AddressFormInputs
         addressText={formState.addressText}
-        onAddressTextChange={handleAddressTextChange}
+        onAddressTextChange={(text) => {
+          formState.setAddressText(text);
+          clearFieldError('addressText');
+        }}
         pincode={formState.pincode}
-        onPincodeChange={formState.setPincode}
+        onPincodeChange={(text) => {
+          formState.setPincode(text);
+          clearFieldError('pincode');
+        }}
         state={formState.state}
-        onStateChange={formState.setState}
-        addressError={addressError}
+        onStateChange={(text) => {
+          formState.setState(text);
+          clearFieldError('state');
+        }}
+        city={formState.city}
+        onCityChange={(text) => {
+          formState.setCity(text);
+          clearFieldError('city');
+        }}
+        errors={formState.errors}
       />
 
       {/* Save Button: Triggers validation and save.
