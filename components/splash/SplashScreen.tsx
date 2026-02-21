@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -159,7 +159,7 @@ export default function SplashScreen({
             end={{ x: 1, y: 1 }}
             style={styles.logoBackground}
           >
-            <Ionicons name="water" size={48} color={colors.splashWhite} />
+            <Ionicons name="water" size={36} color={colors.splashWhite} />
           </LinearGradient>
 
           <Animated.View
@@ -216,26 +216,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    width: 96,
-    height: 96,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   logoBackground: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
   ripple: {
     position: 'absolute',
     width: 112,
-    height: 88,
+    height: 72,
     borderRadius: 56,
-    left: -8,
-    top: 4,
+    left: -20,
+    top: 0,
     borderWidth: 3,
   },
   ripplePrimary: {
