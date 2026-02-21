@@ -174,9 +174,7 @@ export function AddressPickerModal({
                 /* ---------- LOADING ---------- */
                 <View style={styles.centered}>
                   <ActivityIndicator size="large" color={colors.primary} />
-                  <Text style={styles.loadingText}>
-                    Loading addresses...
-                  </Text>
+                  <Text style={styles.loadingText}>Loading addresses...</Text>
                 </View>
               ) : addresses && addresses.length > 0 ? (
                 /* ---------- ADDRESSES PRESENT ---------- */
@@ -241,7 +239,7 @@ export function AddressPickerModal({
                 color={colors.primary}
                 style={styles.bottomAddIcon}
               />
-              <Text weight="medium" style={styles.bottomAddText}>
+              <Text weight="regular" style={styles.bottomAddText}>
                 Add New Address
               </Text>
             </TouchableOpacity>
@@ -286,9 +284,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: spacing.l,
-    paddingVertical: spacing.ms,
+    paddingVertical: 0,
   },
   list: {
+    paddingTop: spacing.ms,
     paddingBottom: spacing.ms,
     gap: spacing.xxs,
   },
@@ -331,7 +330,7 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     paddingHorizontal: spacing.l,
-    paddingVertical: spacing.m,
+    paddingVertical: spacing.ms,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surface,
@@ -341,8 +340,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.ms,
-    borderRadius: spacing.radius.l,
-    borderWidth: 2,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1.8,
     borderColor: colors.info,
     backgroundColor: colors.surface,
   },

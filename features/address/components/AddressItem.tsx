@@ -29,13 +29,13 @@ export const AddressItem = memo(
     const iconName =
       label === 'home'
         ? 'home-outline'
-        : label === 'work'
+        : label === 'office'
           ? 'business-outline'
           : label === 'restaurant'
             ? 'restaurant-outline'
             : label === 'shop'
               ? 'storefront-outline'
-              : label === 'institute'
+              : label === 'institution'
                 ? 'school-outline'
                 : 'location-outline';
 
