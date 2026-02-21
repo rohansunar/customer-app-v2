@@ -159,11 +159,11 @@ export function AddressPickerModal({
               >
                 <Ionicons
                   name="chevron-down"
-                  size={24}
+                  size={20}
                   color={colors.textPrimary}
                 />
               </TouchableOpacity>
-              <Text variant="l" weight="bold" style={styles.title}>
+              <Text variant="m" weight="bold" style={styles.title}>
                 Select Address
               </Text>
               <View style={styles.headerPlaceholder} />
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.ms,
-    paddingVertical: spacing.ms,
+    paddingVertical: spacing.s,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,
-    minHeight: 64,
+    minHeight: 48,
   },
   title: {
     flex: 1,
