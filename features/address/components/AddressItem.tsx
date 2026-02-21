@@ -25,6 +25,20 @@ interface AddressItemProps {
 
 export const AddressItem = memo(
   ({ address, onPress, onEdit, onDelete }: AddressItemProps) => {
+    const label = address.label?.toLowerCase() || 'other';
+    const iconName =
+      label === 'home'
+        ? 'home-outline'
+        : label === 'work'
+          ? 'business-outline'
+          : label === 'restaurant'
+            ? 'restaurant-outline'
+            : label === 'shop'
+              ? 'storefront-outline'
+              : label === 'institute'
+                ? 'school-outline'
+                : 'location-outline';
+
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -34,65 +48,74 @@ export const AddressItem = memo(
           address.isDefault && styles.containerSelected, // Conditional styling for default addresses
         ]}
       >
-        {/* Icon: Visual indicator for address type, colored based on default status. */}
-        <View style={styles.leftIcon}>
-          <Ionicons
-            name={
-              address.label.toLowerCase() === 'home'
-                ? 'home-outline'
-                : 'business-outline'
-            }
-            size={20}
-            color={address.isDefault ? colors.primary : colors.textSecondary}
-          />
-        </View>
-
-        {/* Content: Displays address details with truncation for long text. */}
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text
-              weight="bold"
-              variant="s"
-              color={address.isDefault ? colors.primary : colors.textPrimary}
-            >
-              {address.label}
-              {address.isDefault && ' (Default)'}{' '}
-              {/* Indicates primary address */}
-            </Text>
-          </View>
-          <Text
-            variant="xs"
-            color={colors.textSecondary}
-            numberOfLines={1} // Prevents overflow, shows ellipsis
-            style={styles.address}
+        <View style={styles.topRow}>
+          <View
+            style={[
+              styles.leftIcon,
+              address.isDefault && styles.leftIconSelected,
+            ]}
           >
-            {address.address}
-          </Text>
-          {/* cspell:ignore pincode */}
-          <Text variant="xs" color={colors.textTertiary}>
-            {address.location?.name}, {address.pincode}
-          </Text>
+            <Ionicons
+              name={iconName}
+              size={18}
+              color={address.isDefault ? colors.surface : colors.textSecondary}
+            />
+          </View>
+
+          <View style={styles.content}>
+            <View style={styles.content}>
+              <View style={styles.headerRow}>
+                <Text weight="bold" variant="s" style={styles.title}>
+                  {address.label}
+                </Text>
+                {address.isDefault && (
+                  <View style={styles.badge}>
+                    <Text variant="xs" weight="medium" style={styles.badgeText}>
+                      Default
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <Text
+                variant="xs"
+                color={colors.textSecondary}
+                numberOfLines={1} // Prevents overflow, shows ellipsis
+                style={styles.address}
+              >
+                {address.address}
+              </Text>
+              {/* cspell:ignore pincode */}
+              <Text variant="xs" color={colors.textTertiary}>
+                {address.location?.name}, {address.pincode}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.rightActions}>
+            {address.isDefault && (
+              <View style={styles.checkWrap}>
+                <Ionicons name="checkmark" size={12} color={colors.surface} />
+              </View>
+            )}
+          </View>
         </View>
 
-        {/* Actions: Edit and delete buttons, with checkmark for default. */}
-        <View style={styles.rightActions}>
-          {address.isDefault && (
-            <Ionicons
-              name="checkmark-circle"
-              size={20}
-              color={colors.primary}
-              style={styles.checkIcon}
-            />
-          )}
+        <View style={styles.actionsRow}>
           <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
-            <Ionicons
-              name="pencil-outline"
-              size={18}
-              color={colors.textSecondary}
-            />
+            <Ionicons name="pencil-outline" size={16} color={colors.info} />
+            <Text
+              variant="s"
+              weight="medium"
+              style={styles.actionTextPrimary}
+            >
+              Edit
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onDelete} style={styles.actionButton}>
-            <Ionicons name="trash-outline" size={18} color={colors.error} />
+          <TouchableOpacity onPress={onDelete} style={styles.actionButtonDanger}>
+            <Ionicons name="trash-outline" size={16} color={colors.error} />
+            <Text variant="s" weight="medium" style={styles.actionTextDanger}>
+              Delete
+            </Text>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -104,44 +127,102 @@ AddressItem.displayName = 'AddressItem';
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.m,
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.l,
+    padding: spacing.m,
     marginBottom: spacing.m,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.border,
   },
   containerSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary + '08', // Light tint
+    borderColor: colors.info,
+    backgroundColor: colors.info + '0D', // Light tint
   },
   leftIcon: {
-    marginRight: spacing.m,
-    width: 32,
+    width: 34,
+    height: 34,
+    borderRadius: spacing.radius.m,
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.border + '60',
+    marginRight: spacing.m,
+  },
+  leftIconSelected: {
+    backgroundColor: colors.info,
   },
   content: {
     flex: 1,
   },
-  header: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.xs,
+  },
+  title: {
+    color: colors.textPrimary,
+    textTransform: 'capitalize',
+  },
+  badge: {
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    borderRadius: spacing.radius.s,
+    backgroundColor: colors.success + '20',
+  },
+  badgeText: {
+    color: colors.success,
   },
   address: {
     marginTop: 2,
   },
   rightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginLeft: spacing.s,
   },
-  actionButton: {
-    padding: spacing.xs,
-    marginLeft: spacing.xs,
+  checkWrap: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.info,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  checkIcon: {
-    marginRight: spacing.xs,
+  actionsRow: {
+    width: '100%',
+    flexDirection: 'row',
+    gap: spacing.s,
+    marginTop: spacing.m,
+    paddingTop: spacing.m,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.m,
+    backgroundColor: colors.info + '0F',
+  },
+  actionButtonDanger: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.m,
+    backgroundColor: colors.error + '0F',
+  },
+  actionTextPrimary: {
+    color: colors.info,
+  },
+  actionTextDanger: {
+    color: colors.error,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
 });
+

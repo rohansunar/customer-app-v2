@@ -148,7 +148,7 @@ export function AddressPickerModal({
   }, [onClose]);
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent={false}>
+    <Modal visible={isVisible} animationType="fade" transparent={false}>
       <SafeAreaView style={styles.container}>
         {!showForm ? (
           <>
@@ -174,42 +174,29 @@ export function AddressPickerModal({
                 /* ---------- LOADING ---------- */
                 <View style={styles.centered}>
                   <ActivityIndicator size="large" color={colors.primary} />
-                  <Text style={styles.loadingText}>Loading addresses...</Text>
+                  <Text style={styles.loadingText}>
+                    Loading addresses...
+                  </Text>
                 </View>
               ) : addresses && addresses.length > 0 ? (
                 /* ---------- ADDRESSES PRESENT ---------- */
-                <>
-                  {/* Add Address button ONLY when addresses exist */}
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={handleAddAddress}
-                  >
-                    <Ionicons name="add" size={20} color={colors.primary} />
-                    <Text
-                      color={colors.primary}
-                      weight="medium"
-                      style={styles.addButtonText}
-                    >
-                      Add Address
-                    </Text>
-                  </TouchableOpacity>
-
-                  <FlatList
-                    data={addresses}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                  />
-                </>
+                <FlatList
+                  data={addresses}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderItem}
+                  contentContainerStyle={styles.list}
+                  showsVerticalScrollIndicator={false}
+                />
               ) : (
                 /* ---------- EMPTY STATE ---------- */
                 <View style={styles.centered}>
-                  <Ionicons
-                    name="location-outline"
-                    size={64}
-                    color={colors.textSecondary}
-                  />
+                  <View style={styles.emptyIconWrap}>
+                    <Ionicons
+                      name="location-outline"
+                      size={28}
+                      color={colors.textSecondary}
+                    />
+                  </View>
                   <Text color={colors.textSecondary} style={styles.emptyText}>
                     No addresses found
                   </Text>
@@ -217,9 +204,16 @@ export function AddressPickerModal({
                   <TouchableOpacity
                     style={styles.emptyAddButton}
                     onPress={handleAddAddress}
+                    activeOpacity={0.85}
                   >
-                    <Text color={colors.primary} weight="medium">
-                      Add your first address
+                    <Ionicons
+                      name="add"
+                      size={18}
+                      color={colors.surface}
+                      style={styles.addIcon}
+                    />
+                    <Text color={colors.surface} weight="medium">
+                      Add New Address
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -233,6 +227,25 @@ export function AddressPickerModal({
             onCancel={() => setShowForm(false)}
             isPending={createMutation.isPending || updateMutation.isPending}
           />
+        )}
+        {!showForm && addresses && addresses.length > 0 && (
+          <View style={styles.bottomBar}>
+            <TouchableOpacity
+              style={styles.bottomAddButton}
+              onPress={handleAddAddress}
+              activeOpacity={0.85}
+            >
+              <Ionicons
+                name="add"
+                size={20}
+                color={colors.primary}
+                style={styles.bottomAddIcon}
+              />
+              <Text weight="medium" style={styles.bottomAddText}>
+                Add New Address
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
         <Toast config={toastConfig} position="top" topOffset={20} />
       </SafeAreaView>
@@ -250,11 +263,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.m,
-    paddingVertical: spacing.s,
+    paddingVertical: spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,
-    height: 60,
+    minHeight: 64,
   },
   title: {
     flex: 1,
@@ -265,25 +278,19 @@ const styles = StyleSheet.create({
     width: 24, // Matches close button width for balance
   },
   closeButton: {
-    padding: spacing.xs,
+    padding: spacing.s,
+    borderRadius: spacing.radius.m,
+    backgroundColor: colors.surface,
     zIndex: 1,
   },
   content: {
     flex: 1,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.m,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  addButtonText: {
-    marginLeft: spacing.xs,
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.l,
   },
   list: {
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.l,
+    gap: spacing.s,
   },
   centered: {
     flex: 1,
@@ -295,60 +302,54 @@ const styles = StyleSheet.create({
     marginTop: spacing.m,
     color: colors.textSecondary,
   },
+  emptyIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: spacing.radius.l,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   emptyText: {
     marginTop: spacing.m,
     marginBottom: spacing.l,
     fontSize: 16,
   },
   emptyAddButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s,
     paddingHorizontal: spacing.l,
     paddingVertical: spacing.m,
-    backgroundColor: colors.primary + '10', // 10% opacity
+    backgroundColor: colors.primary,
     borderRadius: spacing.radius.m,
   },
-
-  // Address item styles
-  addressItem: {
-    padding: spacing.m,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+  addIcon: {
+    marginRight: spacing.xs,
   },
-  addressItemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
+  bottomBar: {
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.m,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
   },
-  addressName: {
+  bottomAddButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.ms,
+    borderRadius: spacing.radius.l,
+    borderWidth: 2,
+    borderColor: colors.info,
+    backgroundColor: colors.surface,
   },
-  tag: {
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginLeft: spacing.xs,
-    backgroundColor: colors.primary + '20',
+  bottomAddIcon: {
+    marginRight: spacing.s,
   },
-  tagText: {
-    fontSize: 10,
-    color: colors.primary,
-  },
-  addressText: {
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    marginTop: spacing.s,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: spacing.l,
-  },
-  actionButtonText: {
-    marginLeft: spacing.xs,
-    color: colors.primary,
+  bottomAddText: {
+    color: colors.info,
   },
 });
