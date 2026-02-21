@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     borderRadius: 56,
     left: -8,
     top: 4,
-    borderWidth: 4,
+    borderWidth: 3,
   },
   ripplePrimary: {
     borderColor: colors.splashBlue400,
