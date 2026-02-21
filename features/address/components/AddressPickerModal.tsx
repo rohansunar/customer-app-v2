@@ -262,8 +262,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.m,
-    paddingVertical: spacing.m,
+    paddingHorizontal: spacing.ms,
+    paddingVertical: spacing.ms,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     backgroundColor: colors.surface,
@@ -286,11 +286,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: spacing.l,
-    paddingVertical: spacing.l,
+    paddingVertical: spacing.m,
   },
   list: {
-    paddingBottom: spacing.l,
-    gap: spacing.s,
+    paddingBottom: spacing.m,
+    gap: spacing.xs,
   },
   centered: {
     flex: 1,

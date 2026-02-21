@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.l,
-    padding: spacing.m,
+    padding: spacing.ms,
     marginBottom: spacing.m,
     borderWidth: 2,
     borderColor: colors.border,
