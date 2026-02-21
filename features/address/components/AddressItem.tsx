@@ -111,7 +111,7 @@ export const AddressItem = memo(
               Edit
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onDelete} style={styles.actionButtonDanger}>
+          <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
             <Ionicons name="trash-outline" size={16} color={colors.error} />
             <Text variant="s" weight="medium" style={styles.actionTextDanger}>
               Delete
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.l,
     padding: spacing.ms,
-    marginBottom: spacing.m,
+    marginBottom: spacing.s,
     borderWidth: 2,
     borderColor: colors.border,
   },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.border + '60',
-    marginRight: spacing.m,
+    marginRight: spacing.ms,
   },
   leftIconSelected: {
     backgroundColor: colors.info,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: spacing.s,
   },
   title: {
     color: colors.textPrimary,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    paddingVertical: 1,
     borderRadius: spacing.radius.s,
     backgroundColor: colors.success + '20',
   },
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     color: colors.success,
   },
   address: {
-    marginTop: 2,
+    marginTop: 1.5,
   },
   rightActions: {
     marginLeft: spacing.s,
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     gap: spacing.s,
-    marginTop: spacing.m,
-    paddingTop: spacing.m,
+    marginTop: spacing.ms,
+    paddingTop: spacing.ms,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: spacing.radius.m,
     backgroundColor: colors.info + '0F',
   },
-  actionButtonDanger: {
+  deleteButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',

@@ -286,11 +286,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: spacing.l,
-    paddingVertical: spacing.m,
+    paddingVertical: spacing.ms,
   },
   list: {
-    paddingBottom: spacing.m,
-    gap: spacing.xs,
+    paddingBottom: spacing.ms,
+    gap: spacing.xxs,
   },
   centered: {
     flex: 1,
