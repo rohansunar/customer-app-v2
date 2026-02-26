@@ -1,6 +1,6 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { subscriptionService } from '../services/subscriptionService';
+import { subscriptionService } from '../services/subscription.service';
 
 /**
  * Hook to handle subscription deletion.

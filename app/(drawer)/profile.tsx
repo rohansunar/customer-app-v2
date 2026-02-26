@@ -1,141 +1,190 @@
-import { useAuth } from '@/core/providers/AuthProvider';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
-import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
+import { Input } from '@/core/ui/Input';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
-import { router } from 'expo-router';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from '../../components/ui/icon-symbol';
 import { useProfileForm } from '@/features/profile/hooks/useProfileValidator';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  RefreshControl,
+  Alert,
+} from 'react-native';
+import { IconSymbol } from '../../components/ui/icon-symbol';
+import { TopUpModal } from '@/features/profile/components/TopUpModal';
+// import { paymentService } from '@/features/payment/services/paymentService';
 
 export default function ProfileScreen() {
-  const { data, isLoading, error } = useProfile();
-  const { mutate, isPending } = useUpdateProfile();
-  const { logout } = useAuth();
+  const { data, isLoading, refetch } = useProfile();
+  const { mutate, isPending: isUpdating } = useUpdateProfile();
+  const [topUpVisible, setTopUpVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { form, errors, isDirty, updateField, validate } = useProfileForm(data);
 
-  async function handleLogout() {
-    await logout();
-    router.replace('/login');
-  }
+  const getInitials = (name: string) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const handleTopUp = async (amount: number) => {
+    setTopUpVisible(false);
+    Alert.alert('Top Up', `Redirecting to Razorpay for ₹${amount}...`);
+    // Logic to call paymentService.createOrder would go here
+  };
+
+  const handleSave = () => {
+    if (!isDirty) {
+      setIsEditing(false);
+      return;
+    }
+    if (!validate()) return;
+
+    mutate(
+      {
+        name: form.name,
+        email: form.email || null,
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          refetch();
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <Text>Loading profile...</Text>
+        <Text>Loading...</Text>
       </View>
     );
-  }
-
-  if (error || !data) {
-    return (
-      <View style={styles.centered}>
-        <Text
-          variant="xl"
-          weight="bold"
-          color={colors.error}
-          style={styles.errorTitle}
-        >
-          Error Loading Profile
-        </Text>
-        <Text color={colors.error} style={styles.errorMessage}>
-          We encountered an issue while loading your profile. Please try logging
-          out and logging back in.
-        </Text>
-        <Button
-          title="Logout"
-          onPress={handleLogout}
-          style={styles.logoutButton}
-        />
-      </View>
-    );
-  }
-
-  function handleSave() {
-    if (!isDirty) return;
-    if (!validate()) return;
-
-    mutate({
-      name: form.name,
-      email: form.email || null, // backend-safe
-    });
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text variant="xl" weight="bold" color={colors.primary}>
-          Profile
-        </Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Text color={colors.error} weight="bold">
-            Logout
-          </Text>
-        </TouchableOpacity>
-      </View>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+    >
+      {isEditing ? (
+        <View style={styles.editSection}>
+          <Input
+            label="Full Name"
+            value={form.name}
+            onChangeText={(val) => updateField('name', val)}
+            placeholder="Enter your name"
+            error={errors.name}
+          />
 
-      <View style={styles.card}>
-        {/* Status */}
-        <View style={styles.row}>
-          <Text weight="medium">Account Status</Text>
-          <View style={styles.statusBadge}>
-            <IconSymbol
-              name={
-                data.isActive ? 'checkmark.circle.fill' : 'xmark.circle.fill'
-              }
-              size={20}
-              color={data.isActive ? colors.success : colors.error}
-            />
-            <Text
-              variant="s"
-              color={data.isActive ? colors.success : colors.error}
-              style={{ marginLeft: spacing.xs }}
-            >
-              {data.isActive ? 'Active' : 'Inactive'}
-            </Text>
-          </View>
+          <Input
+            label="Email Address"
+            value={form.email ?? ''}
+            onChangeText={(val) => updateField('email', val)}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            error={errors.email}
+          />
+
+          <Input
+            label="Phone Number"
+            value={data?.phone}
+            editable={false}
+            style={{ backgroundColor: colors.background }}
+          />
+
+          <Button
+            title={isUpdating ? 'Saving...' : 'Save Changes'}
+            onPress={handleSave}
+            loading={isUpdating}
+            disabled={!isDirty || isUpdating}
+            style={styles.saveButton}
+          />
         </View>
+      ) : (
+        <>
+          {/* Profile Header section */}
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarLarge}>
+              <Text variant="xl" weight="bold" color={colors.primary}>
+                {getInitials(data?.name ?? '')}
+              </Text>
+            </View>
+            <Text variant="xl" weight="bold" style={styles.userName}>
+              {data?.name || 'User'}
+            </Text>
+            <Text color={colors.textSecondary}>{data?.email}</Text>
+            <Text color={colors.textSecondary} style={styles.userPhone}>{data?.phone}</Text>
+          </View>
 
-        {/* Phone (disabled) */}
-        <Input
-          label="Phone Number"
-          value={data.phone}
-          editable={false}
-          selectTextOnFocus={false}
-          style={{ backgroundColor: colors.background }} // Visually disabled
-        />
+          {/* Wallet Card */}
+          <View style={styles.walletCard}>
+            <View style={styles.walletInfo}>
+              <Text color={colors.surfaceHighlight} weight="medium" style={styles.walletLabel}>
+                AVAILABLE BALANCE
+              </Text>
+              <Text variant="xxl" weight="bold" color={colors.surface} style={styles.balance}>
+                ₹{data?.walletBalance?.toLocaleString('en-IN') || '0.00'}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.topUpBtn}
+              onPress={() => setTopUpVisible(true)}
+            >
+              <Text color={colors.primary} weight="bold">Top Up</Text>
+            </TouchableOpacity>
 
-        {/* Name */}
-        <Input
-          label="Full Name"
-          value={form.name}
-          onChangeText={(val) => updateField('name', val)}
-          placeholder="Enter your name"
-          error={errors.name}
-        />
+            {/* Decorative circles */}
+            <View style={[styles.circle, styles.circle1]} />
+            <View style={[styles.circle, styles.circle2]} />
+          </View>
 
-        {/* Email */}
-        <Input
-          label="Email Address"
-          value={form.email ?? ''}
-          onChangeText={(val) => updateField('email', val)}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          error={errors.email}
-        />
+          {/* Recent Transactions */}
+          <View style={styles.transactionsHeader}>
+            <Text variant="l" weight="bold">Recent Transactions</Text>
+          </View>
 
-        <Button
-          title={isPending ? 'Saving...' : 'Save Changes'}
-          onPress={handleSave}
-          loading={isPending}
-          disabled={!isDirty || isPending}
-          style={styles.button}
-        />
-      </View>
+          <View style={styles.transactionsList}>
+            {data?.recentTransactions?.map((tx) => (
+              <View key={tx.id} style={styles.transactionItem}>
+                <View style={styles.txIconContainer}>
+                  <IconSymbol
+                    name={tx.type === 'positive' ? 'arrow.down.left.circle.fill' : 'bag.fill'}
+                    size={24}
+                    color={tx.type === 'positive' ? colors.success : colors.primary}
+                  />
+                </View>
+                <View style={styles.txInfo}>
+                  <Text weight="bold">{tx.description}</Text>
+                  <Text variant="s" color={colors.textSecondary}>{tx.date}</Text>
+                </View>
+                <Text
+                  weight="bold"
+                  color={tx.type === 'positive' ? colors.success : colors.textPrimary}
+                >
+                  {tx.type === 'positive' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN')}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+
+      <TopUpModal
+        visible={topUpVisible}
+        onClose={() => setTopUpVisible(false)}
+        onTopUp={handleTopUp}
+      />
     </ScrollView>
   );
 }
@@ -143,64 +192,118 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: spacing.m,
     backgroundColor: colors.background,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.l,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  profileHeader: {
     alignItems: 'center',
-    marginBottom: spacing.l,
+    paddingVertical: spacing.l, // Reduced padding
   },
-  card: {
+  avatarLarge: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: colors.surface,
-    borderRadius: spacing.radius.l,
-    padding: spacing.l,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: colors.primary + '20', // Light primary border
+    marginBottom: spacing.m,
   },
-  row: {
+  userName: {
+    marginBottom: spacing.xs,
+  },
+  userPhone: {
+    marginTop: 2,
+  },
+  walletCard: {
+    margin: spacing.m,
+    padding: spacing.l,
+    backgroundColor: colors.primary,
+    borderRadius: spacing.radius.xl,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.l,
+    overflow: 'hidden',
+    height: 130,
   },
-  statusBadge: {
+  walletInfo: {
+    zIndex: 1,
+  },
+  walletLabel: {
+    fontSize: 12,
+    letterSpacing: 1,
+    marginBottom: spacing.s,
+  },
+  balance: {
+    fontSize: 32,
+  },
+  topUpBtn: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.s,
+    borderRadius: spacing.radius.l,
+    zIndex: 1,
+  },
+  circle: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 100,
+  },
+  circle1: {
+    width: 120,
+    height: 120,
+    top: -40,
+    right: -40,
+  },
+  circle2: {
+    width: 100,
+    height: 100,
+    bottom: -30,
+    left: 80,
+  },
+  txInfo: {
+    flex: 1,
+  },
+  transactionsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.l,
+    marginBottom: spacing.m,
+  },
+  transactionsList: {
+    paddingHorizontal: spacing.l,
+    paddingBottom: spacing.xl,
+  },
+  transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  button: {
-    marginTop: spacing.m,
-  },
-  errorTitle: {
+    backgroundColor: colors.surface,
+    padding: spacing.m,
+    borderRadius: spacing.radius.l,
     marginBottom: spacing.s,
-    textAlign: 'center',
   },
-  errorMessage: {
-    marginBottom: spacing.xl,
-    textAlign: 'center',
-    maxWidth: '80%',
+  txIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.m,
   },
-  emptyTitle: {
-    marginBottom: spacing.s,
-    textAlign: 'center',
+  editSection: {
+    padding: spacing.l,
+    backgroundColor: colors.surface,
+    margin: spacing.l,
+    borderRadius: spacing.radius.l,
   },
-  emptyMessage: {
-    marginBottom: spacing.xl,
-    textAlign: 'center',
-    maxWidth: '80%',
-  },
-  logoutButton: {
+  saveButton: {
     marginTop: spacing.l,
-    width: '60%',
   },
 });

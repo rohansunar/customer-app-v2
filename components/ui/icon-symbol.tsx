@@ -25,6 +25,16 @@ const MAPPING = {
   'xmark.circle.fill': 'cancel',
   'cart.fill': 'shopping-cart',
   'arrow.clockwise': 'schedule',
+  'plus': 'add',
+  'minus': 'remove',
+  'xmark': 'close',
+  'gearshape.fill': 'settings',
+  'person.fill': 'person',
+  'envelope.fill': 'email',
+  'phone.fill': 'phone',
+  'chevron.left': 'chevron-left',
+  'arrow.down.left.circle.fill': 'arrow-downward',
+  'bag.fill': 'shopping-bag',
 } as IconMapping;
 
 /**

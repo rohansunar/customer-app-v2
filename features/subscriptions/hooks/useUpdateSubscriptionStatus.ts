@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { subscriptionService } from '../services/subscriptionService';
+import { subscriptionService } from '../services/subscription.service';
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 
 /**

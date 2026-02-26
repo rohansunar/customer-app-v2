@@ -1,7 +1,7 @@
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
-import { subscriptionService } from '../services/subscriptionService';
+import { subscriptionService } from '../services/subscription.service';
 import { SubscriptionRequest } from '../types';
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 
