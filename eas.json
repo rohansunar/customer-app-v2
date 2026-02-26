@@ -17,7 +17,7 @@
         "buildType": "apk",
         "env": {
           "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON",
-          "EXPO_PUBLIC_API_URL": "https://awilda-nasolacrimal-evan.ngrok-free.dev",
+          "EXPO_PUBLIC_API_URL": "http://82.29.184.137:4243",
           "EXPO_PUBLIC_RAZORPAY_KEY": "rzp_test_S6WBZUjuzUaW64"
         }
       }

@@ -1,5 +1,6 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
+import { useAuth } from '@/core/providers/AuthProvider';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Input } from '@/core/ui/Input';
@@ -21,7 +22,8 @@ import { TopUpModal } from '@/features/profile/components/TopUpModal';
 // import { paymentService } from '@/features/payment/services/paymentService';
 
 export default function ProfileScreen() {
-  const { data, isLoading, refetch } = useProfile();
+  const { data, isLoading, isError, refetch } = useProfile();
+  const { logout } = useAuth();
   const { mutate, isPending: isUpdating } = useUpdateProfile();
   const [topUpVisible, setTopUpVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,6 +72,29 @@ export default function ProfileScreen() {
     );
   }
 
+  if (isError) {
+    return (
+      <View style={styles.centered}>
+        <IconSymbol name="xmark.circle.fill" size={64} color={colors.error} />
+        <Text variant="l" weight="bold" style={styles.errorTitle}>Connection Failed</Text>
+        <Text color={colors.textSecondary} style={styles.errorMessage}>
+          We couldn't reach the backend. Please try logging in again.
+        </Text>
+        <Button
+          title="Logout"
+          onPress={logout}
+          style={styles.logoutButton}
+        />
+        <Button
+          title="Try Again"
+          onPress={() => refetch()}
+          variant="outline"
+          style={styles.retryButton}
+        />
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.container}
@@ -77,6 +102,21 @@ export default function ProfileScreen() {
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
     >
+      {/* Header with Settings */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <IconSymbol name="chevron.left" size={24} color={colors.textPrimary} />
+        </TouchableOpacity>
+        <Text variant="l" weight="bold">{isEditing ? 'Edit Profile' : 'Profile & Wallet'}</Text>
+        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+          <IconSymbol
+            name={isEditing ? 'xmark' : 'gearshape.fill'}
+            size={24}
+            color={isEditing ? colors.error : colors.textPrimary}
+          />
+        </TouchableOpacity>
+      </View>
+
       {isEditing ? (
         <View style={styles.editSection}>
           <Input
@@ -198,6 +238,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: spacing.xl,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.l,
+    backgroundColor: colors.surface,
   },
   profileHeader: {
     alignItems: 'center',
@@ -305,5 +354,22 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: spacing.l,
+  },
+  logoutButton: {
+    width: '100%',
+    marginTop: spacing.xl,
+    backgroundColor: colors.error,
+  },
+  retryButton: {
+    width: '100%',
+    marginTop: spacing.m,
+  },
+  errorTitle: {
+    marginTop: spacing.l,
+    marginBottom: spacing.s,
+  },
+  errorMessage: {
+    textAlign: 'center',
+    marginBottom: spacing.l,
   },
 });
