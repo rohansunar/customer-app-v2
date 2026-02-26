@@ -11,7 +11,7 @@
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
-import { addressService } from '../services/addressService';
+import { addressService } from '../services/address.service';
 
 export function useCreateAddress() {
   const queryClient = useQueryClient();

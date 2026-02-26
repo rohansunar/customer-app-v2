@@ -12,7 +12,7 @@ import { useCreateAddress } from '@/features/address/hooks/useCreateAddress';
 import { useDeleteAddress } from '@/features/address/hooks/useDeleteAddress';
 import { useSetDefaultAddress } from '@/features/address/hooks/useSetDefaultAddress';
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
-import { Address, CreateAddressData } from '@/features/address/types';
+import { Address, CreateAddressData } from '@/features/address/address.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useState } from 'react';
 import {

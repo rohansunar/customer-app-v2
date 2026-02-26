@@ -4,7 +4,7 @@ import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Address } from '../types';
+import { Address } from '../address.types';
 
 /**
  * AddressItem Component
@@ -103,11 +103,7 @@ export const AddressItem = memo(
         <View style={styles.actionsRow}>
           <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
             <Ionicons name="pencil-outline" size={16} color={colors.info} />
-            <Text
-              variant="s"
-              weight="medium"
-              style={styles.actionTextPrimary}
-            >
+            <Text variant="s" weight="medium" style={styles.actionTextPrimary}>
               Edit
             </Text>
           </TouchableOpacity>
@@ -226,4 +222,3 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
 });
-

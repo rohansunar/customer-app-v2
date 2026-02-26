@@ -4,7 +4,7 @@ import { Text } from '@/core/ui/Text';
 import { MapComponent } from '@/features/map/components/MapComponent';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
-import { AddressMapSectionProps } from '../types';
+import { AddressMapSectionProps } from '../address.types';
 
 /**
  * Sub-component for rendering the map section of the address form.

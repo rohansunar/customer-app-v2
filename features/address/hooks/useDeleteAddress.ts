@@ -9,7 +9,7 @@
  * Edge cases: Deleting non-existent address handled by API; invalidation ensures UI updates.
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addressService } from '../services/addressService';
+import { addressService } from '../services/address.service';
 
 export function useDeleteAddress() {
   const queryClient = useQueryClient();

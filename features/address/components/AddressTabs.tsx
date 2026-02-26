@@ -2,7 +2,7 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { AddressTabsProps } from '../types';
+import { AddressTabsProps } from '../address.types';
 
 /**
  * Sub-component for rendering address type tabs (Home, Office, etc.).

@@ -1,7 +1,7 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useLocation } from '@/features/map/hooks/useLocation';
 import { useEffect } from 'react';
-import { Address } from '../types';
+import { Address } from '../address.types';
 
 /**
  * Hook for managing location logic.

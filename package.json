@@ -14,7 +14,9 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": ["react-native-razorpay"]
+        "exclude": [
+          "react-native-razorpay"
+        ]
       }
     }
   },

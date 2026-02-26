@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addressService } from '../services/addressService';
+import { addressService } from '../services/address.service';
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 

@@ -1,6 +1,6 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
-import { PushToken } from '../types';
+import { PushToken } from '../types/notification.types';
 
 /**
  * Payload required to register a push token with our backend.

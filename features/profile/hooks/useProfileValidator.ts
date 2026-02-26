@@ -3,7 +3,7 @@ import {
   profileSchema,
   ProfileFormData,
 } from '@/shared/utils/profileValidator';
-import { Profile } from '../types';
+import { Profile } from '../profile.types';
 
 type FormErrors = Partial<Record<keyof ProfileFormData, string>>;
 
@@ -41,7 +41,7 @@ export function useProfileForm(initialData?: Profile | undefined) {
         };
         setIsDirty(
           newForm.name !== initialForm.name ||
-            newForm.email !== initialForm.email,
+          newForm.email !== initialForm.email,
         );
       }
       return newForm;

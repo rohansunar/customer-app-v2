@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { NotificationPermissionStatus } from '../types';
+import { NotificationPermissionStatus } from '../types/notification.types';
 
 interface UseNotificationPermissionProps {
   isAuthenticated: boolean;

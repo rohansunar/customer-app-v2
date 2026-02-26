@@ -1,7 +1,7 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useReverseGeocode } from '@/features/map/hooks/useReverseGeocode';
 import { useEffect, useRef } from 'react';
-import { Address } from '../types';
+import { Address } from '../address.types';
 
 /**
  * Hook for managing geocoding logic.

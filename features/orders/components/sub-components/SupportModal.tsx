@@ -3,10 +3,11 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -32,6 +33,7 @@ const SUBJECTS = [
 export default function SupportModal({ visible, onClose, orderNo }: Props) {
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [message, setMessage] = useState('');
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const submitTicket = useSubmitSupportTicket();
 
   const handleSubmit = () => {
@@ -64,7 +66,10 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.overlay}
+      >
         <View style={styles.container}>
           <View style={styles.header}>
             <View>
@@ -83,20 +88,61 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
           <ScrollView
             style={styles.content}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             <Text variant="m" weight="semibold" style={styles.sectionTitle}>
               What can we help you with?
             </Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={subject}
-                onValueChange={(itemValue) => setSubject(itemValue)}
-              >
+
+            <TouchableOpacity
+              style={[
+                styles.customPicker,
+                isPickerOpen && styles.customPickerOpen,
+              ]}
+              onPress={() => setIsPickerOpen(!isPickerOpen)}
+              activeOpacity={0.7}
+            >
+              <Text variant="m" color={colors.textPrimary}>
+                {subject}
+              </Text>
+              <Ionicons
+                name={isPickerOpen ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+
+            {isPickerOpen && (
+              <View style={styles.optionsContainer}>
                 {SUBJECTS.map((s) => (
-                  <Picker.Item key={s} label={s} value={s} />
+                  <TouchableOpacity
+                    key={s}
+                    style={styles.optionItem}
+                    onPress={() => {
+                      setSubject(s);
+                      setIsPickerOpen(false);
+                    }}
+                  >
+                    <Text
+                      variant="m"
+                      color={
+                        subject === s ? colors.primary : colors.textPrimary
+                      }
+                      weight={subject === s ? 'bold' : 'medium'}
+                    >
+                      {s}
+                    </Text>
+                    {subject === s && (
+                      <Ionicons
+                        name="checkmark"
+                        size={20}
+                        color={colors.primary}
+                      />
+                    )}
+                  </TouchableOpacity>
                 ))}
-              </Picker>
-            </View>
+              </View>
+            )}
 
             <Text variant="m" weight="semibold" style={styles.sectionTitle}>
               Message
@@ -127,7 +173,7 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
             />
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -160,13 +206,42 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: spacing.s,
+    marginTop: spacing.m,
   },
-  pickerContainer: {
+  customPicker: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.m,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: spacing.radius.m,
-    marginBottom: spacing.l,
     backgroundColor: colors.background,
+    marginBottom: spacing.xs,
+  },
+  customPickerOpen: {
+    borderColor: colors.primary,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    marginBottom: 0,
+  },
+  optionsContainer: {
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: colors.primary,
+    borderBottomLeftRadius: spacing.radius.m,
+    borderBottomRightRadius: spacing.radius.m,
+    backgroundColor: colors.surface,
+    overflow: 'hidden',
+    marginBottom: spacing.m,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   textInput: {
     borderWidth: 1,
@@ -177,6 +252,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     minHeight: 120,
     fontSize: 16,
+    marginBottom: spacing.l,
   },
   footer: {
     padding: spacing.l,

@@ -2,7 +2,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
 import { StyleSheet, View } from 'react-native';
-import { AddressFormInputsProps } from '../types';
+import { AddressFormInputsProps } from '../address.types';
 
 /**
  * Sub-component for rendering the form input fields.

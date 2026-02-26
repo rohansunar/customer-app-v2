@@ -57,12 +57,18 @@ function OrderCardComponent({ order, loading }: Props) {
 
   const handleCancelPress = useCallback(() => {
     setIsMenuVisible(false);
-    setIsModalVisible(true);
+    // Small delay to ensure menu modal is dismissed before opening the next modal on Android
+    setTimeout(() => {
+      setIsModalVisible(true);
+    }, 100);
   }, []);
 
   const handleContactPress = useCallback(() => {
     setIsMenuVisible(false);
-    setIsSupportModalVisible(true);
+    // Small delay to ensure menu modal is dismissed before opening the next modal on Android
+    setTimeout(() => {
+      setIsSupportModalVisible(true);
+    }, 100);
   }, []);
 
   const handleModalClose = useCallback(() => {

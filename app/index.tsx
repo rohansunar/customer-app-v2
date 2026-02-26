@@ -1,4 +1,5 @@
-import { SplashScreen, useSplashNavigation } from '@/components/splash';
+import SplashScreen from '@/core/ui/SplashScreen';
+import { useSplashNavigation } from '@/hooks/splash/useSplashNavigation';
 
 export default function AppEntry() {
   const { navigateBasedOnAuth } = useSplashNavigation();

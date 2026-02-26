@@ -3,7 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { AddressGeocodeInfoProps } from '../types';
+import { AddressGeocodeInfoProps } from '../address.types';
 
 /**
  * Sub-component for displaying geocoding information.

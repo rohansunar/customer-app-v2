@@ -23,7 +23,7 @@ import { useAddresses } from '@/features/address/hooks/useAddresses';
 import { useCreateAddress } from '@/features/address/hooks/useCreateAddress';
 import { useDeleteAddress } from '@/features/address/hooks/useDeleteAddress';
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
-import { Address, CreateAddressData } from '@/features/address/types';
+import { Address, CreateAddressData } from '@/features/address/address.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -196,7 +196,7 @@ export default function AddressScreen() {
         <TouchableOpacity style={styles.modalOverlay} onPress={handleCancel}>
           <TouchableOpacity
             style={styles.modalContent}
-            onPress={() => {}}
+            onPress={() => { }}
             activeOpacity={1}
           >
             <AddressForm

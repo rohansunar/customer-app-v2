@@ -89,7 +89,12 @@ export const ProductCard = memo(function ProductCard({
 
       <View style={styles.details}>
         <View style={styles.header}>
-          <Text variant="l" weight="bold" color={colors.textPrimary} style={styles.productName}>
+          <Text
+            variant="l"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.productName}
+          >
             {product.name}
           </Text>
           <Text variant="l" weight="bold" color={colors.primary}>
@@ -103,7 +108,11 @@ export const ProductCard = memo(function ProductCard({
               <Ionicons key={i} name="star" size={14} color="#F59E0B" />
             ))}
           </View>
-          <Text variant="xs" color={colors.textSecondary} style={styles.ratingText}>
+          <Text
+            variant="xs"
+            color={colors.textSecondary}
+            style={styles.ratingText}
+          >
             4.8 (1.2k reviews) • 2k+ bought
           </Text>
         </View>

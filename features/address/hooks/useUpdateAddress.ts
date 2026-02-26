@@ -9,7 +9,7 @@
  * Edge cases: Update failures handled at call site; invalidation ensures consistency.
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addressService } from '../services/addressService';
+import { addressService } from '../services/address.service';
 
 export function useUpdateAddress() {
   const queryClient = useQueryClient();

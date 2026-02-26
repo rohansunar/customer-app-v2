@@ -1,6 +1,6 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
-import { Address, CreateAddressData } from '../types';
+import { Address, CreateAddressData } from '../address.types';
 
 /**
  * Service class for address-related API operations.

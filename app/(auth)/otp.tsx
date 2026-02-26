@@ -139,8 +139,15 @@ export default function OtpScreen() {
           style={styles.container}
         >
           <View style={styles.topBar}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={20} color={colors.splashGray500} />
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={20}
+                color={colors.splashGray500}
+              />
               <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
           </View>
@@ -160,51 +167,55 @@ export default function OtpScreen() {
               <Text style={styles.phoneText}>+91 {phone}</Text>
             </Text>
 
-          {/* OTP inputs */}
-          <Animated.View style={[styles.inputContainer, animatedStyle]}>
-            {otpDigits.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={(ref) => {
-                  if (ref) inputRefs.current[index] = ref;
-                }}
-                value={digit}
-                onChangeText={(text) => handleChange(text, index)}
-                onKeyPress={({ nativeEvent }) =>
-                  handleBackspace(nativeEvent.key, digit, index)
-                }
-                keyboardType="number-pad"
-                maxLength={1}
-                onFocus={() => setFocusedIndex(index)}
-                onBlur={() =>
-                  setFocusedIndex((prev) => (prev === index ? null : prev))
-                }
-                cursorColor="#2563EB"
-                selectionColor="#2563EB"
-                style={[
-                  styles.otpInput,
-                  !hasError && !!digit && styles.otpInputFilled,
-                  !hasError && focusedIndex === index && styles.otpInputFocused,
-                  hasError && styles.otpInputError,
-                ]}
-                autoFocus={index === 0}
-                accessibilityLabel={`OTP digit ${index + 1}`}
-              />
-            ))}
-          </Animated.View>
+            {/* OTP inputs */}
+            <Animated.View style={[styles.inputContainer, animatedStyle]}>
+              {otpDigits.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(ref) => {
+                    if (ref) inputRefs.current[index] = ref;
+                  }}
+                  value={digit}
+                  onChangeText={(text) => handleChange(text, index)}
+                  onKeyPress={({ nativeEvent }) =>
+                    handleBackspace(nativeEvent.key, digit, index)
+                  }
+                  keyboardType="number-pad"
+                  maxLength={1}
+                  onFocus={() => setFocusedIndex(index)}
+                  onBlur={() =>
+                    setFocusedIndex((prev) => (prev === index ? null : prev))
+                  }
+                  cursorColor="#2563EB"
+                  selectionColor="#2563EB"
+                  style={[
+                    styles.otpInput,
+                    !hasError && !!digit && styles.otpInputFilled,
+                    !hasError &&
+                      focusedIndex === index &&
+                      styles.otpInputFocused,
+                    hasError && styles.otpInputError,
+                  ]}
+                  autoFocus={index === 0}
+                  accessibilityLabel={`OTP digit ${index + 1}`}
+                />
+              ))}
+            </Animated.View>
 
-          {/* Resend */}
-          <View style={styles.resendContainer}>
-            {timer > 0 ? (
-              <Text style={styles.timer}>Resend OTP in {timer}s</Text>
-            ) : (
-              <TouchableOpacity onPress={handleResend} disabled={isResending}>
-                <Text style={[styles.resendText, isResending && { opacity: 0.6 }]}>
-                  {isResending ? 'Resending...' : 'Resend OTP'}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+            {/* Resend */}
+            <View style={styles.resendContainer}>
+              {timer > 0 ? (
+                <Text style={styles.timer}>Resend OTP in {timer}s</Text>
+              ) : (
+                <TouchableOpacity onPress={handleResend} disabled={isResending}>
+                  <Text
+                    style={[styles.resendText, isResending && { opacity: 0.6 }]}
+                  >
+                    {isResending ? 'Resending...' : 'Resend OTP'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {/* Verify button */}
             <Button

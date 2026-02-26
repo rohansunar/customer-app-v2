@@ -1,13 +1,7 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import React, { useEffect, useRef } from 'react';
-import {
-  Animated,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Animated, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface SkeletonProps {
   style?: StyleProp<ViewStyle>;

@@ -10,7 +10,7 @@ import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
 import { useLocationLogic } from '../hooks/useLocationLogic';
 import { useMapLogic } from '../hooks/useMapLogic';
-import { AddressFormErrors, AddressFormProps } from '../types';
+import { AddressFormErrors, AddressFormProps } from '../address.types';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressMapSection } from './AddressMapSection';

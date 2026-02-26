@@ -8,7 +8,7 @@
  * - KISS: Simple implementation with minimal complexity.
  */
 
-import { NotificationType } from '../types';
+import { NotificationType, NotificationRoute } from '../types/notification.types';
 
 /**
  * Base structure for notification data from backend

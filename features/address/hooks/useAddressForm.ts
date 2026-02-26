@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Address, AddressFormErrors, AddressFormState } from '../types';
+import { Address, AddressFormErrors, AddressFormState } from '../address.types';
 
 /**
  * Custom hook for managing address form state.
