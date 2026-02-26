@@ -17,6 +17,8 @@ import {
   Platform,
 } from 'react-native';
 
+import CANCEL_REASONS_JSON from '@/constants/cancellation_reasons.json';
+
 interface OrderModalProps {
   visible: boolean;
   onClose: () => void;
@@ -26,49 +28,10 @@ interface OrderModalProps {
 interface CancelOption {
   label: string;
   value: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: string;
 }
 
-const CANCEL_REASONS: CancelOption[] = [
-  {
-    label: 'Changed my mind',
-    value: 'Changed my mind',
-    icon: 'heart-dislike-outline',
-  },
-  { label: 'Wrong item ordered', value: 'Wrong item', icon: 'cart-outline' },
-  { label: 'Delivery delay', value: 'Delivery delay', icon: 'time-outline' },
-  {
-    label: 'Found a better deal',
-    value: 'Found a better deal',
-    icon: 'pricetag-outline',
-  },
-  { label: 'Price too high', value: 'Price too high', icon: 'cash-outline' },
-  {
-    label: 'Ordered by mistake',
-    value: 'Ordered by mistake',
-    icon: 'alert-circle-outline',
-  },
-  {
-    label: 'Want to change items',
-    value: 'Want to change items',
-    icon: 'swap-horizontal-outline',
-  },
-  {
-    label: 'Delivery address issue',
-    value: 'Delivery address issue',
-    icon: 'location-outline',
-  },
-  {
-    label: 'Changed my schedule',
-    value: 'Changed my schedule',
-    icon: 'calendar-outline',
-  },
-  {
-    label: 'Other reasons',
-    value: 'Other',
-    icon: 'ellipsis-horizontal-circle-outline',
-  },
-];
+const CANCEL_REASONS: CancelOption[] = CANCEL_REASONS_JSON as any;
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -94,7 +57,7 @@ function ReasonCard({
         ]}
       >
         <Ionicons
-          name={option.icon}
+          name={option.icon as any}
           size={20}
           color={isSelected ? colors.white : colors.textSecondary}
         />

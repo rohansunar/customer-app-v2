@@ -11,4 +11,5 @@ export type Product = {
   categoryId: string;
   images?: string[];
   distance: Distance;
+  is_schedulable?: boolean;
 };

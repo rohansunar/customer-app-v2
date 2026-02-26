@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
@@ -88,11 +89,22 @@ export const ProductCard = memo(function ProductCard({
 
       <View style={styles.details}>
         <View style={styles.header}>
-          <Text variant="l" weight="bold" color={colors.textPrimary}>
+          <Text variant="l" weight="bold" color={colors.textPrimary} style={styles.productName}>
             {product.name}
           </Text>
-          <Text variant="s" color={colors.textSecondary}>
-            Bought by 300+
+          <Text variant="l" weight="bold" color={colors.primary}>
+            ₹ {product.price}
+          </Text>
+        </View>
+
+        <View style={styles.ratingRow}>
+          <View style={styles.stars}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Ionicons key={i} name="star" size={14} color="#F59E0B" />
+            ))}
+          </View>
+          <Text variant="xs" color={colors.textSecondary} style={styles.ratingText}>
+            4.8 (1.2k reviews) • 2k+ bought
           </Text>
         </View>
 
@@ -100,24 +112,18 @@ export const ProductCard = memo(function ProductCard({
           <Text
             variant="s"
             color={colors.textSecondary}
-            numberOfLines={2}
+            numberOfLines={3}
             style={styles.description}
           >
             {product.description}
           </Text>
         )}
 
-        <View style={styles.additionalInfo}>
-          <Text variant="l" weight="semibold" color={colors.textPrimary}>
-            ₹ {product.price}
-          </Text>
-        </View>
-
         <View style={styles.buttonContainer}>
           <Button
             title={addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
             onPress={handleAddToCart}
-            variant="outline"
+            variant="secondary"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
             disabled={addToCartMutation.isPending}
@@ -125,19 +131,22 @@ export const ProductCard = memo(function ProductCard({
               <IconSymbol name="cart.fill" color={colors.primary} size={20} />
             }
           />
-          <Button
-            title="Subscribe"
-            onPress={handleSubscribe}
-            variant="primary"
-            style={styles.subscribeButton}
-            icon={
-              <IconSymbol
-                name="arrow.clockwise"
-                color={colors.surface}
-                size={20}
-              />
-            }
-          />
+          {product.is_schedulable && (
+            <Button
+              title="Subscribe & Save"
+              onPress={handleSubscribe}
+              variant="primary"
+              style={styles.subscribeButton}
+              textStyle={styles.subscribeText}
+              icon={
+                <IconSymbol
+                  name="arrow.clockwise"
+                  color={colors.surface}
+                  size={20}
+                />
+              }
+            />
+          )}
         </View>
       </View>
     </Card>
@@ -149,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.l,
     padding: 0, // No padding on card so slider can reach edges
     overflow: 'visible',
-    borderRadius: spacing.radius.l,
+    borderRadius: spacing.radius.xl,
     backgroundColor: colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -173,16 +182,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
+  },
+  productName: {
+    flex: 1,
+    marginRight: spacing.s,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.m,
+  },
+  stars: {
+    flexDirection: 'row',
+    gap: 2,
+    marginRight: spacing.s,
+  },
+  ratingText: {
+    opacity: 0.8,
   },
   description: {
     marginBottom: spacing.m,
-    lineHeight: 20,
-  },
-  additionalInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.m,
+    lineHeight: 18,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -195,5 +216,9 @@ const styles = StyleSheet.create({
   subscribeButton: {
     flex: 1,
     paddingVertical: spacing.s,
+  },
+  subscribeText: {
+    color: colors.surface,
+    fontSize: 14,
   },
 });

@@ -111,12 +111,13 @@ export const AddressItem = memo(
               Edit
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-            <Ionicons name="trash-outline" size={16} color={colors.error} />
-            <Text variant="s" weight="medium" style={styles.actionTextDanger}>
-              Delete
-            </Text>
-          </TouchableOpacity>
+          {/* Muted delete button as per user request */}
+          {/* <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+             <Ionicons name="trash-outline" size={16} color={colors.error} />
+             <Text variant="s" weight="medium" style={styles.actionTextDanger}>
+               Delete
+             </Text>
+           </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
     );

@@ -29,10 +29,8 @@ export const orderService = {
     subject: string;
     message: string;
   }): Promise<any> {
-    // Simulate API delay
-    return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => ({
-      success: true,
-      message: 'Support ticket submitted successfully',
-    }));
+    return apiClient
+      .post(API_ENDPOINTS.SUPPORT_TICKET, payload)
+      .then((res) => res.data);
   },
 };

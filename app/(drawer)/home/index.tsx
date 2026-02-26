@@ -144,9 +144,10 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ProductCard product={item} />}
           ListHeaderComponent={
-            <ReferralBanner
+            null /* Muted ReferralBanner as per user request */
+            /* <ReferralBanner
               onPressItem={() => setIsReferralModalVisible(true)}
-            />
+            /> */
           }
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}

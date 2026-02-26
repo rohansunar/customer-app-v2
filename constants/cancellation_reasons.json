@@ -1,0 +1,57 @@
+[
+    {
+        "label": "Changed my mind",
+        "value": "Changed my mind",
+        "icon": "heart-dislike-outline"
+    },
+    {
+        "label": "Wrong item ordered",
+        "value": "Wrong item",
+        "icon": "cart-outline"
+    },
+    {
+        "label": "Delivery delay",
+        "value": "Delivery delay",
+        "icon": "time-outline"
+    },
+    {
+        "label": "Water Jar Not Clean",
+        "value": "Water Jar Not Clean",
+        "icon": "flask-outline"
+    },
+    {
+        "label": "Water Not Clean",
+        "value": "Water Not Clean",
+        "icon": "water-outline"
+    },
+    {
+        "label": "Price too high",
+        "value": "Price too high",
+        "icon": "cash-outline"
+    },
+    {
+        "label": "Ordered by mistake",
+        "value": "Ordered by mistake",
+        "icon": "alert-circle-outline"
+    },
+    {
+        "label": "Want to change items",
+        "value": "Want to change items",
+        "icon": "swap-horizontal-outline"
+    },
+    {
+        "label": "Delivery address issue",
+        "value": "Delivery address issue",
+        "icon": "location-outline"
+    },
+    {
+        "label": "Changed my schedule",
+        "value": "Changed my schedule",
+        "icon": "calendar-outline"
+    },
+    {
+        "label": "Other reasons",
+        "value": "Other",
+        "icon": "ellipsis-horizontal-circle-outline"
+    }
+]
