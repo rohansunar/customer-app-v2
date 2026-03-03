@@ -41,7 +41,7 @@ export function useProfileForm(initialData?: Profile | undefined) {
         };
         setIsDirty(
           newForm.name !== initialForm.name ||
-          newForm.email !== initialForm.email,
+            newForm.email !== initialForm.email,
         );
       }
       return newForm;

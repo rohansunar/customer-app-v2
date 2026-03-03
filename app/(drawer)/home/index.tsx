@@ -5,6 +5,8 @@ import { Text } from '@/core/ui/Text';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { ProductCard } from '@/features/product/components/ProductCard';
 import { useProducts } from '@/features/product/hooks/useProducts';
+import { Button } from '@/core/ui/Button';
+import { addressModalEvents } from '@/shared/events/addressModalEvents';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,9 +18,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
-import { useToastHelpers } from '@/core/utils/toastHelpers';
 import CartButton from '@/features/cart/components/CartButton';
-import { ReferralBanner } from '@/features/promotion/components/ReferralBanner';
 import { ReferralModal } from '@/features/promotion/components/ReferralModal';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import React, { useEffect, useState } from 'react';
@@ -34,7 +34,7 @@ export default function HomeScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useProducts();
-  const { data: cartData, error: cartError, isError } = useCart();
+  const { data: cartData, isError } = useCart();
   const [isReferralModalVisible, setIsReferralModalVisible] = useState(false);
 
   const { requestPermission } = useNotifications();
@@ -42,20 +42,14 @@ export default function HomeScreen() {
   const totalItems = cartData?.totalItems || 0;
 
   const products = data?.pages.flatMap((page) => page.data) || [];
-  const showToast = useToastHelpers();
 
   const errorMessage = getErrorMessage(error);
   const isServiceUnavailable = errorMessage?.includes('SERVICE_UNAVAILABLE');
+  const isAddressMissing = errorMessage?.includes('CUSTOMER_ADDRESS_NOT_FOUND');
 
   useEffect(() => {
     requestPermission();
-  }, []);
-
-  useEffect(() => {
-    if (isError) {
-      showToast.error(getErrorMessage(cartError));
-    }
-  }, [cartError, isError, showToast]);
+  }, [requestPermission]);
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -89,9 +83,37 @@ export default function HomeScreen() {
         Service Not Available
       </Text>
       <Text variant="m" color={colors.textSecondary} style={styles.message}>
-        We're working hard to bring our services to you. We'll notify you once
-        we're available in your area.
+        We're working to Launch our services to you. We'll notify you once we're
+        available in your area.
       </Text>
+    </Animated.View>
+  );
+
+  const renderMissingAddress = () => (
+    <Animated.View
+      entering={FadeInDown.duration(600).springify()}
+      style={styles.centerContainer}
+    >
+      <View style={styles.iconContainer}>
+        <Ionicons name="home-outline" size={40} color={colors.primary} />
+      </View>
+      <Text
+        variant="xl"
+        weight="bold"
+        color={colors.textPrimary}
+        style={styles.title}
+      >
+        No Address Found
+      </Text>
+      <Text variant="m" color={colors.textSecondary} style={styles.message}>
+        Add an address to see nearby products tailored to your location.
+      </Text>
+      <Button
+        title="Add Address"
+        onPress={() => addressModalEvents.openAddAddress()}
+        variant="primary"
+        style={styles.ctaButton}
+      />
     </Animated.View>
   );
 
@@ -123,7 +145,12 @@ export default function HomeScreen() {
     return <View style={styles.container}>{renderServiceUnavailable()}</View>;
   }
 
-  // Scenario 2: Empty Products (not loading, no error)
+  // Scenario 2: Address missing
+  if (isAddressMissing) {
+    return <View style={styles.container}>{renderMissingAddress()}</View>;
+  }
+
+  // Scenario 3: Empty Products (not loading, no error)
   if (!isLoading && !error && products.length === 0) {
     return <View style={styles.container}>{renderEmptyProducts()}</View>;
   }
@@ -207,6 +234,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.m,
     opacity: 0.8,
+  },
+  ctaButton: {
+    marginTop: spacing.m,
+    paddingHorizontal: spacing.xl,
   },
   errorText: {
     marginTop: spacing.xl,

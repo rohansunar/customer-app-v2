@@ -11,10 +11,7 @@ export const addressTextSchema = z
   .refine(
     (val) => /[a-zA-Z]/.test(val),
     'Address must contain street or locality name',
-  )
-  // must contain number (flat/house/building)
-  .refine((val) => /\d/.test(val), 'Include flat / house / building number');
-
+  );
 /* ---------------- Pincode ---------------- */
 
 export const pincodeSchema = z

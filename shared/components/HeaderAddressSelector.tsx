@@ -3,15 +3,36 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { AddressPickerModal } from '@/features/address/components/AddressPickerModal';
 import { useAddresses } from '@/features/address/hooks/useAddresses';
+import { addressModalEvents } from '@/shared/events/addressModalEvents';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export function HeaderAddressSelector() {
   const { data: addresses } = useAddresses();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [startInAddMode, setStartInAddMode] = useState(false);
 
   const defaultAddress = addresses?.find((a) => a.isDefault) || addresses?.[0];
+
+  // Allow other screens (e.g., Home CTA) to open the modal directly in add mode
+  useEffect(() => {
+    const unsubscribe = addressModalEvents.subscribe((event) => {
+      if (event.mode === 'add') {
+        setStartInAddMode(true);
+        setIsModalVisible(true);
+      }
+    });
+    // Return the cleanup function directly - must return void or a destructor, not another function
+    return function cleanup() {
+      unsubscribe();
+    };
+  }, []);
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setStartInAddMode(false);
+  };
 
   return (
     <>
@@ -47,7 +68,8 @@ export function HeaderAddressSelector() {
 
       <AddressPickerModal
         isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        onClose={handleCloseModal}
+        startInAddMode={startInAddMode}
       />
     </>
   );

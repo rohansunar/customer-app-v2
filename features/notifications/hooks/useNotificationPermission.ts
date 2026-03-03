@@ -44,7 +44,6 @@ export function useNotificationPermission({
   }, []); // Removed permissionStatus dependency for stability
 
   const checkPermission = useCallback(async () => {
-    
     if (Platform.OS === 'web') {
       return permissionStatus;
     }

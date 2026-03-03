@@ -26,10 +26,7 @@ export default function ProfileScreen() {
   const { data, isLoading, isError, refetch } = useProfile();
   const { logout } = useAuth();
   const { mutate, isPending: isUpdating } = useUpdateProfile();
-  const {
-    mutate: requestDelete,
-    isPending: isDeleting,
-  } = useDeleteAccount();
+  const { mutate: requestDelete, isPending: isDeleting } = useDeleteAccount();
   const [topUpVisible, setTopUpVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -65,7 +62,7 @@ export default function ProfileScreen() {
           setIsEditing(false);
           refetch();
         },
-      }
+      },
     );
   };
 
@@ -103,15 +100,13 @@ export default function ProfileScreen() {
     return (
       <View style={styles.centered}>
         <IconSymbol name="xmark.circle.fill" size={64} color={colors.error} />
-        <Text variant="l" weight="bold" style={styles.errorTitle}>Connection Failed</Text>
+        <Text variant="l" weight="bold" style={styles.errorTitle}>
+          Connection Failed
+        </Text>
         <Text color={colors.textSecondary} style={styles.errorMessage}>
           We couldn't reach the backend. Please try logging in again.
         </Text>
-        <Button
-          title="Logout"
-          onPress={logout}
-          style={styles.logoutButton}
-        />
+        <Button title="Logout" onPress={logout} style={styles.logoutButton} />
         <Button
           title="Try Again"
           onPress={() => refetch()}
@@ -132,9 +127,15 @@ export default function ProfileScreen() {
       {/* Header with Settings */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.textPrimary} />
+          <IconSymbol
+            name="chevron.left"
+            size={24}
+            color={colors.textPrimary}
+          />
         </TouchableOpacity>
-        <Text variant="l" weight="bold">{isEditing ? 'Edit Profile' : 'Profile & Wallet'}</Text>
+        <Text variant="l" weight="bold">
+          {isEditing ? 'Edit Profile' : 'Profile & Wallet'}
+        </Text>
         <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
           <IconSymbol
             name={isEditing ? 'xmark' : 'gearshape.fill'}
@@ -193,8 +194,13 @@ export default function ProfileScreen() {
               textStyle={{ color: colors.error }}
               style={styles.deleteButton}
             />
-            <Text variant="xs" color={colors.textSecondary} style={styles.deleteHint}>
-              Deletion requests take up to 7 days to complete. No data will remain on the server after processing.
+            <Text
+              variant="xs"
+              color={colors.textSecondary}
+              style={styles.deleteHint}
+            >
+              Deletion requests take up to 7 days to complete. No data will
+              remain on the server after processing.
             </Text>
           </View>
         </View>
@@ -211,16 +217,27 @@ export default function ProfileScreen() {
               {data?.name || 'User'}
             </Text>
             <Text color={colors.textSecondary}>{data?.email}</Text>
-            <Text color={colors.textSecondary} style={styles.userPhone}>{data?.phone}</Text>
+            <Text color={colors.textSecondary} style={styles.userPhone}>
+              {data?.phone}
+            </Text>
           </View>
 
           {/* Wallet Card */}
           <View style={styles.walletCard}>
             <View style={styles.walletInfo}>
-              <Text color={colors.surfaceHighlight} weight="medium" style={styles.walletLabel}>
+              <Text
+                color={colors.surfaceHighlight}
+                weight="medium"
+                style={styles.walletLabel}
+              >
                 AVAILABLE BALANCE
               </Text>
-              <Text variant="xxl" weight="bold" color={colors.surface} style={styles.balance}>
+              <Text
+                variant="xxl"
+                weight="bold"
+                color={colors.surface}
+                style={styles.balance}
+              >
                 ₹{data?.walletBalance?.toLocaleString('en-IN') || '0.00'}
               </Text>
             </View>
@@ -228,7 +245,9 @@ export default function ProfileScreen() {
               style={styles.topUpBtn}
               onPress={() => setTopUpVisible(true)}
             >
-              <Text color={colors.primary} weight="bold">Top Up</Text>
+              <Text color={colors.primary} weight="bold">
+                Top Up
+              </Text>
             </TouchableOpacity>
 
             {/* Decorative circles */}
@@ -238,7 +257,9 @@ export default function ProfileScreen() {
 
           {/* Recent Transactions */}
           <View style={styles.transactionsHeader}>
-            <Text variant="l" weight="bold">Recent Transactions</Text>
+            <Text variant="l" weight="bold">
+              Recent Transactions
+            </Text>
           </View>
 
           <View style={styles.transactionsList}>
@@ -246,20 +267,31 @@ export default function ProfileScreen() {
               <View key={tx.id} style={styles.transactionItem}>
                 <View style={styles.txIconContainer}>
                   <IconSymbol
-                    name={tx.type === 'positive' ? 'arrow.down.left.circle.fill' : 'bag.fill'}
+                    name={
+                      tx.type === 'positive'
+                        ? 'arrow.down.left.circle.fill'
+                        : 'bag.fill'
+                    }
                     size={24}
-                    color={tx.type === 'positive' ? colors.success : colors.primary}
+                    color={
+                      tx.type === 'positive' ? colors.success : colors.primary
+                    }
                   />
                 </View>
                 <View style={styles.txInfo}>
                   <Text weight="bold">{tx.description}</Text>
-                  <Text variant="s" color={colors.textSecondary}>{tx.date}</Text>
+                  <Text variant="s" color={colors.textSecondary}>
+                    {tx.date}
+                  </Text>
                 </View>
                 <Text
                   weight="bold"
-                  color={tx.type === 'positive' ? colors.success : colors.textPrimary}
+                  color={
+                    tx.type === 'positive' ? colors.success : colors.textPrimary
+                  }
                 >
-                  {tx.type === 'positive' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN')}
+                  {tx.type === 'positive' ? '+' : '-'}₹
+                  {tx.amount.toLocaleString('en-IN')}
                 </Text>
               </View>
             ))}

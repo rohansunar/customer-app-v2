@@ -18,8 +18,8 @@ export const profileService = {
       email: data.email,
       phone: data.phone,
       isActive: data.isActive,
-      walletBalance: data.wallet.balance ?? 0.00,
-      recentTransactions: data.recentTransactions
+      walletBalance: data.wallet.balance ?? 0.0,
+      recentTransactions: data.recentTransactions,
     };
   },
 

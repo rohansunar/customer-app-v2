@@ -25,9 +25,9 @@ export function useCreateAddress() {
         predicate: (query) =>
           query.queryKey[0] === 'addresses' || query.queryKey[0] === 'cart',
       });
+      queryClient.invalidateQueries({ queryKey:['products'] });
     },
     onError: (error) => {
-      console.log('useCreateAddress', error);
       // Show error toast with user-friendly message
       Toast.show({
         type: 'error',

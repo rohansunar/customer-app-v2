@@ -29,11 +29,13 @@ import Toast from 'react-native-toast-message';
 interface AddressPickerModalProps {
   isVisible: boolean;
   onClose: () => void;
+  startInAddMode?: boolean;
 }
 
 export function AddressPickerModal({
   isVisible,
   onClose,
+  startInAddMode = false,
 }: AddressPickerModalProps) {
   const { data: addresses, isLoading } = useAddresses();
   const setDefaultMutation = useSetDefaultAddress();
@@ -146,6 +148,14 @@ export function AddressPickerModal({
     setEditingAddress(null);
     onClose();
   }, [onClose]);
+
+  // Open directly in add mode when requested externally
+  React.useEffect(() => {
+    if (isVisible && startInAddMode) {
+      setEditingAddress(null);
+      setShowForm(true);
+    }
+  }, [isVisible, startInAddMode]);
 
   return (
     <Modal visible={isVisible} animationType="fade" transparent={false}>
