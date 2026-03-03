@@ -1,7 +1,7 @@
 import { useAuth } from '@/core/providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { profileService } from '../services/profileService';
+import { profileService } from '../services/profile.service';
 import { Profile } from '../profile.types';
 
 export function useProfile() {

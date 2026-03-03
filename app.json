@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "QuickServe",
+    "name": "Droptro",
+    "jsEngine": "hermes",
     "slug": "customer-app",
     "version": "1.0.0",
     "orientation": "portrait",

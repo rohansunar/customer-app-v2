@@ -10,12 +10,10 @@ export function useVerifyOtp() {
       authService.verifyOtp(phone, otp),
 
     onSuccess: async (response) => {
-      // console.log("Save JWT token securely", response.data)
       // Update auth state FIRST
       await login(response.data.token);
     },
     onError: () => {
-      // console.log("// Defensive: ensure clean state")
       // Defensive: ensure clean state
       logout();
     },

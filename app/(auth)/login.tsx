@@ -73,7 +73,6 @@ export default function LoginScreen() {
         });
       },
       onError: (mutationError) => {
-        console.log(mutationError.message);
         showError(
           'Error',
           'Failed to send OTP. Please check your connection and try again.',

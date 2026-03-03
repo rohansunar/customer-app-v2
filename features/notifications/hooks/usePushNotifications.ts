@@ -109,7 +109,6 @@ export function usePushNotifications(
   }, [handleTokenRegistration]);
 
   const getToken = useCallback(async () => {
-    // console.log('[usePushNotifications] getToken called');
     try {
       setIsLoading(true);
       setError(null);

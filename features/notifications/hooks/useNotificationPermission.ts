@@ -18,7 +18,6 @@ export function useNotificationPermission({
     });
 
   const requestPermission = useCallback(async () => {
-    console.log('[useNotificationPermission] requestPermission called');
     if (Platform.OS === 'web') return permissionStatus;
 
     const { status: existingStatus, canAskAgain } =
@@ -27,10 +26,8 @@ export function useNotificationPermission({
     let finalStatus = existingStatus;
 
     if (existingStatus !== 'granted') {
-      // console.log('[useNotificationPermission] Requesting permissions...');
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
-      // console.log('[useNotificationPermission] New status:', finalStatus);
     }
 
     const isGranted = finalStatus === 'granted';
@@ -47,18 +44,12 @@ export function useNotificationPermission({
   }, []); // Removed permissionStatus dependency for stability
 
   const checkPermission = useCallback(async () => {
-    // console.log('[useNotificationPermission] checkPermission called');
+    
     if (Platform.OS === 'web') {
       return permissionStatus;
     }
 
     const { status, canAskAgain } = await Notifications.getPermissionsAsync();
-    // console.log(
-    //   '[useNotificationPermission] current status:',
-    //   status,
-    //   'canAskAgain:',
-    //   canAskAgain,
-    // );
 
     const statusObj: NotificationPermissionStatus = {
       granted: status === 'granted',

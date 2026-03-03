@@ -1,7 +1,7 @@
 import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { profileService } from '../services/profileService';
+import { profileService } from '../services/profile.service';
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();

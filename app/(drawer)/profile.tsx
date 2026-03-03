@@ -7,6 +7,7 @@ import { Input } from '@/core/ui/Input';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { useProfileForm } from '@/features/profile/hooks/useProfileValidator';
+import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -25,6 +26,10 @@ export default function ProfileScreen() {
   const { data, isLoading, isError, refetch } = useProfile();
   const { logout } = useAuth();
   const { mutate, isPending: isUpdating } = useUpdateProfile();
+  const {
+    mutate: requestDelete,
+    isPending: isDeleting,
+  } = useDeleteAccount();
   const [topUpVisible, setTopUpVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -61,6 +66,28 @@ export default function ProfileScreen() {
           refetch();
         },
       }
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Logout', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Submitting this request will schedule deletion of your account within 7 days. You will be logged out now and no data will be retained on the server. Proceed?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Submit Request',
+          style: 'destructive',
+          onPress: () => requestDelete(),
+        },
+      ],
     );
   };
 
@@ -150,6 +177,26 @@ export default function ProfileScreen() {
             disabled={!isDirty || isUpdating}
             style={styles.saveButton}
           />
+
+          <View style={styles.accountActions}>
+            <Button
+              title="Logout"
+              onPress={handleLogout}
+              variant="outline"
+              style={styles.logoutInline}
+            />
+            <Button
+              title={isDeleting ? 'Submitting...' : 'Delete Account'}
+              onPress={handleDeleteAccount}
+              loading={isDeleting}
+              variant="ghost"
+              textStyle={{ color: colors.error }}
+              style={styles.deleteButton}
+            />
+            <Text variant="xs" color={colors.textSecondary} style={styles.deleteHint}>
+              Deletion requests take up to 7 days to complete. No data will remain on the server after processing.
+            </Text>
+          </View>
         </View>
       ) : (
         <>
@@ -371,5 +418,19 @@ const styles = StyleSheet.create({
   errorMessage: {
     textAlign: 'center',
     marginBottom: spacing.l,
+  },
+  accountActions: {
+    marginTop: spacing.l,
+    gap: spacing.s,
+  },
+  logoutInline: {
+    borderColor: colors.border,
+  },
+  deleteButton: {
+    borderColor: colors.error + '50',
+    backgroundColor: colors.error + '08',
+  },
+  deleteHint: {
+    lineHeight: 18,
   },
 });

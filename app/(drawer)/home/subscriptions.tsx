@@ -30,8 +30,15 @@ export default function SubscriptionsScreen() {
     }
   }, [isEnabled, requestPermission]);
 
-  const { subscriptions, loading, loadingMore, loadMore, error, refetch } =
-    useSubscriptions();
+  const {
+    subscriptions,
+    loading,
+    loadingMore,
+    loadMore,
+    hasMore,
+    error,
+    refetch,
+  } = useSubscriptions();
 
   const isLoading = loading;
 
@@ -194,13 +201,14 @@ export default function SubscriptionsScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
-        onEndReached={loadMore}
+        // Only trigger pagination when more pages exist and not in error
+        onEndReached={hasMore ? loadMore : undefined}
         onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={refetch} />
         }
         ListFooterComponent={
-          loadingMore ? (
+          loadingMore && hasMore ? (
             <View style={styles.loadingMore}>
               <ActivityIndicator size="small" color={colors.primary} />
             </View>

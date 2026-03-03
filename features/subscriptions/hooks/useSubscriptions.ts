@@ -15,7 +15,8 @@ export function useSubscriptions(limit: number = 10) {
     fetchNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ['subscriptions'],
+    // Include limit in the key so pagination settings don't share cache
+    queryKey: ['subscriptions', { limit }],
     queryFn: ({ pageParam = 1 }) =>
       subscriptionService.getSubscriptions(pageParam, limit),
     getNextPageParam: (lastPage, allPages) => {
@@ -23,6 +24,10 @@ export function useSubscriptions(limit: number = 10) {
       return nextPage <= lastPage.totalPages ? nextPage : undefined;
     },
     initialPageParam: 1,
+    // Avoid aggressive retry loops when backend is down; users can pull-to-refresh
+    retry: false,
+    // Keep behaviour consistent across platforms when app regains focus
+    refetchOnWindowFocus: false,
   });
 
   const subscriptions = data?.pages.flatMap((page) => page.subscriptions) ?? [];
@@ -41,7 +46,11 @@ export function useSubscriptions(limit: number = 10) {
     loadingMore,
     hasMore,
     error: errorMessage,
-    loadMore: () => fetchNextPage(),
+    // Guarded loadMore to prevent extra fetch attempts when API is down
+    loadMore: () => {
+      if (!hasMore || loadingMore || loading || error) return;
+      fetchNextPage();
+    },
     refetch,
   };
 }
