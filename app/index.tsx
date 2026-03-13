@@ -1,8 +1,31 @@
-import SplashScreen from '@/core/ui/SplashScreen';
-import { useSplashNavigation } from '@/hooks/splash/useSplashNavigation';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { useAuth } from '@/core/providers/AuthProvider';
+import { colors } from '@/core/theme/colors';
 
 export default function AppEntry() {
-  const { navigateBasedOnAuth } = useSplashNavigation();
+  const { isAuthenticated, loading } = useAuth();
 
-  return <SplashScreen onFinish={navigateBasedOnAuth} />;
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Redirect href="/(drawer)/home" />;
+  }
+
+  return <Redirect href="/(auth)/login" />;
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+});

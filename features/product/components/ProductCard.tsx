@@ -113,7 +113,7 @@ export const ProductCard = memo(function ProductCard({
             color={colors.textSecondary}
             style={styles.ratingText}
           >
-            4.8 (1.2k reviews) • 2k+ bought
+            4.8     •    2k+ bought
           </Text>
         </View>
 

@@ -115,7 +115,7 @@ export default function LoginScreen() {
             <Ionicons name="water" size={40} color={colors.splashWhite} />
           </LinearGradient>
 
-          <Text style={styles.title}>Welcome to AquaFlow</Text>
+          <Text style={styles.title}>Welcome to Droptro</Text>
           <Text style={styles.subtitle}>
             Enter your mobile number to continue
           </Text>
