@@ -18,7 +18,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import { IconSymbol } from '../../components/ui/icon-symbol';
+import { IconSymbol } from '../../core/ui/icon-symbol';
 import { TopUpModal } from '@/features/profile/components/TopUpModal';
 // import { paymentService } from '@/features/payment/services/paymentService';
 

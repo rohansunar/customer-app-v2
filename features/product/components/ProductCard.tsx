@@ -6,7 +6,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol } from '@/core/ui/icon-symbol';
 import { useDebouncedAddToCart } from '@/features/cart/hooks/useDebouncedAddToCart';
 import { useRouter } from 'expo-router';
 import { Product } from '../types';

@@ -2,7 +2,7 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol } from '@/core/ui/icon-symbol';
 import React, { useState } from 'react';
 import {
   Modal,
