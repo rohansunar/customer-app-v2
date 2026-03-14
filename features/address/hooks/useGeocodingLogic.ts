@@ -62,15 +62,6 @@ export function useGeocodingLogic(
       setCity(geocodeResult.city);
     }
   }, [geocodeResult, address, setPincode, setState, setCity]);
-  // Auto-fill address details from geocode result
-  useEffect(() => {
-    if (geocodeResult && !address) {
-      setPincode(geocodeResult.postalCode);
-      setState(geocodeResult.state);
-      setCity(geocodeResult.city);
-    }
-  }, [geocodeResult, address, setPincode, setState, setCity]);
-
   return {
     geocodeResult,
     geocodeLoading,

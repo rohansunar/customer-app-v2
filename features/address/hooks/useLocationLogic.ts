@@ -28,13 +28,6 @@ export function useLocationLogic(
       setLng(currentLocation.longitude);
     }
   }, [currentLocation, address, lat, lng, setLat, setLng]);
-  // Initialize map with current location if no address is provided and coordinates are empty
-  useEffect(() => {
-    if (!address && currentLocation && lat === 0 && lng === 0) {
-      setLat(currentLocation.latitude);
-      setLng(currentLocation.longitude);
-    }
-  }, [currentLocation, address, lat, lng, setLat, setLng]);
 
   const handleUseCurrentLocation = () => {
     if (currentLocation) {

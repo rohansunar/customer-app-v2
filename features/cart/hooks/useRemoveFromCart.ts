@@ -5,11 +5,6 @@
  * Like useAddToCart, it provides instant feedback by updating the UI
  * before server confirmation.
  *
- * SOLID Principles:
- * - Single Responsibility: Focuses only on remove-from-cart logic
- * - Dependency Inversion: Uses cartCalculations utility for cart manipulations
- * - Composition: Uses React Query's useMutation pattern
- *
  * Key Features:
  * - Immediate UI feedback via optimistic updates
  * - Automatic rollback on API failure
@@ -33,26 +28,6 @@ import { removeItemFromCart } from '../utils/cartCalculations';
  * This hook implements optimistic updates for instant UI feedback.
  * If the server request fails, the cart is rolled back to its previous state.
  *
- * @returns Mutation object containing:
- *   - mutate: Function to remove item by ID
- *   - isPending: Boolean indicating if request is in progress
- *   - isError: Boolean indicating if request failed
- *   - Other mutation state properties
- *
- * @example
- * ```typescript
- * const { mutate, isPending } = useRemoveFromCart();
- *
- * // Remove item from cart
- * mutate('item-123');
- *
- * // In a list component
- * <Button
- *   title="Remove"
- *   onPress={() => mutate(item.id)}
- *   loading={isPending}
- * />
- * ```
  * @returns Mutation object containing:
  *   - mutate: Function to remove item by ID
  *   - isPending: Boolean indicating if request is in progress
@@ -147,22 +122,6 @@ export function useRemoveFromCart() {
 
       // Show error feedback to user
       showToast.error(getErrorMessage(error));
-    },
-
-    /**
-     * Called when mutation is SETTLED
-     * Ensures final cache consistency
-     */
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    },
-
-    /**
-     * Called when mutation is SETTLED
-     * Ensures final cache consistency
-     */
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
 
     /**
