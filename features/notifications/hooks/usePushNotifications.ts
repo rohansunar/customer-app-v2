@@ -47,10 +47,6 @@ export function usePushNotifications(
 
       try {
         setIsLoading(true);
-        console.log(
-          '[usePushNotifications] Registering native push token with API...',
-        );
-
         const payload = {
           deviceToken: token,
           deviceType: Platform.OS.toLocaleUpperCase() as 'ANDROID' | 'IOS',

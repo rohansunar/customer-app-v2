@@ -33,8 +33,12 @@ const MAPPING = {
   'envelope.fill': 'email',
   'phone.fill': 'phone',
   'chevron.left': 'chevron-left',
+  'chevron.up': 'expand-less',
+  'chevron.down': 'expand-more',
   'arrow.down.left.circle.fill': 'arrow-downward',
+  'arrow.up.right.circle.fill': 'arrow-upward',
   'bag.fill': 'shopping-bag',
+  'creditcard.fill': 'credit-card',
 } as IconMapping;
 
 /**

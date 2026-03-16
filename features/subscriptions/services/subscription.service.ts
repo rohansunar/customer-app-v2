@@ -7,7 +7,6 @@ import {
   SubscriptionRequest,
 } from '../types';
 import RazorpayCheckout from 'react-native-razorpay';
-import { showError } from '@/core/ui/toast';
 
 export const subscriptionService = {
   /**
@@ -28,7 +27,7 @@ export const subscriptionService = {
         amount: payment.provider_payload.amount,
         currency: 'INR',
         order_id: payment.provider_payment_id,
-        name: 'My App',
+        name: 'Droptro',
         description: 'Product Subscription Payment',
         prefill: {
           name: customer.name,

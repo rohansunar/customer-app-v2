@@ -10,4 +10,6 @@ export const API_ENDPOINTS = {
   SUBSCRIPTION: '/customer/subscriptions',
   NOTIFICATION_REGISTER: '/tokens/register',
   SUPPORT_TICKET: '/customer/support-tickets',
+  WALLET_PAYMENTS: '/customer/wallet/payments',
+  WALLET_TRANSACTIONS: '/customer/wallet/payments/transactions',
 };

@@ -20,7 +20,9 @@ import {
 } from 'react-native';
 import { IconSymbol } from '../../core/ui/icon-symbol';
 import { TopUpModal } from '@/features/profile/components/TopUpModal';
-// import { paymentService } from '@/features/payment/services/paymentService';
+import { useWalletTopUp } from '@/features/payment/hooks/useWalletTopUp';
+import { RecentTransactions } from '@/features/payment/components/RecentTransactions';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ProfileScreen() {
   const { data, isLoading, isError, refetch } = useProfile();
@@ -29,6 +31,8 @@ export default function ProfileScreen() {
   const { mutate: requestDelete, isPending: isDeleting } = useDeleteAccount();
   const [topUpVisible, setTopUpVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const queryClient = useQueryClient();
+  const createWalletTopUp = useWalletTopUp();
 
   const { form, errors, isDirty, updateField, validate } = useProfileForm(data);
 
@@ -39,10 +43,17 @@ export default function ProfileScreen() {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  const handleTopUp = async (amount: number) => {
+  const handleTopUp = (amount: number) => {
     setTopUpVisible(false);
-    Alert.alert('Top Up', `Redirecting to Razorpay for ₹${amount}...`);
-    // Logic to call paymentService.createOrder would go here
+
+    createWalletTopUp.mutate(
+      { amount },
+      {
+        onSuccess: () => {
+          router.push('/(drawer)/profile' as any);
+        },
+      },
+    );
   };
 
   const handleSave = () => {
@@ -121,7 +132,13 @@ export default function ProfileScreen() {
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={() => {
+            refetch();
+            queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
+          }}
+        />
       }
     >
       {/* Header with Settings */}
@@ -256,46 +273,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Recent Transactions */}
-          <View style={styles.transactionsHeader}>
-            <Text variant="l" weight="bold">
-              Recent Transactions
-            </Text>
-          </View>
-
-          <View style={styles.transactionsList}>
-            {data?.recentTransactions?.map((tx) => (
-              <View key={tx.id} style={styles.transactionItem}>
-                <View style={styles.txIconContainer}>
-                  <IconSymbol
-                    name={
-                      tx.type === 'positive'
-                        ? 'arrow.down.left.circle.fill'
-                        : 'bag.fill'
-                    }
-                    size={24}
-                    color={
-                      tx.type === 'positive' ? colors.success : colors.primary
-                    }
-                  />
-                </View>
-                <View style={styles.txInfo}>
-                  <Text weight="bold">{tx.description}</Text>
-                  <Text variant="s" color={colors.textSecondary}>
-                    {tx.date}
-                  </Text>
-                </View>
-                <Text
-                  weight="bold"
-                  color={
-                    tx.type === 'positive' ? colors.success : colors.textPrimary
-                  }
-                >
-                  {tx.type === 'positive' ? '+' : '-'}₹
-                  {tx.amount.toLocaleString('en-IN')}
-                </Text>
-              </View>
-            ))}
-          </View>
+          <RecentTransactions />
         </>
       )}
 
