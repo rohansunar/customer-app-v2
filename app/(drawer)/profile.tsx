@@ -115,7 +115,7 @@ export default function ProfileScreen() {
           Connection Failed
         </Text>
         <Text color={colors.textSecondary} style={styles.errorMessage}>
-          We couldn't reach the backend. Please try logging in again.
+          We couldn't reach the server. Please check internet connection or try logging in again.
         </Text>
         <Button title="Logout" onPress={logout} style={styles.logoutButton} />
         <Button

@@ -12,7 +12,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby services.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide services even when the app is not in use."
       },
@@ -22,12 +24,15 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#f7f7f7",
-        "foregroundImage": "./assets/images/icon.png"
+        "foregroundImage": "./assets/images/icon.jpg"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"],
-      "package": "com.anonymous.customerapp"
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "package": "com.droptro.customer"
     },
     "web": {
       "output": "static",
@@ -44,7 +49,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
+          "icon": "./assets/images/icon.jpg",
           "color": "#E6F4FE",
           "defaultChannel": "orders",
           "channels": [
