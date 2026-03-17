@@ -16,7 +16,6 @@
       "android": {
         "buildType": "app-bundle",
         "env": {
-          "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON",
           "EXPO_PUBLIC_API_URL": "https://api.droptro.com",
           "EXPO_PUBLIC_RAZORPAY_KEY": "rzp_test_S6WBZUjuzUaW64"
         }
