@@ -15,6 +15,7 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease",
         "env": {
           "EXPO_PUBLIC_API_URL": "https://api.droptro.com",
           "EXPO_PUBLIC_RAZORPAY_KEY": "rzp_test_S6WBZUjuzUaW64"
