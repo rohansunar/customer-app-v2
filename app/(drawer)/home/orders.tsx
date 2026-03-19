@@ -3,6 +3,9 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import OrderCard from '@/features/orders/components/OrderCard';
+import OrderListSkeleton from '@/features/orders/components/OrderListSkeleton';
+import { ErrorState } from '@/core/ui/ErrorState';
+
 import { useOrders } from '@/features/orders/hooks/useOrders';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import React, { useState, useEffect } from 'react';
@@ -83,20 +86,17 @@ export default function OrdersTab() {
 
   const renderContent = () => {
     if (currentLoading) {
-      return (
-        <View style={styles.centered}>
-          <Text>Loading orders...</Text>
-        </View>
-      );
+      return <OrderListSkeleton count={4} />;
     }
 
     if (currentError) {
       return (
-        <View style={styles.centered}>
-          <Text color={colors.error}>Error loading orders</Text>
+        <View style={styles.errorFullWidth}>
+          <ErrorState error={currentError} onRetry={currentRefetch} />
         </View>
       );
     }
+
 
     if (!currentData?.orders || currentData.orders.length === 0) {
       return (
@@ -237,6 +237,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.xl,
   },
+  errorFullWidth: {
+    flex: 1,
+    width: '100%',
+  },
+
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

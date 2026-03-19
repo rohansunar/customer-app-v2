@@ -216,14 +216,17 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.s,
   },
   cartButton: {
     flex: 1,
+    minWidth: 140,
     paddingVertical: spacing.s,
   },
   subscribeButton: {
     flex: 1,
+    minWidth: 140,
     paddingVertical: spacing.s,
   },
   subscribeText: {
@@ -231,3 +234,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+

@@ -6,6 +6,8 @@ import { useCart } from '@/features/cart/hooks/useCart';
 import { ProductCard } from '@/features/product/components/ProductCard';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { Button } from '@/core/ui/Button';
+import { ErrorState } from '@/core/ui/ErrorState';
+
 import { addressModalEvents } from '@/shared/events/addressModalEvents';
 import {
   ActivityIndicator,
@@ -21,7 +23,8 @@ import { getErrorMessage } from '@/core/utils/getErrorMessage';
 import CartButton from '@/features/cart/components/CartButton';
 import { ReferralModal } from '@/features/promotion/components/ReferralModal';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+
 
 export default function HomeScreen() {
   const {
@@ -155,6 +158,11 @@ export default function HomeScreen() {
     return <View style={styles.container}>{renderEmptyProducts()}</View>;
   }
 
+  const renderProductItem = useCallback(
+    ({ item }: { item: any }) => <ProductCard product={item} />,
+    [],
+  );
+
   return (
     <View style={styles.container}>
       {isLoading ? (
@@ -162,14 +170,23 @@ export default function HomeScreen() {
           <ProductListSkeleton />
         </View>
       ) : error ? (
-        <Text color={colors.error} centered style={styles.errorText}>
-          {errorMessage}
-        </Text>
+        <ErrorState error={error} onRetry={refetch} />
       ) : (
+
         <FlatList
           data={products}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ProductCard product={item} />}
+          renderItem={renderProductItem}
+
+          getItemLayout={(_, index) => ({
+            length: 440, // Approximate height of ProductCard
+            offset: 440 * index,
+            index,
+          })}
+
+          initialNumToRender={2}
+          maxToRenderPerBatch={2}
+          windowSize={3}
           ListHeaderComponent={
             null /* Muted ReferralBanner as per user request */
             /* <ReferralBanner
@@ -189,6 +206,7 @@ export default function HomeScreen() {
             />
           }
         />
+
       )}
       {totalItems > 0 && !isError && <CartButton totalItems={totalItems} />}
       <ReferralModal

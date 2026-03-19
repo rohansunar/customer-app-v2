@@ -78,9 +78,7 @@ export function NotificationProvider({
   /*
    * Stable request permission handler.
    */
-  /*
-   * Stable request permission handler.
-   */
+
   const handleRequestPermission = useCallback(async () => {
     console.log('[NotificationContext] handleRequestPermission triggered');
     const status = await requestPermission();

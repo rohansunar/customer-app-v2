@@ -87,9 +87,8 @@ export function AddressPickerModal({
             },
           });
         },
-        () => {
-          console.log('Deletion cancelled');
-        },
+        () => {},
+
         'Delete', // confirmText
         'Cancel', // cancelText
       );
@@ -143,11 +142,14 @@ export function AddressPickerModal({
     [handleSetDefault, handleEdit, handleDelete],
   );
 
-  const handleCloseModal = useCallback(() => {
-    setShowForm(false);
-    setEditingAddress(null);
-    onClose();
-  }, [onClose]);
+  const handleBackAction = useCallback(() => {
+    if (showForm) {
+      setShowForm(false);
+      setEditingAddress(null);
+    } else {
+      onClose();
+    }
+  }, [showForm, onClose]);
 
   // Open directly in add mode when requested externally
   React.useEffect(() => {
@@ -158,13 +160,18 @@ export function AddressPickerModal({
   }, [isVisible, startInAddMode]);
 
   return (
-    <Modal visible={isVisible} animationType="fade" transparent={false}>
+    <Modal
+      visible={isVisible}
+      animationType="fade"
+      transparent={false}
+      onRequestClose={handleBackAction}
+    >
       <SafeAreaView style={styles.container}>
         {!showForm ? (
           <>
             <View style={styles.header}>
               <TouchableOpacity
-                onPress={handleCloseModal}
+                onPress={handleBackAction}
                 style={styles.closeButton}
               >
                 <Ionicons

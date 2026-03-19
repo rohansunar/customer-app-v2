@@ -50,7 +50,7 @@ export default function ProfileScreen() {
       { amount },
       {
         onSuccess: () => {
-          router.push('/(drawer)/profile' as any);
+          router.replace('/(drawer)/profile' as any);
         },
       },
     );
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Submitting this request will schedule deletion of your account within 7 days. You will be logged out now and no data will be retained on the server. Proceed?',
+      'Submitting this request will schedule deletion of your account within 60 days. You will be logged out now and no data will be retained on the server. Proceed?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -216,7 +216,7 @@ export default function ProfileScreen() {
               color={colors.textSecondary}
               style={styles.deleteHint}
             >
-              Deletion requests take up to 7 days to complete. No data will
+              Deletion requests take up to 60 days to complete. No data will
               remain on the server after processing.
             </Text>
           </View>

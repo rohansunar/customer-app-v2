@@ -4,12 +4,13 @@ import React, { useRef, useState } from 'react';
 import {
   Dimensions,
   FlatList,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   StyleSheet,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
+
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 const CARD_MARGIN = spacing.m * 2;
@@ -58,7 +59,9 @@ export function ProductImageSlider({ images }: ProductImageSliderProps) {
           <Image
             source={{ uri: item }}
             style={styles.image}
-            resizeMode="contain"
+            contentFit="contain"
+            transition={200}
+            cachePolicy="memory-disk"
           />
         )}
       />

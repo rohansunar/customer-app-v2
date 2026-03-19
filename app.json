@@ -18,10 +18,10 @@
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby services.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide services even when the app is not in use."
       },
-      "bundleIdentifier": "com.droptro.customer"
+      "bundleIdentifier": "com.droptro.customer.dev"
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./google-services-dev.json",
       "adaptiveIcon": {
         "backgroundColor": "#f7f7f7",
         "foregroundImage": "./assets/images/foregroundimage.png"
@@ -32,14 +32,14 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION"
       ],
-      "package": "com.droptro.customer"
+      "package": "com.droptro.customer.dev"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/logo.png"
     },
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -49,8 +49,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
-          "color": "#E6F4FE",
+          "icon": "./assets/notification-icon.png",
+          "color": "#9fd6fc",
           "defaultChannel": "orders",
           "channels": [
             {

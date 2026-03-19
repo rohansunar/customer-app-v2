@@ -4,6 +4,10 @@ import { Text } from '@/core/ui/Text';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
 import { useSubscriptions } from '@/features/subscriptions/hooks/useSubscriptions';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
+import { ErrorState } from '@/core/ui/ErrorState';
+import { ProductListSkeleton, Skeleton } from '@/core/ui/Skeleton';
+
+
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import {
@@ -68,11 +72,28 @@ export default function SubscriptionsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text variant="xl" weight="bold">
+                My Subscriptions
+              </Text>
+              <Skeleton style={{ height: 16, width: 100, marginTop: 4 }} />
+            </View>
+          </View>
+        </View>
+        <View style={{ padding: spacing.l }}>
+          <ProductListSkeleton count={3} />
+        </View>
       </View>
     );
   }
+
+  if (error) {
+    return <ErrorState error={error} onRetry={refetch} />;
+  }
+
 
   const router = useRouter();
 
@@ -177,19 +198,7 @@ export default function SubscriptionsScreen() {
         )}
       </View>
 
-      {/* Error Message */}
-      {error && (
-        <View style={styles.errorContainer}>
-          <Ionicons
-            name="alert-circle-outline"
-            size={24}
-            color={colors.error}
-          />
-          <Text variant="s" color={colors.error} style={styles.errorText}>
-            {error}
-          </Text>
-        </View>
-      )}
+
 
       {/* Subscription List */}
       <FlatList
