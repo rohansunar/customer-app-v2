@@ -29,7 +29,7 @@ export default function AppLayout() {
       <Stack.Screen
         name="profile"
         options={{
-          title: 'My Profile',
+          title: 'My Profile & Wallet',
         }}
       />
     </Stack>

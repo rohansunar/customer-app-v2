@@ -9,7 +9,7 @@ import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { useProfileForm } from '@/features/profile/hooks/useProfileValidator';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -18,6 +18,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+import { useNavigation } from 'expo-router';
 import { IconSymbol } from '../../core/ui/icon-symbol';
 import { TopUpModal } from '@/features/profile/components/TopUpModal';
 import { useWalletTopUp } from '@/features/payment/hooks/useWalletTopUp';
@@ -34,8 +35,34 @@ export default function ProfileScreen() {
   const queryClient = useQueryClient();
   const createWalletTopUp = useWalletTopUp();
 
+  const navigation = useNavigation();
   const { form, errors, isDirty, updateField, validate } = useProfileForm(data);
 
+  /**
+   * Header Integration:
+   * Syncs the screen's edit mode with the navigation header.
+   * This eliminates the need for a redundant local header view.
+   */
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity 
+          onPress={() => setIsEditing(!isEditing)}
+          style={{ marginRight: spacing.m }}
+        >
+          <IconSymbol
+            name={isEditing ? 'xmark' : 'gearshape.fill'}
+            size={24}
+            color={isEditing ? colors.error : colors.surface}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, isEditing]);
+
+  /**
+   * Generates initials for the avatar placeholder.
+   */
   const getInitials = (name: string) => {
     if (!name) return '?';
     const parts = name.trim().split(/\s+/);
@@ -141,27 +168,6 @@ export default function ProfileScreen() {
         />
       }
     >
-      {/* Header with Settings */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol
-            name="chevron.left"
-            size={24}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text variant="l" weight="bold">
-          {isEditing ? 'Edit Profile' : 'Profile & Wallet'}
-        </Text>
-        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-          <IconSymbol
-            name={isEditing ? 'xmark' : 'gearshape.fill'}
-            size={24}
-            color={isEditing ? colors.error : colors.textPrimary}
-          />
-        </TouchableOpacity>
-      </View>
-
       {isEditing ? (
         <View style={styles.editSection}>
           <Input
@@ -223,23 +229,33 @@ export default function ProfileScreen() {
         </View>
       ) : (
         <>
-          {/* Profile Header section */}
-          <View style={styles.profileHeader}>
+          {/* 
+            Profile Summary:
+            A compact, modern view of user info (Avatar + Name + Contact).
+            Replaces the bulky centered header for better space utilization.
+          */}
+          <View style={styles.profileSummary}>
             <View style={styles.avatarLarge}>
               <Text variant="xl" weight="bold" color={colors.primary}>
                 {getInitials(data?.name ?? '')}
               </Text>
             </View>
-            <Text variant="xl" weight="bold" style={styles.userName}>
-              {data?.name || 'User'}
-            </Text>
-            <Text color={colors.textSecondary}>{data?.email}</Text>
-            <Text color={colors.textSecondary} style={styles.userPhone}>
-              {data?.phone}
-            </Text>
+            <View style={styles.profileInfo}>
+              <Text variant="xl" weight="bold" style={styles.userName}>
+                {data?.name || 'User'}
+              </Text>
+              <Text variant="s" color={colors.textSecondary}>{data?.email}</Text>
+              <Text variant="s" color={colors.textSecondary} style={styles.userPhone}>
+                {data?.phone}
+              </Text>
+            </View>
           </View>
 
-          {/* Wallet Card */}
+          {/* 
+            Wallet Card:
+            Displays balance and provides entry point for Top Up.
+            Now features modern shadows and refined dimensions.
+          */}
           <View style={styles.walletCard}>
             <View style={styles.walletInfo}>
               <Text
@@ -267,12 +283,16 @@ export default function ProfileScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Decorative circles */}
+            {/* Decorative circles to enhance visual depth */}
             <View style={[styles.circle, styles.circle1]} />
             <View style={[styles.circle, styles.circle2]} />
           </View>
 
-          {/* Recent Transactions */}
+          {/* 
+            Recent Transactions:
+            Lists latest wallet activity.
+            Independent component for maintainability.
+          */}
           <RecentTransactions />
         </>
       )}
@@ -298,36 +318,45 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     backgroundColor: colors.background,
   },
-  header: {
+  profileSummary: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.l,
     backgroundColor: colors.surface,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: spacing.l, // Reduced padding
+    marginHorizontal: spacing.l,
+    marginTop: spacing.l,
+    borderRadius: spacing.radius.xl,
+    // Add shadow/elevation for modern look
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
   },
   avatarLarge: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.surface,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: colors.primary + '20', // Light primary border
-    marginBottom: spacing.m,
+    borderWidth: 2,
+    borderColor: colors.primary + '20',
+    marginRight: spacing.l,
+  },
+  profileInfo: {
+    flex: 1,
+    justifyContent: 'center',
   },
   userName: {
-    marginBottom: spacing.xs,
+    fontSize: 20,
+    marginBottom: 2,
   },
   userPhone: {
-    marginTop: 2,
+    marginTop: 0,
   },
   walletCard: {
-    margin: spacing.m,
+    margin: spacing.l,
     padding: spacing.l,
     backgroundColor: colors.primary,
     borderRadius: spacing.radius.xl,
@@ -335,7 +364,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     overflow: 'hidden',
-    height: 130,
+    height: 120,
+    // Premium shadow
+    elevation: 4,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   walletInfo: {
     zIndex: 1,
@@ -371,37 +406,6 @@ const styles = StyleSheet.create({
     height: 100,
     bottom: -30,
     left: 80,
-  },
-  txInfo: {
-    flex: 1,
-  },
-  transactionsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.l,
-    marginBottom: spacing.m,
-  },
-  transactionsList: {
-    paddingHorizontal: spacing.l,
-    paddingBottom: spacing.xl,
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    padding: spacing.m,
-    borderRadius: spacing.radius.l,
-    marginBottom: spacing.s,
-  },
-  txIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.m,
   },
   editSection: {
     padding: spacing.l,
