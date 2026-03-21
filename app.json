@@ -5,7 +5,7 @@
     "slug": "customer-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/logo.png",
     "scheme": "customerapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

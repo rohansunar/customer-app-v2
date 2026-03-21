@@ -97,7 +97,7 @@ export const ProductCard = memo(function ProductCard({
           >
             {product.name}
           </Text>
-          <Text variant="l" weight="bold" color={colors.primary}>
+          <Text variant="xl" weight="bold" color={colors.primary} style={styles.price}>
             ₹ {product.price}
           </Text>
         </View>
@@ -146,7 +146,6 @@ export const ProductCard = memo(function ProductCard({
               onPress={handleSubscribe}
               variant="primary"
               style={styles.subscribeButton}
-              textStyle={styles.subscribeText}
               icon={
                 <IconSymbol
                   name="arrow.clockwise"
@@ -197,6 +196,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: spacing.s,
   },
+  price: {
+    fontWeight: '700',
+  },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,23 +217,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: spacing.s,
   },
   cartButton: {
-    flex: 1,
-    minWidth: 140,
+    width: '100%',
     paddingVertical: spacing.s,
   },
   subscribeButton: {
-    flex: 1,
-    minWidth: 140,
+    width: '100%',
     paddingVertical: spacing.s,
-  },
-  subscribeText: {
-    color: colors.surface,
-    fontSize: 14,
   },
 });
 
