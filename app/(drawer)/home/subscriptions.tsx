@@ -9,7 +9,7 @@ import { ProductListSkeleton, Skeleton } from '@/core/ui/Skeleton';
 
 
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -28,11 +28,6 @@ export default function SubscriptionsScreen() {
   const [filter, setFilter] = useState<FilterType>('ALL');
   const { isEnabled, requestPermission } = useNotifications();
 
-  useEffect(() => {
-    if (!isEnabled) {
-      requestPermission();
-    }
-  }, [isEnabled, requestPermission]);
 
   const {
     subscriptions,
@@ -47,13 +42,13 @@ export default function SubscriptionsScreen() {
   const isLoading = loading;
 
   // Filter subscriptions based on selected filter
-  const filteredSubscriptions = React.useMemo(() => {
+  const filteredSubscriptions = useMemo(() => {
     if (filter === 'ALL') return subscriptions;
     return subscriptions.filter((sub) => sub.status === filter);
   }, [subscriptions, filter]);
 
   // Auto-refresh when there are progressing subscriptions
-  React.useEffect(() => {
+  useEffect(() => {
     const hasProgressing = subscriptions.some((s) => s.status === 'PROCESSING');
     if (hasProgressing) {
       const interval = setInterval(() => {
@@ -64,7 +59,7 @@ export default function SubscriptionsScreen() {
   }, [subscriptions, refetch]);
 
   // Count subscriptions by status
-  const counts = React.useMemo(() => {
+  const counts = useMemo(() => {
     const active = subscriptions.filter((s) => s.status === 'ACTIVE').length;
     const paused = subscriptions.filter((s) => s.status === 'INACTIVE').length;
     return { all: subscriptions.length, active, paused };

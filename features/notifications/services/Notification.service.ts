@@ -1,28 +1,34 @@
 import { apiClient } from '@/core/api/client';
 import { API_ENDPOINTS } from '@/core/api/endpoints';
-import { PushToken } from '../types/notification.types';
+import { PushToken } from '../types';
 
 /**
  * Payload required to register a push token with our backend.
  */
 export interface RegisterTokenPayload {
+  /** The unique device push token (native or Expo) */
   deviceToken: string;
+  /** OS Platform */
   deviceType: 'ANDROID' | 'IOS';
+  /** Unique hardware or build ID */
   deviceId: string;
+  /** Human readable device name */
   deviceName: string;
 }
 
 /**
- * NotificationApiService handles communication with the backend for push notification registration.
- * It follows the Singleton pattern to ensure a single entry point for API calls.
+ * NotificationApiService
+ * 
+ * Handles all backend communication related to push notifications.
+ * Implemented as a singleton to centralize logic and state.
  */
 class NotificationApiService {
   /**
    * Registers a device push token with the backend.
-   * This is necessary for the server to know where to send push notifications.
+   * This allow the server to target this specific device for push notifications.
    *
-   * @param payload - The device information including the token.
-   * @returns A promise that resolves to the registration result.
+   * @param payload - Comprehensive device and token information.
+   * @returns The registered token details from the server.
    */
   async registerPushToken(payload: RegisterTokenPayload): Promise<PushToken> {
     try {
@@ -32,10 +38,11 @@ class NotificationApiService {
       );
       return response.data;
     } catch (error) {
+      console.error('[NotificationApiService] Registration error:', error);
       throw error;
     }
   }
 }
 
-// Export a singleton instance
+// Export a singleton instance for global use
 export const notificationService = new NotificationApiService();

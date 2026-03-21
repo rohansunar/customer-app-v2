@@ -35,12 +35,6 @@ export default function OrdersTab() {
   const { isEnabled, requestPermission } = useNotifications();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isEnabled) {
-      requestPermission();
-    }
-  }, [isEnabled, requestPermission]);
-
   // Fetch both to show counts
   const {
     data: activeData,

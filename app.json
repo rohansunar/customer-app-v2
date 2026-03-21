@@ -50,16 +50,16 @@
           "defaultChannel": "orders",
           "channels": [
             {
-              "id": "orders",
-              "name": "Order Updates",
-              "description": "Notifications about your order status",
-              "priority": "high"
+              "id": "orders", "name": "Order Updates", "description": "Notifications about your order status","importance": "default"
             },
             {
-              "id": "marketing",
-              "name": "Offers & Promotions",
-              "description": "Special offers and marketing messages",
-              "priority": "default"
+              "id": "wallet","name": "Wallet & Balance","description": "Notifications about your wallet status","importance": "high"
+            },
+            {
+              "id": "subscription","name": "Subscriptions","description": "Notifications about your subscription status","importance": "low"
+            },
+            {
+              "id": "marketing","name": "Offers & Promotions","description": "Special offers and marketing messages","importance": "high"
             }
           ]
         }

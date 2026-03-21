@@ -1,4 +1,5 @@
 import { getToken, removeToken, saveToken } from '@/core/storage/secureStorage';
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 type AuthContextType = {
@@ -13,6 +14,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     (async () => {
@@ -30,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function logout() {
     await removeToken();
     setIsAuthenticated(false);
+    queryClient.clear();
   }
 
   return (

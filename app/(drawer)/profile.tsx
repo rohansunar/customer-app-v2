@@ -8,8 +8,8 @@ import { useProfile } from '@/features/profile/hooks/useProfile';
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile';
 import { useProfileForm } from '@/features/profile/hooks/useProfileValidator';
 import { useDeleteAccount } from '@/features/profile/hooks/useDeleteAccount';
-import { router } from 'expo-router';
-import React, { useState, useLayoutEffect } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -18,7 +18,6 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import { useNavigation } from 'expo-router';
 import { IconSymbol } from '../../core/ui/icon-symbol';
 import { TopUpModal } from '@/features/profile/components/TopUpModal';
 import { useWalletTopUp } from '@/features/payment/hooks/useWalletTopUp';
@@ -36,7 +35,19 @@ export default function ProfileScreen() {
   const createWalletTopUp = useWalletTopUp();
 
   const navigation = useNavigation();
+  const { topup } = useLocalSearchParams<{ topup?: string }>();
   const { form, errors, isDirty, updateField, validate } = useProfileForm(data);
+
+  /**
+   * Automatically trigger top-up modal if navigated from a notification.
+   */
+  useEffect(() => {
+    if (topup === 'true') {
+      setTopUpVisible(true);
+      // Optional: Clear the param from the URL to prevent re-triggering on refresh
+      router.setParams({ topup: undefined });
+    }
+  }, [topup]);
 
   /**
    * Header Integration:
@@ -142,7 +153,8 @@ export default function ProfileScreen() {
           Connection Failed
         </Text>
         <Text color={colors.textSecondary} style={styles.errorMessage}>
-          We couldn't reach the server. Please check internet connection or try logging in again.
+          We couldn&apos;t reach the server. Please check internet connection
+          or try logging in again.
         </Text>
         <Button title="Logout" onPress={logout} style={styles.logoutButton} />
         <Button
