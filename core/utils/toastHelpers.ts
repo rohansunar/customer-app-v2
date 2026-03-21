@@ -157,7 +157,6 @@ export const useToastHelpers = () => {
         actionText: 'Update',
         onAction: () => {
           // Open app store
-          console.log('Open app store for update');
         },
       });
     },

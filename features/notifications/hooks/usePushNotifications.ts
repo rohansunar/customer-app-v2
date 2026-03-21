@@ -36,9 +36,9 @@ export function usePushNotifications(
   );
 
   const handleTokenRegistration = useCallback(
-    async (token: string) => {
-      // Prevent redundant registration if token hasn't changed
-      if (registeredTokenRef.current === token) {
+    async (token: string, force = false) => {
+      // Prevent redundant registration if token hasn't changed, unless forced
+      if (!force && registeredTokenRef.current === token) {
         console.log(
           '[usePushNotifications] Token already registered, skipping API call',
         );
@@ -104,52 +104,63 @@ export function usePushNotifications(
     };
   }, [handleTokenRegistration]);
 
-  const getToken = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const getToken = useCallback(
+    async (force = false) => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      if (!Device.isDevice) {
-        throw new Error('Push notifications require a physical device');
+        if (!Device.isDevice) {
+          throw new Error('Push notifications require a physical device');
+        }
+
+        const devicePushTokenResponse =
+          await Notifications.getDevicePushTokenAsync();
+
+        // Properly extract the token string
+        let token: string;
+        const responseData = devicePushTokenResponse.data;
+
+        if (typeof responseData === 'string') {
+          token = responseData;
+        } else if (responseData && typeof responseData === 'object') {
+          // Handle object response with token property (standard for getDevicePushTokenAsync)
+          token = (responseData as any).token || String(responseData);
+        } else {
+          token = String(responseData || '');
+        }
+
+        // Validate token is present
+        if (!token || token === 'undefined' || token === 'null') {
+          throw new Error('Invalid push token received: token is empty');
+        }
+
+        await handleTokenRegistration(token, force);
+        return token;
+      } catch (err) {
+        const errorObj =
+          err instanceof Error
+            ? err
+            : new Error('Failed to get device push token');
+        setError(errorObj);
+        if (onError) {
+          onError(errorObj);
+        }
+        return null;
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [handleTokenRegistration, onError],
+  );
 
-      const devicePushTokenResponse =
-        await Notifications.getDevicePushTokenAsync();
-
-      // Properly extract the token string
-      let token: string;
-      const responseData = devicePushTokenResponse.data;
-
-      if (typeof responseData === 'string') {
-        token = responseData;
-      } else if (responseData && typeof responseData === 'object') {
-        // Handle object response with token property (standard for getDevicePushTokenAsync)
-        token = (responseData as any).token || String(responseData);
-      } else {
-        token = String(responseData || '');
-      }
-
-      // Validate token is present
-      if (!token || token === 'undefined' || token === 'null') {
-        throw new Error('Invalid push token received: token is empty');
-      }
-
-      await handleTokenRegistration(token);
-      return token;
-    } catch (err) {
-      const errorObj =
-        err instanceof Error
-          ? err
-          : new Error('Failed to get device push token');
-      setError(errorObj);
-      if (onError) {
-        onError(errorObj);
-      }
-      return null;
-    } finally {
-      setIsLoading(false);
+  // Clear registered token ref when user logs out to ensure fresh registration on next login
+  useEffect(() => {
+    if (!isAuthenticated) {
+      registeredTokenRef.current = null;
+      setPushToken(null);
     }
-  }, [handleTokenRegistration, onError]);
+  }, [isAuthenticated]);
 
   return {
     pushToken,

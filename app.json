@@ -34,12 +34,8 @@
       ],
       "package": "com.droptro.customer.dev"
     },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/logo.png"
-    },
     "splash": {
-      "image": "./assets/images/logo.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

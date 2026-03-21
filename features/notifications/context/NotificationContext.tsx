@@ -16,6 +16,7 @@ import { useNotificationHandler } from '../hooks/useNotificationHandler';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
+    shouldShowAlert: true,
     shouldVibrate: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
@@ -75,16 +76,26 @@ export function NotificationProvider({
     triggerTokenFetch();
   }, [isAuthenticated, isEnabled, pushToken, isLoading, error, getToken]);
 
+  /**
+   * RE-REGISTRATION TRIGGER: Force registration on login.
+   * This ensures that when a new user logs in on the same device,
+   * we associate the device token with the new user ID on the backend.
+   */
+  useEffect(() => {
+    if (isAuthenticated && isEnabled) {
+      getToken(true);
+    }
+    // We only want to trigger this when isAuthenticated or isEnabled specifically changes to true
+  }, [isAuthenticated, isEnabled, getToken]);
+
   /*
    * Stable request permission handler.
    */
 
   const handleRequestPermission = useCallback(async () => {
-    console.log('[NotificationContext] handleRequestPermission triggered');
     const status = await requestPermission();
 
     if (status.granted) {
-      console.log('[NotificationContext] Permission granted, getting token...');
       await getToken();
       return true;
     }
