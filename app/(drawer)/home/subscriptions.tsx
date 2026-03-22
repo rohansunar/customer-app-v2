@@ -3,7 +3,6 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { SubscriptionCard } from '@/features/subscriptions/components/SubscriptionCard';
 import { useSubscriptions } from '@/features/subscriptions/hooks/useSubscriptions';
-import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import { ErrorState } from '@/core/ui/ErrorState';
 import { ProductListSkeleton, Skeleton } from '@/core/ui/Skeleton';
 
@@ -25,7 +24,6 @@ type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
 export default function SubscriptionsScreen() {
   const [filter, setFilter] = useState<FilterType>('ALL');
-  const { isEnabled, requestPermission } = useNotifications();
 
   const {
     subscriptions,
