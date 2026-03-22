@@ -1,4 +1,4 @@
-import { AddressFormErrors, AddressFormState } from '../types';
+import { AddressFormErrors, AddressFormState } from '../address.types';
 import { addressFormSchema } from '@/shared/utils/addressValidator';
 import { ZodError } from 'zod';
 import { useToastHelpers } from '@/core/utils/toastHelpers';

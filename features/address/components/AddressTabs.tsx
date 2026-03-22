@@ -17,7 +17,7 @@ export function AddressTabs({ label, onLabelChange }: AddressTabsProps) {
   return (
     <>
       <Text variant="s" color={colors.textSecondary} style={styles.label}>
-        Save address as
+        Save delivery address as
       </Text>
       <View style={styles.tabsContainer}>
         {addressTypes.map((type) => (

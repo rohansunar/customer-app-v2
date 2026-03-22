@@ -1,7 +1,7 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useReverseGeocode } from '@/features/map/hooks/useReverseGeocode';
 import { useEffect, useRef } from 'react';
-import { Address } from '../address.types';
+import { Address, LocationPermissionStatus } from '../address.types';
 
 /**
  * Hook for managing geocoding logic.
@@ -14,6 +14,10 @@ export function useGeocodingLogic(
   setPincode: (text: string) => void,
   setState: (state: string) => void,
   setCity: (city: string) => void,
+  permissionStatus: LocationPermissionStatus,
+  currentPincode: string,
+  currentState: string,
+  currentCity: string,
   address?: Address,
 ) {
   const {
@@ -35,15 +39,37 @@ export function useGeocodingLogic(
   const showToast = useToastHelpers();
   const lastGeocodedCoords = useRef({ lat: 0, lng: 0 });
 
+  const debounceTimer = useRef<any>(null);
+
   useEffect(() => {
-    const EPSILON = 0.0001;
+    // Movement threshold for auto-geocoding (0.0001 is ~10-15 meters)
+    // Larger epsilon prevents micro-jitter from triggering redundant fetches.
+    const EPSILON = 0.0001; 
     const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
     const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
-    if (lat !== 0 && lng !== 0 && (latChanged || lngChanged)) {
-      lastGeocodedCoords.current = { lat, lng };
-      reverseGeocode(lat, lng);
+
+    if (
+      permissionStatus === 'granted' &&
+      !geocodeLoading &&
+      lat !== 0 &&
+      lng !== 0 &&
+      (latChanged || lngChanged)
+    ) {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+      debounceTimer.current = setTimeout(() => {
+        lastGeocodedCoords.current = { lat, lng };
+        reverseGeocode(lat, lng);
+      }, 800); // Slightly longer debounce for better stability
     }
-  }, [lat, lng, reverseGeocode]);
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [lat, lng, reverseGeocode, geocodeLoading, permissionStatus]);
 
   // Show error if reverse geocoding fails
   useEffect(() => {
@@ -55,13 +81,29 @@ export function useGeocodingLogic(
   }, [geocodeError, showToast]);
 
   // Auto-fill address details from geocode result
+  // Added guard checks to prevent redundant state updates that cause flickering/loops
   useEffect(() => {
     if (geocodeResult && !address) {
-      setPincode(geocodeResult.postalCode);
-      setState(geocodeResult.state);
-      setCity(geocodeResult.city);
+      if (geocodeResult.postalCode && geocodeResult.postalCode !== currentPincode) {
+        setPincode(geocodeResult.postalCode);
+      }
+      if (geocodeResult.state && geocodeResult.state !== currentState) {
+        setState(geocodeResult.state);
+      }
+      if (geocodeResult.city && geocodeResult.city !== currentCity) {
+        setCity(geocodeResult.city);
+      }
     }
-  }, [geocodeResult, address, setPincode, setState, setCity]);
+  }, [
+    geocodeResult,
+    address,
+    setPincode,
+    setState,
+    setCity,
+    currentPincode,
+    currentState,
+    currentCity,
+  ]);
   return {
     geocodeResult,
     geocodeLoading,

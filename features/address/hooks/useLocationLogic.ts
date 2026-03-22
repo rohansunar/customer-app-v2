@@ -17,15 +17,28 @@ export function useLocationLogic(
   const {
     location: currentLocation,
     loading: locationLoading,
+    permissionStatus,
     refetch: refetchLocation,
+    openSettings,
   } = useLocation();
   const showToast = useToastHelpers();
 
   // Initialize map with current location if no address is provided and coordinates are empty
   useEffect(() => {
     if (!address && currentLocation && lat === 0 && lng === 0) {
-      setLat(currentLocation.latitude);
-      setLng(currentLocation.longitude);
+      // Small epsilon check even for the initial set to be absolutely safe
+      const EPSILON = 0.00001;
+      const isMeaningful = Math.abs(currentLocation.latitude) > EPSILON || 
+                          Math.abs(currentLocation.longitude) > EPSILON;
+      
+      if (isMeaningful) {
+        if (Math.abs(currentLocation.latitude - lat) > EPSILON) {
+            setLat(currentLocation.latitude);
+        }
+        if (Math.abs(currentLocation.longitude - lng) > EPSILON) {
+            setLng(currentLocation.longitude);
+        }
+      }
     }
   }, [currentLocation, address, lat, lng, setLat, setLng]);
 
@@ -38,13 +51,17 @@ export function useLocationLogic(
       showToast.error(
         'Unable to get current location. Please check your location permissions.',
       );
-      refetchLocation();
+      // Passing true to force a fresh fetch regardless of throttle
+      (refetchLocation as any)(true);
     }
   };
 
   return {
     currentLocation,
     locationLoading,
+    permissionStatus,
+    refetchLocation,
+    openSettings,
     handleUseCurrentLocation,
   };
 }

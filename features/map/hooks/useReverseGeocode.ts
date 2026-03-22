@@ -66,7 +66,19 @@ export function useReverseGeocode(): UseReverseGeocodeReturn {
             district: location.district || '',
           };
 
-          setResult(geocodeData);
+          // Stability check: only update if data actually changed
+          setResult((prev) => {
+            if (
+              prev &&
+              prev.formattedAddress === geocodeData.formattedAddress &&
+              prev.postalCode === geocodeData.postalCode &&
+              prev.city === geocodeData.city &&
+              prev.state === geocodeData.state
+            ) {
+              return prev;
+            }
+            return geocodeData;
+          });
         } else {
           setError('No address found for these coordinates');
         }

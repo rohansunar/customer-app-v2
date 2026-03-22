@@ -19,6 +19,7 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -152,6 +153,11 @@ export default function OtpScreen() {
             </TouchableOpacity>
           </View>
 
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <Animated.View
             style={[
               styles.content,
@@ -226,6 +232,7 @@ export default function OtpScreen() {
               style={[styles.button, isVerifyDisabled && styles.buttonDisabled]}
             />
           </Animated.View>
+        </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
@@ -266,9 +273,12 @@ const styles = StyleSheet.create({
     color: colors.splashGray500,
     fontSize: 16,
   },
-  content: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
+    paddingVertical: spacing.xxl,
+  },
+  content: {
     paddingHorizontal: spacing.l,
     width: '100%',
     maxWidth: 440,
@@ -278,14 +288,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: colors.splashGray900,
     textAlign: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   subtitle: {
     color: colors.splashGray500,
     textAlign: 'center',
     fontSize: 16,
     lineHeight: 24,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   phoneText: {
     color: colors.splashGray900,
@@ -293,7 +303,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: spacing.l,
+    marginBottom: spacing.xl,
     gap: spacing.s,
   },
   otpInput: {
@@ -321,7 +331,7 @@ const styles = StyleSheet.create({
   },
   resendContainer: {
     alignItems: 'center',
-    marginBottom: spacing.l,
+    marginBottom: spacing.xl,
   },
   timer: {
     color: colors.splashGray500,

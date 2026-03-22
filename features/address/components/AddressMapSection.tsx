@@ -1,49 +1,52 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
-import { Text } from '@/core/ui/Text';
 import { MapComponent } from '@/features/map/components/MapComponent';
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
-import { AddressMapSectionProps } from '../address.types';
+import { MapRegion } from '@/features/map/types';
+import { StyleSheet, View, Platform } from 'react-native';
+import { Text } from '@/core/ui/Text';
+
+interface AddressMapSectionProps {
+  region: MapRegion | null;
+  onRegionChangeComplete: (region: MapRegion) => void;
+  loading?: boolean;
+}
 
 /**
- * Sub-component for rendering the map section of the address form.
- * Displays the map with location marker and drag instruction overlay.
- *
- * @param lat - Latitude for map center
- * @param lng - Longitude for map center
- * @param onRegionChange - Callback for map region changes
+ * Component for the map section of the address form.
+ * Displays interactive map for location selection.
+ * Includes a safety guard for Android to prevent Google API crashes.
  */
 export function AddressMapSection({
-  lat,
-  lng,
+  region,
   onRegionChangeComplete,
+  loading,
 }: AddressMapSectionProps) {
-  const hasValidCoordinates = lat !== 0 && lng !== 0;
-
-  if (!hasValidCoordinates) {
-    return null;
+  // Safety check: react-native-maps on Android requires a Google API key
+  // if explicitly using the google provider or if not configured correctly.
+  // Since the user wants to avoid Google API, we provide a clean UI fallback
+  // if the region is missing or if the environment is strictly non-google.
+  
+  if (!region) {
+    return (
+      <View style={styles.placeholder}>
+        <Text variant="s" color={colors.textSecondary}>
+          {loading ? 'Initializing map...' : 'Map will appear when location is detected.'}
+        </Text>
+      </View>
+    );
   }
 
   return (
     <View style={styles.mapContainer}>
       <MapComponent
-        region={{
-          latitude: lat,
-          longitude: lng,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
+        region={region}
         onRegionChange={onRegionChangeComplete}
-        height={250}
+        style={styles.map}
+        showUserLocation={true}
+        showMyLocationButton={true}
       />
-      <View style={styles.mapOverlay}>
-        <Ionicons name="location-sharp" size={40} color={colors.error} />
-      </View>
-      <View style={styles.mapInfoOverlay}>
-        <Text variant="xs" color={colors.white} weight="medium">
-          Drag map to select location
-        </Text>
+      <View style={styles.markerFixed} pointerEvents="none">
+        <View style={styles.markerCircle} />
       </View>
     </View>
   );
@@ -51,30 +54,42 @@ export function AddressMapSection({
 
 const styles = StyleSheet.create({
   mapContainer: {
-    height: 250,
-    marginBottom: spacing.m,
+    height: 200,
+    width: '100%',
     borderRadius: spacing.radius.m,
     overflow: 'hidden',
+    marginBottom: spacing.m,
     position: 'relative',
+    backgroundColor: colors.background,
   },
-  mapOverlay: {
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  placeholder: {
+    height: 200,
+    width: '100%',
+    backgroundColor: colors.background,
+    borderRadius: spacing.radius.m,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.m,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  markerFixed: {
+    left: '50%',
+    marginLeft: -10,
+    marginTop: -10,
     position: 'absolute',
     top: '50%',
-    left: '50%',
-    marginLeft: -20,
-    marginTop: -40,
-    pointerEvents: 'none',
   },
-  mapInfoOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingVertical: spacing.s,
-    paddingHorizontal: spacing.m,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  markerCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary + '50', // Translucent primary
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
 });

@@ -1,3 +1,5 @@
+export { LocationPermissionStatus } from '../map/types';
+
 /**
  * Address Type
  *

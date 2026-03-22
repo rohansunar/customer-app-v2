@@ -26,9 +26,13 @@ export interface LocationError {
   message: string;
 }
 
+export type LocationPermissionStatus = 'granted' | 'denied' | 'undetermined';
+
 export interface UseLocationReturn {
   location: Location | null;
   loading: boolean;
   error: LocationError | null;
+  permissionStatus: LocationPermissionStatus;
   refetch: () => void;
+  openSettings: () => void;
 }

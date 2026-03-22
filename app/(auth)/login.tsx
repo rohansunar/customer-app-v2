@@ -74,8 +74,8 @@ export default function LoginScreen() {
       },
       onError: (mutationError) => {
         showError(
-          'Error',
           'Failed to send OTP. Please check your connection and try again.',
+          '',
           () => {
             handleRequestOtp();
           },

@@ -252,13 +252,17 @@ const Alert: React.FC<AlertProps> = ({
                   />
                 </View>
 
-                <Text style={styles.title} accessibilityRole="header">
-                  {title}
-                </Text>
+                {!!title && (
+                  <Text style={styles.title} accessibilityRole="header">
+                    {title}
+                  </Text>
+                )}
 
-                <Text style={styles.message} accessibilityRole="text">
-                  {message}
-                </Text>
+                {!!message && (
+                  <Text style={styles.message} accessibilityRole="text">
+                    {message}
+                  </Text>
+                )}
 
                 <View style={styles.buttonContainer}>
                   {secondaryButtonText && onSecondaryPress && (
