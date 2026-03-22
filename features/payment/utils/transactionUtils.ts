@@ -14,12 +14,15 @@ import { colors } from '@/core/theme/colors';
  * @returns e.g. "+₹1,000" or "-₹1,000"
  */
 export function formatTransactionAmount(
-    type: string,
-    amount: string | number,
+  type: string,
+  amount: string | number,
 ): string {
-    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    const formatted = isNaN(numericAmount) ? '0' : numericAmount.toLocaleString('en-IN');
-    return type?.toLowerCase() === 'debit' ? `-₹${formatted}` : `+₹${formatted}`;
+  const numericAmount =
+    typeof amount === 'string' ? parseFloat(amount) : amount;
+  const formatted = isNaN(numericAmount)
+    ? '0'
+    : numericAmount.toLocaleString('en-IN');
+  return type?.toLowerCase() === 'debit' ? `-₹${formatted}` : `+₹${formatted}`;
 }
 
 /**
@@ -27,9 +30,9 @@ export function formatTransactionAmount(
  * @param type - 'credit' or 'debit'
  */
 export function getTransactionIcon(type: string): string {
-    return type?.toLowerCase() === 'debit'
-        ? 'arrow.up.right.circle.fill'
-        : 'arrow.down.left.circle.fill';
+  return type?.toLowerCase() === 'debit'
+    ? 'arrow.up.right.circle.fill'
+    : 'arrow.down.left.circle.fill';
 }
 
 /**
@@ -37,7 +40,7 @@ export function getTransactionIcon(type: string): string {
  * @param type - 'credit' or 'debit'
  */
 export function getTransactionColor(type: string): string {
-    return type?.toLowerCase() === 'debit' ? colors.primary : colors.success;
+  return type?.toLowerCase() === 'debit' ? colors.primary : colors.success;
 }
 
 /**
@@ -45,7 +48,7 @@ export function getTransactionColor(type: string): string {
  * @param type - 'credit' or 'debit'
  */
 export function getAmountColor(type: string): string {
-    return type?.toLowerCase() === 'debit' ? colors.textPrimary : colors.success;
+  return type?.toLowerCase() === 'debit' ? colors.textPrimary : colors.success;
 }
 
 /**
@@ -54,53 +57,49 @@ export function getAmountColor(type: string): string {
  * @returns e.g. "16 Mar 2026, 1:42 AM"
  */
 export function formatTransactionDate(isoString: string): string {
-    try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return isoString;
-        return new Intl.DateTimeFormat('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-        }).format(date);
-    } catch {
-        return isoString;
-    }
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return isoString;
+    return new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date);
+  } catch {
+    return isoString;
+  }
 }
 
 /**
  * Returns a human-readable label for a transaction status.
  */
-export function getStatusLabel(
-    status?: string,
-): string {
-    switch (status?.toLowerCase()) {
-        case 'pending':
-            return 'Pending';
-        case 'failed':
-            return 'Failed';
-        case 'completed':
-            return 'Completed';
-        default:
-            return status || 'Completed';
-    }
+export function getStatusLabel(status?: string): string {
+  switch (status?.toLowerCase()) {
+    case 'pending':
+      return 'Pending';
+    case 'failed':
+      return 'Failed';
+    case 'completed':
+      return 'Completed';
+    default:
+      return status || 'Completed';
+  }
 }
 
 /**
  * Returns the badge color for a transaction status.
  */
-export function getStatusColor(
-    status?: string,
-): string {
-    switch (status?.toLowerCase()) {
-        case 'pending':
-            return colors.warning;
-        case 'failed':
-            return colors.error;
-        case 'completed':
-            return colors.success;
-        default:
-            return colors.success;
-    }
+export function getStatusColor(status?: string): string {
+  switch (status?.toLowerCase()) {
+    case 'pending':
+      return colors.warning;
+    case 'failed':
+      return colors.error;
+    case 'completed':
+      return colors.success;
+    default:
+      return colors.success;
+  }
 }

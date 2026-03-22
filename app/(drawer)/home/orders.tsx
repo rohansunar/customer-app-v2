@@ -91,7 +91,6 @@ export default function OrdersTab() {
       );
     }
 
-
     if (!currentData?.orders || currentData.orders.length === 0) {
       return (
         <Animated.View

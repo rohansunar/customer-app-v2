@@ -11,7 +11,7 @@ export interface NavigationTarget {
 
 /**
  * NOTIFICATION_NAVIGATION_MAP
- * 
+ *
  * Maps notification types (both deep-link and legacy) to their respective
  * app routes and parameter extraction logic.
  */

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Alert, Linking } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useAuth } from '@/core/providers/AuthProvider';
@@ -26,16 +32,22 @@ interface NotificationContextProps {
   requestPermission: () => Promise<boolean>;
 }
 
-const NotificationContext = createContext<NotificationContextProps | undefined>(undefined);
+const NotificationContext = createContext<NotificationContextProps | undefined>(
+  undefined,
+);
 
 /**
  * NotificationProvider
- * 
+ *
  * The single entry point for the global notification system.
  * Orchestrates permissions, token registration, and interaction handling
  * via the unified `useNotificationManager` hook.
  */
-export function NotificationProvider({ children }: { children: React.ReactNode }) {
+export function NotificationProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isAuthenticated } = useAuth();
 
   // Unified manager for all notification logic
@@ -44,10 +56,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     pushToken,
     getToken,
     isLoading,
-    requestPermission
+    requestPermission,
   } = useNotificationManager({ isAuthenticated });
 
-  const isEnabled = useMemo(() => permissionStatus.granted, [permissionStatus.granted]);
+  const isEnabled = useMemo(
+    () => permissionStatus.granted,
+    [permissionStatus.granted],
+  );
 
   /**
    * Automatically fetch/register token when permissions are granted and user is logged in.
@@ -77,18 +92,21 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ]
+        ],
       );
     }
     return false;
   }, [requestPermission, getToken]);
 
-  const value = useMemo(() => ({
-    isEnabled,
-    isLoading,
-    token: pushToken,
-    requestPermission: handleRequestPermission,
-  }), [isEnabled, isLoading, pushToken, handleRequestPermission]);
+  const value = useMemo(
+    () => ({
+      isEnabled,
+      isLoading,
+      token: pushToken,
+      requestPermission: handleRequestPermission,
+    }),
+    [isEnabled, isLoading, pushToken, handleRequestPermission],
+  );
 
   return (
     <NotificationContext.Provider value={value}>
@@ -103,7 +121,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
+    throw new Error(
+      'useNotifications must be used within a NotificationProvider',
+    );
   }
   return context;
 };

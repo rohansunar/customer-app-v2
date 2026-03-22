@@ -4,7 +4,13 @@ import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { addressTextSchema } from '@/shared/utils/addressValidator';
 import { Ionicons } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
@@ -78,7 +84,6 @@ export function AddressForm({
     formState.city,
     address,
   );
-
 
   // handleSave: Validates form and constructs CreateAddressData for parent callback.
   // Only proceeds if validation passes; prevents invalid data submission.

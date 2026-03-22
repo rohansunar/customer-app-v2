@@ -18,7 +18,7 @@ export interface RegisterTokenPayload {
 
 /**
  * NotificationApiService
- * 
+ *
  * Handles all backend communication related to push notifications.
  * Implemented as a singleton to centralize logic and state.
  */

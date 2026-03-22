@@ -5,7 +5,11 @@ import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { notificationService } from '../services/Notification.service';
-import { NotificationType, NotificationDataPayload, NotificationPermissionStatus } from '../types';
+import {
+  NotificationType,
+  NotificationDataPayload,
+  NotificationPermissionStatus,
+} from '../types';
 import { NOTIFICATION_NAVIGATION_MAP } from '../constants';
 
 /**
@@ -21,24 +25,27 @@ export interface UseNotificationManagerProps {
 
 /**
  * useNotificationManager hook
- * 
+ *
  * A unified hook that manages the entire notification lifecycle:
  * 1. Permission management (check and request)
  * 2. Push token registration with the backend
  * 3. Interaction handling (links and navigation)
  * 4. Foreground event listening
- * 
+ *
  * @param props - includes authentication state
  */
-export function useNotificationManager({ isAuthenticated }: UseNotificationManagerProps) {
+export function useNotificationManager({
+  isAuthenticated,
+}: UseNotificationManagerProps) {
   const queryClient = useQueryClient();
-  
+
   // Permission State
-  const [permissionStatus, setPermissionStatus] = useState<NotificationPermissionStatus>({
-    granted: false,
-    provisional: false,
-    expires: 'temporal',
-  });
+  const [permissionStatus, setPermissionStatus] =
+    useState<NotificationPermissionStatus>({
+      granted: false,
+      provisional: false,
+      expires: 'temporal',
+    });
 
   // Token State
   const [pushToken, setPushToken] = useState<string | null>(null);
@@ -68,7 +75,7 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
       };
     }
 
-    const { status, canAskAgain } = request 
+    const { status, canAskAgain } = request
       ? await Notifications.requestPermissionsAsync()
       : await Notifications.getPermissionsAsync();
 
@@ -89,7 +96,8 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
    */
   const registerToken = useCallback(
     async (token: string, force = false) => {
-      if (!isAuthenticated || (!force && registeredTokenRef.current === token)) return;
+      if (!isAuthenticated || (!force && registeredTokenRef.current === token))
+        return;
 
       try {
         setIsLoading(true);
@@ -103,7 +111,10 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
         setPushToken(token);
         setError(null);
       } catch (err) {
-        console.error('[useNotificationManager] Token registration failed:', err);
+        console.error(
+          '[useNotificationManager] Token registration failed:',
+          err,
+        );
         setError(err instanceof Error ? err : new Error('Registration failed'));
       } finally {
         setIsLoading(false);
@@ -126,9 +137,9 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
         setIsLoading(true);
         const { data } = await Notifications.getDevicePushTokenAsync();
         const token = extractToken(data);
-        
+
         if (!token) throw new Error('Failed to extract push token');
-        
+
         await registerToken(token, force);
         return token;
       } catch (err) {
@@ -155,7 +166,9 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
       const data = notification.request.content.data as NotificationDataPayload;
       const notificationType = (data?.type as NotificationType) || 'generic';
 
-      console.log(`[NotificationManager] Handled: ${notificationType} (${identifier})`);
+      console.log(
+        `[NotificationManager] Handled: ${notificationType} (${identifier})`,
+      );
 
       // Refresh relevant data
       if (notificationType === 'ORDER') {
@@ -165,7 +178,9 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
       }
 
       // Navigate
-      const getTarget = NOTIFICATION_NAVIGATION_MAP[notificationType] || NOTIFICATION_NAVIGATION_MAP.generic;
+      const getTarget =
+        NOTIFICATION_NAVIGATION_MAP[notificationType] ||
+        NOTIFICATION_NAVIGATION_MAP.generic;
       const { route, params } = getTarget(data);
 
       if (params) {
@@ -201,7 +216,9 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
     });
 
     // 3. Response (tap) listener
-    const responseSub = Notifications.addNotificationResponseReceivedListener(handleNotificationInteraction);
+    const responseSub = Notifications.addNotificationResponseReceivedListener(
+      handleNotificationInteraction,
+    );
 
     // 4. Check for cold start notification
     if (!isInitialCheckDone) {
@@ -218,16 +235,33 @@ export function useNotificationManager({ isAuthenticated }: UseNotificationManag
     };
   }, [registerToken, handleNotificationInteraction, queryClient]);
 
-  const requestPermission = useCallback(() => updatePermissionStatus(true), [updatePermissionStatus]);
-  const checkPermission = useCallback(() => updatePermissionStatus(false), [updatePermissionStatus]);
+  const requestPermission = useCallback(
+    () => updatePermissionStatus(true),
+    [updatePermissionStatus],
+  );
+  const checkPermission = useCallback(
+    () => updatePermissionStatus(false),
+    [updatePermissionStatus],
+  );
 
-  return useMemo(() => ({
-    permissionStatus,
-    pushToken,
-    isLoading,
-    error,
-    requestPermission,
-    checkPermission,
-    getToken,
-  }), [permissionStatus, pushToken, isLoading, error, requestPermission, checkPermission, getToken]);
+  return useMemo(
+    () => ({
+      permissionStatus,
+      pushToken,
+      isLoading,
+      error,
+      requestPermission,
+      checkPermission,
+      getToken,
+    }),
+    [
+      permissionStatus,
+      pushToken,
+      isLoading,
+      error,
+      requestPermission,
+      checkPermission,
+      getToken,
+    ],
+  );
 }

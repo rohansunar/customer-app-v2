@@ -1,6 +1,6 @@
 /**
  * NotificationType represents the various categories of notifications
- * supported by the system, including both legacy backend types and 
+ * supported by the system, including both legacy backend types and
  * modern deep-linking types.
  */
 export type NotificationType =
@@ -18,7 +18,7 @@ export type NotificationType =
   | 'generic';
 
 /**
- * PushToken represents the device token information stored or 
+ * PushToken represents the device token information stored or
  * registered with the backend.
  */
 export interface PushToken {
@@ -31,7 +31,7 @@ export interface PushToken {
 }
 
 /**
- * NotificationPermissionStatus tracks the current state of 
+ * NotificationPermissionStatus tracks the current state of
  * notification permissions on the device.
  */
 export interface NotificationPermissionStatus {

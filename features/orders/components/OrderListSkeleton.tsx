@@ -7,7 +7,9 @@ interface OrderListSkeletonProps {
   count?: number;
 }
 
-export default function OrderListSkeleton({ count = 3 }: OrderListSkeletonProps) {
+export default function OrderListSkeleton({
+  count = 3,
+}: OrderListSkeletonProps) {
   return (
     <View style={styles.container}>
       {Array.from({ length: count }).map((_, index) => (

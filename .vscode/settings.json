@@ -10,8 +10,8 @@
     "**/dist": true,
     "**/.next": true
   },
-   "typescript.tsserver.maxTsServerMemory": 1024,
-   "git.autofetch": false,
+  "typescript.tsserver.maxTsServerMemory": 1024,
+  "git.autofetch": false,
   "editor.minimap.enabled": true,
   "editor.codeLens": false,
   "breadcrumbs.enabled": false

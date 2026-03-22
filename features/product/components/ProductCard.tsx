@@ -97,7 +97,12 @@ export const ProductCard = memo(function ProductCard({
           >
             {product.name}
           </Text>
-          <Text variant="xl" weight="bold" color={colors.primary} style={styles.price}>
+          <Text
+            variant="xl"
+            weight="bold"
+            color={colors.primary}
+            style={styles.price}
+          >
             ₹ {product.price}
           </Text>
         </View>
@@ -229,4 +234,3 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.s,
   },
 });
-

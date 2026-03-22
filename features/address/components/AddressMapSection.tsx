@@ -25,12 +25,14 @@ export function AddressMapSection({
   // if explicitly using the google provider or if not configured correctly.
   // Since the user wants to avoid Google API, we provide a clean UI fallback
   // if the region is missing or if the environment is strictly non-google.
-  
+
   if (!region) {
     return (
       <View style={styles.placeholder}>
         <Text variant="s" color={colors.textSecondary}>
-          {loading ? 'Initializing map...' : 'Map will appear when location is detected.'}
+          {loading
+            ? 'Initializing map...'
+            : 'Map will appear when location is detected.'}
         </Text>
       </View>
     );

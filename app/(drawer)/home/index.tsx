@@ -25,7 +25,6 @@ import { ReferralModal } from '@/features/promotion/components/ReferralModal';
 import { useNotifications } from '@/features/notifications/context/NotificationContext';
 import React, { useCallback, useEffect, useState } from 'react';
 
-
 export default function HomeScreen() {
   const {
     data,
@@ -172,18 +171,15 @@ export default function HomeScreen() {
       ) : error ? (
         <ErrorState error={error} onRetry={refetch} />
       ) : (
-
         <FlatList
           data={products}
           keyExtractor={(item) => item.id}
           renderItem={renderProductItem}
-
           getItemLayout={(_, index) => ({
             length: 440, // Approximate height of ProductCard
             offset: 440 * index,
             index,
           })}
-
           initialNumToRender={2}
           maxToRenderPerBatch={2}
           windowSize={3}
@@ -206,7 +202,6 @@ export default function HomeScreen() {
             />
           }
         />
-
       )}
       {totalItems > 0 && !isError && <CartButton totalItems={totalItems} />}
       <ReferralModal

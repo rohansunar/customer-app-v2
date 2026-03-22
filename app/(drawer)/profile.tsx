@@ -57,7 +57,7 @@ export default function ProfileScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => setIsEditing(!isEditing)}
           style={{ marginRight: spacing.m }}
         >
@@ -153,8 +153,8 @@ export default function ProfileScreen() {
           Connection Failed
         </Text>
         <Text color={colors.textSecondary} style={styles.errorMessage}>
-          We couldn&apos;t reach the server. Please check internet connection
-          or try logging in again.
+          We couldn&apos;t reach the server. Please check internet connection or
+          try logging in again.
         </Text>
         <Button title="Logout" onPress={logout} style={styles.logoutButton} />
         <Button
@@ -175,7 +175,9 @@ export default function ProfileScreen() {
           refreshing={isLoading}
           onRefresh={() => {
             refetch();
-            queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
+            queryClient.invalidateQueries({
+              queryKey: ['wallet', 'transactions'],
+            });
           }}
         />
       }
@@ -256,8 +258,14 @@ export default function ProfileScreen() {
               <Text variant="xl" weight="bold" style={styles.userName}>
                 {data?.name || 'User'}
               </Text>
-              <Text variant="s" color={colors.textSecondary}>{data?.email}</Text>
-              <Text variant="s" color={colors.textSecondary} style={styles.userPhone}>
+              <Text variant="s" color={colors.textSecondary}>
+                {data?.email}
+              </Text>
+              <Text
+                variant="s"
+                color={colors.textSecondary}
+                style={styles.userPhone}
+              >
                 {data?.phone}
               </Text>
             </View>

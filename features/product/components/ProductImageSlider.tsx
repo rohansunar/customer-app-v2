@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 
-
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 const CARD_MARGIN = spacing.m * 2;
 const SLIDER_WIDTH = WINDOW_WIDTH - CARD_MARGIN;

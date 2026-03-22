@@ -27,87 +27,87 @@ const DEFAULT_VISIBLE_COUNT = 5;
  * - Data    → sorted transaction list (newest first) with show-all toggle
  */
 export function RecentTransactions() {
-    const { data, isLoading, isError, refetch } = useWalletTransactions();
-    const [showAll, setShowAll] = useState(false);
+  const { data, isLoading, isError, refetch } = useWalletTransactions();
+  const [showAll, setShowAll] = useState(false);
 
-    // Sort newest-first (ISO strings sort lexicographically)
-    const sorted = data
-        ? [...data].sort((a, b) => {
-            const dateA = a?.createdAt || a?.date || '';
-            const dateB = b?.createdAt || b?.date || '';
-            return dateB.localeCompare(dateA);
-        })
-        : [];
-    const visible = showAll ? sorted : sorted.slice(0, DEFAULT_VISIBLE_COUNT);
-    const hasMore = sorted.length > DEFAULT_VISIBLE_COUNT;
+  // Sort newest-first (ISO strings sort lexicographically)
+  const sorted = data
+    ? [...data].sort((a, b) => {
+        const dateA = a?.createdAt || a?.date || '';
+        const dateB = b?.createdAt || b?.date || '';
+        return dateB.localeCompare(dateA);
+      })
+    : [];
+  const visible = showAll ? sorted : sorted.slice(0, DEFAULT_VISIBLE_COUNT);
+  const hasMore = sorted.length > DEFAULT_VISIBLE_COUNT;
 
-    return (
-        <View style={styles.section}>
-            {/* Section header */}
-            <View style={styles.header}>
-                <Text variant="l" weight="bold">
-                    Recent Transactions
-                </Text>
-                {!isLoading && !isError && hasMore && (
-                    <TouchableOpacity
-                        onPress={() => setShowAll((prev) => !prev)}
-                        style={styles.toggleBtn}
-                        accessibilityRole="button"
-                        accessibilityLabel={showAll ? 'Show fewer transactions' : 'View all transactions'}
-                    >
-                        <Text variant="s" weight="medium" color={colors.primary}>
-                            {showAll ? 'Show Less' : 'View All'}
-                        </Text>
-                        <IconSymbol
-                            name={showAll ? 'chevron.up' : 'chevron.down'}
-                            size={14}
-                            color={colors.primary}
-                        />
-                    </TouchableOpacity>
-                )}
-            </View>
+  return (
+    <View style={styles.section}>
+      {/* Section header */}
+      <View style={styles.header}>
+        <Text variant="l" weight="bold">
+          Recent Transactions
+        </Text>
+        {!isLoading && !isError && hasMore && (
+          <TouchableOpacity
+            onPress={() => setShowAll((prev) => !prev)}
+            style={styles.toggleBtn}
+            accessibilityRole="button"
+            accessibilityLabel={
+              showAll ? 'Show fewer transactions' : 'View all transactions'
+            }
+          >
+            <Text variant="s" weight="medium" color={colors.primary}>
+              {showAll ? 'Show Less' : 'View All'}
+            </Text>
+            <IconSymbol
+              name={showAll ? 'chevron.up' : 'chevron.down'}
+              size={14}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
 
-            {/* Content */}
-            <View style={styles.listContainer}>
-                {isLoading && <TransactionListSkeleton count={DEFAULT_VISIBLE_COUNT} />}
+      {/* Content */}
+      <View style={styles.listContainer}>
+        {isLoading && <TransactionListSkeleton count={DEFAULT_VISIBLE_COUNT} />}
 
-                {!isLoading && isError && (
-                    <TransactionErrorState onRetry={refetch} />
-                )}
+        {!isLoading && isError && <TransactionErrorState onRetry={refetch} />}
 
-                {!isLoading && !isError && sorted.length === 0 && (
-                    <TransactionEmptyState />
-                )}
+        {!isLoading && !isError && sorted.length === 0 && (
+          <TransactionEmptyState />
+        )}
 
-                {!isLoading && !isError && visible.map((tx) => (
-                    <TransactionItem key={tx.id} transaction={tx} />
-                ))}
-            </View>
-        </View>
-    );
+        {!isLoading &&
+          !isError &&
+          visible.map((tx) => <TransactionItem key={tx.id} transaction={tx} />)}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    section: {
-        paddingHorizontal: spacing.l,
-        paddingBottom: spacing.xl,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: spacing.m,
-    },
-    toggleBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingVertical: spacing.xs,
-        paddingHorizontal: spacing.s,
-        backgroundColor: colors.primary + '10',
-        borderRadius: spacing.radius.circle,
-    },
-    listContainer: {
-        gap: spacing.s,
-    },
+  section: {
+    paddingHorizontal: spacing.l,
+    paddingBottom: spacing.xl,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.m,
+  },
+  toggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.s,
+    backgroundColor: colors.primary + '10',
+    borderRadius: spacing.radius.circle,
+  },
+  listContainer: {
+    gap: spacing.s,
+  },
 });

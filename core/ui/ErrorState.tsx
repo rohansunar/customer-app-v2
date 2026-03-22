@@ -5,7 +5,14 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Text } from './Text';
 import { Button } from './Button';
-import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  withSequence,
+} from 'react-native-reanimated';
 import { useAuth } from '../providers/AuthProvider';
 
 interface ErrorStateProps {
@@ -22,10 +29,10 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
     scale.value = withRepeat(
       withSequence(
         withTiming(1.1, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
+        withTiming(1, { duration: 1000 }),
       ),
       -1,
-      true
+      true,
     );
   }, []);
 
@@ -33,14 +40,14 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
     transform: [{ scale: scale.value }],
   }));
 
-  const isNetworkError = 
-    error?.message?.includes('network') || 
+  const isNetworkError =
+    error?.message?.includes('network') ||
     error?.message?.includes('Network') ||
     error?.code === 'ERR_NETWORK' ||
     error?.message?.includes('timeout');
 
-  const isServerError = 
-    error?.response?.status >= 500 || 
+  const isServerError =
+    error?.response?.status >= 500 ||
     error?.message?.includes('SERVICE_UNAVAILABLE') ||
     error?.message?.includes('503');
 
@@ -57,14 +64,18 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
       return {
         icon: 'server-outline' as const,
         title: title || 'Server Unavailable',
-        message: 'The server is currently unreachable. Please try logging out and logging in again.',
+        message:
+          'The server is currently unreachable. Please try logging out and logging in again.',
         showLogout: true,
       };
     }
     return {
       icon: 'alert-circle-outline' as const,
       title: title || 'Something went wrong',
-      message: typeof error === 'string' ? error : error?.message || 'An unexpected error occurred.',
+      message:
+        typeof error === 'string'
+          ? error
+          : error?.message || 'An unexpected error occurred.',
       showLogout: false,
     };
   };
@@ -72,37 +83,37 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
   const { icon, title: displayTitle, message, showLogout } = getMessage();
 
   return (
-    <Animated.View 
-      entering={FadeInDown.duration(600).springify()} 
+    <Animated.View
+      entering={FadeInDown.duration(600).springify()}
       style={styles.container}
     >
       <Animated.View style={[styles.iconContainer, animatedIconStyle]}>
         <Ionicons name={icon} size={64} color={colors.primary} />
       </Animated.View>
-      
+
       <Text variant="xl" weight="bold" style={styles.title}>
         {displayTitle}
       </Text>
-      
+
       <Text variant="m" color={colors.textSecondary} style={styles.message}>
         {message}
       </Text>
 
       <View style={styles.buttonContainer}>
         {onRetry && (
-          <Button 
-            title="Try Again" 
-            onPress={onRetry} 
-            variant="primary" 
+          <Button
+            title="Try Again"
+            onPress={onRetry}
+            variant="primary"
             style={styles.button}
           />
         )}
-        
+
         {showLogout && (
-          <Button 
-            title="Logout" 
-            onPress={logout} 
-            variant="outline" 
+          <Button
+            title="Logout"
+            onPress={logout}
+            variant="outline"
             style={styles.button}
           />
         )}

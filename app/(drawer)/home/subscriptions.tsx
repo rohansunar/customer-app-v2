@@ -7,7 +7,6 @@ import { useNotifications } from '@/features/notifications/context/NotificationC
 import { ErrorState } from '@/core/ui/ErrorState';
 import { ProductListSkeleton, Skeleton } from '@/core/ui/Skeleton';
 
-
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
@@ -27,7 +26,6 @@ type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 export default function SubscriptionsScreen() {
   const [filter, setFilter] = useState<FilterType>('ALL');
   const { isEnabled, requestPermission } = useNotifications();
-
 
   const {
     subscriptions,
@@ -88,7 +86,6 @@ export default function SubscriptionsScreen() {
   if (error) {
     return <ErrorState error={error} onRetry={refetch} />;
   }
-
 
   const router = useRouter();
 
@@ -192,8 +189,6 @@ export default function SubscriptionsScreen() {
           </View>
         )}
       </View>
-
-
 
       {/* Subscription List */}
       <FlatList

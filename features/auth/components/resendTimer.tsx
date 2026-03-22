@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const RESEND_TIMER = 30;
+export const RESEND_TIMER = 90;
 
 export const useOtpTimer = (active: boolean = true) => {
   const [timer, setTimer] = useState(RESEND_TIMER);

@@ -28,15 +28,16 @@ export function useLocationLogic(
     if (!address && currentLocation && lat === 0 && lng === 0) {
       // Small epsilon check even for the initial set to be absolutely safe
       const EPSILON = 0.00001;
-      const isMeaningful = Math.abs(currentLocation.latitude) > EPSILON || 
-                          Math.abs(currentLocation.longitude) > EPSILON;
-      
+      const isMeaningful =
+        Math.abs(currentLocation.latitude) > EPSILON ||
+        Math.abs(currentLocation.longitude) > EPSILON;
+
       if (isMeaningful) {
         if (Math.abs(currentLocation.latitude - lat) > EPSILON) {
-            setLat(currentLocation.latitude);
+          setLat(currentLocation.latitude);
         }
         if (Math.abs(currentLocation.longitude - lng) > EPSILON) {
-            setLng(currentLocation.longitude);
+          setLng(currentLocation.longitude);
         }
       }
     }

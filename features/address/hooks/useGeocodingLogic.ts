@@ -44,7 +44,7 @@ export function useGeocodingLogic(
   useEffect(() => {
     // Movement threshold for auto-geocoding (0.0001 is ~10-15 meters)
     // Larger epsilon prevents micro-jitter from triggering redundant fetches.
-    const EPSILON = 0.0001; 
+    const EPSILON = 0.0001;
     const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
     const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
 
@@ -84,7 +84,10 @@ export function useGeocodingLogic(
   // Added guard checks to prevent redundant state updates that cause flickering/loops
   useEffect(() => {
     if (geocodeResult && !address) {
-      if (geocodeResult.postalCode && geocodeResult.postalCode !== currentPincode) {
+      if (
+        geocodeResult.postalCode &&
+        geocodeResult.postalCode !== currentPincode
+      ) {
         setPincode(geocodeResult.postalCode);
       }
       if (geocodeResult.state && geocodeResult.state !== currentState) {
