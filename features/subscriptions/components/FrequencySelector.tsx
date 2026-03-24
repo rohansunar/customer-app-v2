@@ -67,7 +67,8 @@ export function FrequencySelector({
             color={colors.primary}
           />
           <Text variant="xs" color={colors.textSecondary} style={{ flex: 1 }}>
-            Deliveries will happen every alternate day starting from your chosen date.
+            Deliveries will happen every alternate day starting from your chosen
+            date.
           </Text>
         </View>
       )}

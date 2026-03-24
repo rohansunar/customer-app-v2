@@ -16,11 +16,11 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-   TouchableOpacity,
-   TouchableWithoutFeedback,
-   View,
-   Image,
- } from 'react-native';
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  Image,
+} from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,

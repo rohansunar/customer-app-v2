@@ -54,15 +54,6 @@ const Toast: React.FC<ToastProps> = ({
           useNativeDriver: true,
         }),
       ]).start();
-
-      // Auto hide
-      const timer = setTimeout(() => {
-        hideToast();
-      }, duration);
-
-      return () => clearTimeout(timer);
-    } else {
-      hideToast();
     }
   }, [visible]);
 

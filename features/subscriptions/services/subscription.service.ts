@@ -50,7 +50,7 @@ export const subscriptionService = {
           error.code === 0 ||
           (error.error && error.error.reason === 'payment_cancelled') ||
           (error.error && error.error.code === 'BAD_REQUEST_ERROR');
-        
+
         if (isCancelled) {
           // Cleanup the orphaned subscription if payment was cancelled
           if (response.data?.id) {
@@ -58,14 +58,16 @@ export const subscriptionService = {
           }
           throw new Error('PAYMENT_CANCELLED');
         }
-        
+
         // Throw detailed error for non-cancellation failures
         throw new Error(error.description || error.message || 'Payment failed');
       }
     } catch (error: any) {
       // Re-throw processed error
       if (error.response?.status === 400) {
-        throw new Error(error.response.data?.message || 'Invalid subscription details');
+        throw new Error(
+          error.response.data?.message || 'Invalid subscription details',
+        );
       }
       if (error.response?.status === 401) {
         throw new Error('Please login to create a subscription');

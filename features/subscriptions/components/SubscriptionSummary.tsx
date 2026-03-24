@@ -88,7 +88,8 @@ export function SubscriptionSummary({
               </Text>
             </View>
             <Text variant="s" weight="semibold" color={colors.textSecondary}>
-              UNIT{quantity > 1 ? 'S' : ''}  ×  ₹{productPrice.toFixed(0)}  ×  {details.totalDeliveries} DAYS
+              UNIT{quantity > 1 ? 'S' : ''} × ₹{productPrice.toFixed(0)} ×{' '}
+              {details.totalDeliveries} DAYS
             </Text>
           </View>
           <View style={styles.calcRight}>

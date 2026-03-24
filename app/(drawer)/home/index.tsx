@@ -136,8 +136,7 @@ export default function HomeScreen() {
         Products Coming Soon
       </Text>
       <Text variant="m" color={colors.textSecondary} style={styles.message}>
-        We're working on onboarding our vendors and will list the products
-        soon.
+        We're working on onboarding our vendors and will list the products soon.
       </Text>
     </Animated.View>
   );

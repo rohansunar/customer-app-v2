@@ -175,7 +175,9 @@ export const ProductCard = memo(function ProductCard({
             }
           />
           {product.is_schedulable && (
-            <Animated.View style={[styles.subscribeWrapper, animatedButtonStyle]}>
+            <Animated.View
+              style={[styles.subscribeWrapper, animatedButtonStyle]}
+            >
               <TouchableOpacity
                 onPress={handleSubscribe}
                 activeOpacity={0.9}
@@ -189,7 +191,8 @@ export const ProductCard = memo(function ProductCard({
                 >
                   <View style={styles.buttonInner}>
                     <Text style={styles.refinedButtonText} numberOfLines={1}>
-                      Subscribe & Save @ ₹{product.subscription_price || product.price}
+                      Subscribe & Save @ ₹
+                      {product.subscription_price || product.price}
                     </Text>
                     {product.percentageDecrease && (
                       <View style={styles.rightBadge}>
