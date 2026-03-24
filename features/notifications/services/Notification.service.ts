@@ -38,7 +38,7 @@ class NotificationApiService {
       );
       return response.data;
     } catch (error) {
-      console.error('[NotificationApiService] Registration error:', error);
+      // console.error('[NotificationApiService] Registration error:', error);
       throw error;
     }
   }
