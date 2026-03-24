@@ -1,3 +1,5 @@
+import { Product } from '../product/types';
+
 export type SubscriptionType = 'DAILY' | 'ALTERNATIVE_DAYS' | 'CUSTOM_DAYS';
 
 export type DayOfWeek =
@@ -18,9 +20,9 @@ export interface SubscriptionRequest {
 }
 
 export interface Subscription extends SubscriptionRequest {
-  [x: string]: any;
   id: string;
   productId: string;
+  product: Product;
   status: 'ACTIVE' | 'INACTIVE' | 'PROCESSING';
   createdAt: string;
   next_delivery_date: string;

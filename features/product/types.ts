@@ -8,6 +8,8 @@ export type Product = {
   name: string;
   description?: string;
   price: number;
+  subscription_price?: number;
+  percentageDecrease?: number;
   categoryId: string;
   images?: string[];
   distance: Distance;

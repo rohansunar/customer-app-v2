@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
@@ -9,6 +9,15 @@ import { Text } from '@/core/ui/Text';
 import { IconSymbol } from '@/core/ui/icon-symbol';
 import { useDebouncedAddToCart } from '@/features/cart/hooks/useDebouncedAddToCart';
 import { useRouter } from 'expo-router';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Product } from '../types';
 import { DistanceBadge } from './DistanceBadge';
 import { ProductImageSlider } from './ProductImageSlider';
@@ -41,6 +50,25 @@ export const ProductCard = memo(function ProductCard({
   const router = useRouter();
   const addToCartMutation = useDebouncedAddToCart(500);
 
+  // Pulse animation for urgency
+  const pulseScale = useSharedValue(1);
+  useEffect(() => {
+    if (product.is_schedulable) {
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.02, { duration: 1000 }),
+          withTiming(1, { duration: 1000 }),
+        ),
+        -1,
+        true,
+      );
+    }
+  }, [product.is_schedulable, pulseScale]);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
   /**
    * Memoized handler for add to cart button press
    * Prevents creating new function references on each render
@@ -66,7 +94,8 @@ export const ProductCard = memo(function ProductCard({
       params: {
         productId: product.id,
         productName: product.name,
-        productPrice: product.price.toString(),
+        // Calculate subscription price: use subscription_price if available, otherwise regular price
+        productPrice: (product.subscription_price ?? product.price).toString(),
         productImage: product.images?.[0] || '',
         productDescription: product.description || '',
       },
@@ -118,7 +147,7 @@ export const ProductCard = memo(function ProductCard({
             color={colors.textSecondary}
             style={styles.ratingText}
           >
-            4.8 • 2k+ bought
+            4.8
           </Text>
         </View>
 
@@ -146,19 +175,33 @@ export const ProductCard = memo(function ProductCard({
             }
           />
           {product.is_schedulable && (
-            <Button
-              title="Subscribe & Save"
-              onPress={handleSubscribe}
-              variant="primary"
-              style={styles.subscribeButton}
-              icon={
-                <IconSymbol
-                  name="arrow.clockwise"
-                  color={colors.surface}
-                  size={20}
-                />
-              }
-            />
+            <Animated.View style={[styles.subscribeWrapper, animatedButtonStyle]}>
+              <TouchableOpacity
+                onPress={handleSubscribe}
+                activeOpacity={0.9}
+                style={styles.refinedSubscribeButton}
+              >
+                <LinearGradient
+                  colors={['#1ed3f3ff', '#fb678aff']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.gradientContainer}
+                >
+                  <View style={styles.buttonInner}>
+                    <Text style={styles.refinedButtonText} numberOfLines={1}>
+                      Subscribe & Save @ ₹{product.subscription_price || product.price}
+                    </Text>
+                    {product.percentageDecrease && (
+                      <View style={styles.rightBadge}>
+                        <Text style={styles.rightBadgeText}>
+                          {product.percentageDecrease}% OFF
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
           )}
         </View>
       </View>
@@ -201,6 +244,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: spacing.s,
   },
+  priceContainer: {
+    alignItems: 'flex-end',
+  },
+  originalPrice: {
+    textDecorationLine: 'line-through',
+    opacity: 0.6,
+    marginBottom: -2,
+  },
   price: {
     fontWeight: '700',
   },
@@ -232,5 +283,57 @@ const styles = StyleSheet.create({
   subscribeButton: {
     width: '100%',
     paddingVertical: spacing.s,
+  },
+  subscribeWrapper: {
+    width: '100%',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  modernSubscribeButton: {
+    borderRadius: spacing.radius.circle,
+    overflow: 'hidden',
+    height: 48, // Match standard button height
+  },
+  refinedSubscribeButton: {
+    borderRadius: spacing.radius.circle,
+    overflow: 'hidden',
+    height: 48,
+  },
+  gradientContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.m,
+    justifyContent: 'center',
+  },
+  buttonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Center content
+    position: 'relative',
+    height: '100%',
+  },
+  rightBadge: {
+    backgroundColor: '#FFE135',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: spacing.radius.circle,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    position: 'absolute', // Absolute to not affect centering
+    right: 0,
+  },
+  rightBadgeText: {
+    color: '#D84315',
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  refinedButtonText: {
+    color: colors.white,
+    fontSize: 15, // Increased from 13
+    fontWeight: '800',
+    textAlign: 'center',
+    textTransform: 'uppercase', // More modern/urgent
   },
 });

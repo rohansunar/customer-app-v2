@@ -111,11 +111,11 @@ export function useNotificationManager({
         setPushToken(token);
         setError(null);
       } catch (err) {
-        console.error(
-          '[useNotificationManager] Token registration failed:',
-          err,
-        );
-        setError(err instanceof Error ? err : new Error('Registration failed'));
+        // console.error(
+        //   '[useNotificationManager] Token registration failed:',
+        //   err,
+        // );
+        // setError(err instanceof Error ? err : new Error('Registration failed'));
       } finally {
         setIsLoading(false);
       }

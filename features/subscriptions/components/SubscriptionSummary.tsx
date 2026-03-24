@@ -51,6 +51,20 @@ export function SubscriptionSummary({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        {productImage ? (
+          <Image
+            source={{ uri: productImage }}
+            style={styles.productImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <LinearGradient
+            colors={[colors.primaryLight, colors.primary]}
+            style={styles.imagePlaceholder}
+          >
+            <Ionicons name="water" size={24} color={colors.white} />
+          </LinearGradient>
+        )}
         <View style={styles.productInfo}>
           <Text variant="l" weight="bold">
             {productName}
@@ -60,14 +74,32 @@ export function SubscriptionSummary({
             {getFrequencyLabel(frequency, customDays)}
           </Text>
         </View>
-        <View style={styles.priceTag}>
-          <Text variant="l" weight="bold" color={colors.primary}>
-            ₹{details.totalAmount.toFixed(0)}
-          </Text>
-          <Text variant="xs" color={colors.textSecondary}>
-            Estimate
-          </Text>
+      </View>
+
+      <View style={styles.divider} />
+
+      {/* Main Calculation Row - Modern & Detailed */}
+      <View style={styles.calculationRow}>
+        <View style={styles.calcMain}>
+          <View style={styles.calcLeft}>
+            <View style={styles.qtyBubble}>
+              <Text variant="xs" weight="bold" color={colors.primary}>
+                {quantity}
+              </Text>
+            </View>
+            <Text variant="s" weight="semibold" color={colors.textSecondary}>
+              UNIT{quantity > 1 ? 'S' : ''}  ×  ₹{productPrice.toFixed(0)}  ×  {details.totalDeliveries} DAYS
+            </Text>
+          </View>
+          <View style={styles.calcRight}>
+            <Text variant="xl" weight="bold" color={colors.primary}>
+              ₹{details.totalAmount.toFixed(0)}
+            </Text>
+          </View>
         </View>
+        <Text variant="xs" color={colors.textTertiary} style={styles.calcSub}>
+          ESTIMATED BILLING: {details.periodLabel}
+        </Text>
       </View>
 
       <View style={styles.divider} />
@@ -75,23 +107,28 @@ export function SubscriptionSummary({
       <View style={styles.grid}>
         <View style={styles.gridItem}>
           <Text variant="xs" color={colors.textTertiary}>
-            Billing Period
+            Deliveries
           </Text>
-          <Text variant="s" weight="semibold">
-            {details.periodLabel}
-          </Text>
-          <Text variant="xs" color={colors.textSecondary}>
-            {formatDate(details.effectiveStartDate)} -{' '}
-            {formatDate(details.effectiveEndDate)}
+          <Text variant="s" weight="bold">
+            {details.totalDeliveries}
           </Text>
         </View>
 
         <View style={styles.gridItem}>
           <Text variant="xs" color={colors.textTertiary}>
-            Total Deliveries
+            From
           </Text>
-          <Text variant="s" weight="semibold">
-            {details.totalDeliveries} Days
+          <Text variant="s" weight="bold">
+            {formatDate(details.effectiveStartDate)}
+          </Text>
+        </View>
+
+        <View style={styles.gridItem}>
+          <Text variant="xs" color={colors.textTertiary}>
+            To
+          </Text>
+          <Text variant="s" weight="bold">
+            {formatDate(details.effectiveEndDate)}
           </Text>
         </View>
       </View>
@@ -120,12 +157,26 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.s,
+    alignItems: 'center',
+    marginBottom: spacing.m,
+  },
+  productImage: {
+    width: 64,
+    height: 64,
+    borderRadius: spacing.radius.m,
+    marginRight: spacing.m,
+    backgroundColor: colors.background,
+  },
+  imagePlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: spacing.radius.m,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.m,
   },
   productInfo: {
     flex: 1,
-    marginRight: spacing.m,
   },
   priceTag: {
     alignItems: 'flex-end',
@@ -151,5 +202,36 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary + '10',
     padding: spacing.s,
     borderRadius: spacing.radius.m,
+  },
+  calculationRow: {
+    paddingVertical: spacing.s,
+  },
+  calcMain: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  calcLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s,
+    flex: 1,
+  },
+  calcRight: {
+    alignItems: 'flex-end',
+  },
+  qtyBubble: {
+    backgroundColor: colors.primary + '15',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: spacing.radius.circle,
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+  },
+  calcSub: {
+    marginTop: spacing.xxs,
+    opacity: 0.7,
+    letterSpacing: 0.5,
   },
 });

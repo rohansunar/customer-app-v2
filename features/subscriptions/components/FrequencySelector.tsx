@@ -3,6 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { subscriptionTypeConfigs } from '../config/subscriptionTypes';
 import { DayOfWeek, SubscriptionType } from '../types';
 
@@ -58,6 +59,18 @@ export function FrequencySelector({
           </TouchableOpacity>
         ))}
       </View>
+      {selectedFrequency === 'ALTERNATIVE_DAYS' && (
+        <View style={styles.infoBox}>
+          <Ionicons
+            name="information-circle-outline"
+            size={16}
+            color={colors.primary}
+          />
+          <Text variant="xs" color={colors.textSecondary} style={{ flex: 1 }}>
+            Deliveries will happen every alternate day starting from your chosen date.
+          </Text>
+        </View>
+      )}
 
       {selectedFrequency === 'CUSTOM_DAYS' && (
         <View style={styles.daysContainerCompact}>
@@ -133,5 +146,15 @@ const styles = StyleSheet.create({
   selectedDayChip: {
     borderColor: colors.primary,
     backgroundColor: colors.primary + '10',
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s,
+    marginTop: spacing.xs,
+    marginBottom: spacing.m,
+    backgroundColor: colors.primary + '10',
+    padding: spacing.s,
+    borderRadius: spacing.radius.m,
   },
 });

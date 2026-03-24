@@ -20,7 +20,8 @@ export const subscriptionService = {
       );
       const { customer, payment } = response.data;
       if (!payment?.provider_payload) {
-        return;
+        // Return early if no payment payload is provided - might be zero-amount or handled elsewhere
+        return response.data;
       }
       const options = {
         key: ENV.RAZORPAY_KEY,
@@ -37,28 +38,38 @@ export const subscriptionService = {
       };
       if (!RazorpayCheckout) {
         throw new Error(
-          'Razorpay SDK not linked. Are you using Expo Dev Client?',
+          'Payment provider not initialized. Please try again later.',
         );
       }
 
       try {
         return await RazorpayCheckout.open(options);
       } catch (error: any) {
-        // Check for Razorpay cancellation or Bad Request Error (which happens on cancellation often)
+        // Handle Razorpay cancellation or failure
         const isCancelled =
           error.code === 0 ||
           (error.error && error.error.reason === 'payment_cancelled') ||
           (error.error && error.error.code === 'BAD_REQUEST_ERROR');
+        
         if (isCancelled) {
-          // Cleanup the orphaned subscription
+          // Cleanup the orphaned subscription if payment was cancelled
           if (response.data?.id) {
             await subscriptionService.deleteSubscription(response.data.id);
           }
           throw new Error('PAYMENT_CANCELLED');
         }
-        throw error;
+        
+        // Throw detailed error for non-cancellation failures
+        throw new Error(error.description || error.message || 'Payment failed');
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Re-throw processed error
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data?.message || 'Invalid subscription details');
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Please login to create a subscription');
+      }
       throw error;
     }
   },
