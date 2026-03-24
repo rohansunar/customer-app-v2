@@ -16,10 +16,11 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+   TouchableOpacity,
+   TouchableWithoutFeedback,
+   View,
+   Image,
+ } from 'react-native';
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -192,7 +193,15 @@ export function SubscriptionCard({ subscription, index }: Props) {
                     end={{ x: 1, y: 1 }}
                     style={styles.iconContainer}
                   >
-                    <Ionicons name="water" size={28} color={colors.white} />
+                    {subscription.product?.images?.[0] ? (
+                      <Image
+                        source={{ uri: subscription.product.images[0] }}
+                        style={styles.productImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Ionicons name="water" size={28} color={colors.white} />
+                    )}
                   </LinearGradient>
 
                   {/* Product Info */}
@@ -532,6 +541,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
+    overflow: 'hidden',
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
   },
   productInfo: {
     flex: 1,
