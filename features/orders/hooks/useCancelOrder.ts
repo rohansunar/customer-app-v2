@@ -27,7 +27,7 @@ export function useCancelOrder() {
       queryClient.invalidateQueries({ queryKey: ['order'] });
     },
     onError: (error) => {
-      showToast.error('Failed to cancel order');
+      showToast.error('Failed to cancel order. Try again later');
     },
   });
 }

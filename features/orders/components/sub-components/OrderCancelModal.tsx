@@ -15,14 +15,17 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 
 import CANCEL_REASONS_JSON from '@/constants/cancellation_reasons.json';
 
-interface OrderModalProps {
+interface OrderCancelModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
+  loading?: boolean;
+  isCancelling?: boolean;
 }
 
 interface CancelOption {
@@ -79,13 +82,16 @@ function ReasonCard({
   );
 }
 
-export default function OrderModal({
+export default function OrderCancelModal({
   visible,
   onClose,
   onConfirm,
-}: OrderModalProps) {
+  loading = false,
+  isCancelling = false,
+}: OrderCancelModalProps) {
   const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0].value);
   const [otherReason, setOtherReason] = useState('');
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const fadeAnimation = useRef(new Animated.Value(0)).current;
   const scaleAnimation = useRef(new Animated.Value(0.9)).current;
@@ -116,6 +122,7 @@ export default function OrderModal({
       // Basic validation for "Other"
       return;
     }
+    setIsConfirming(true);
     onConfirm(finalReason);
   };
 
@@ -198,14 +205,15 @@ export default function OrderModal({
 
             <View style={styles.footer}>
               <TouchableOpacity
-                style={styles.keepButton}
+                style={[styles.keepButton, (isCancelling || isConfirming) && styles.keepButtonDisabled]}
                 onPress={onClose}
                 activeOpacity={0.7}
+                disabled={loading || isCancelling || isConfirming}
               >
                 <Text
                   variant="m"
                   weight="semibold"
-                  color={colors.textSecondary}
+                  color={(isCancelling || isConfirming) ? colors.textTertiary : colors.textSecondary}
                 >
                   Keep Order
                 </Text>
@@ -215,11 +223,15 @@ export default function OrderModal({
                 style={styles.cancelButton}
                 onPress={handleConfirm}
                 activeOpacity={0.8}
-                disabled={cancelReason === 'Other' && !otherReason.trim()}
+                disabled={cancelReason === 'Other' && !otherReason.trim() || loading}
               >
-                <Text variant="m" weight="bold" color={colors.white}>
-                  Confirm Cancel
-                </Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color={colors.white} />
+                ) : (
+                  <Text variant="m" weight="bold" color={colors.white}>
+                    Confirm Cancel
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -342,6 +354,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: spacing.radius.l,
     backgroundColor: colors.background,
+  },
+  keepButtonDisabled: {
+    opacity: 0.5,
   },
   cancelButton: {
     flex: 2,

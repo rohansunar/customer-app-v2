@@ -1,4 +1,5 @@
 import { colors } from '@/core/theme/colors';
+import { showError } from '@/core/ui/toast';
 import { spacing } from '@/core/theme/spacing';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
@@ -12,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useCancelOrder } from '../hooks/useCancelOrder';
 import { Order } from '../types';
 import {
@@ -27,7 +29,7 @@ import {
   getStatusLabel,
 } from '../utils/orderHelpers';
 import OrderCardSkeleton from './OrderCardSkeleton';
-import OrderModal from './sub-components/OrderModal';
+import OrderCancelModal from './sub-components/OrderCancelModal';
 import OrderTracker from './OrderTracker';
 import SupportModal from './sub-components/SupportModal';
 
@@ -48,6 +50,7 @@ function OrderCardComponent({ order, loading }: Props) {
   const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   const menuAnchorRef = useRef<View>(null);
   const cancelOrderMutation = useCancelOrder();
+  const router = useRouter();
 
   // Memoized callbacks to prevent function recreation on each render
   const toggleExpanded = useCallback(() => {
@@ -97,12 +100,20 @@ function OrderCardComponent({ order, loading }: Props) {
           {
             onSuccess: () => {
               setIsModalVisible(false);
+              // Navigate to order history tab
+              router.push('/(drawer)/home/orders?tab=HISTORY');
+            },
+            onError: (error: unknown) => {
+              setIsModalVisible(false);
+              // Show error toast
+              const errorMessage = error instanceof Error ? error.message : 'Failed to cancel order';
+              showError(errorMessage);
             },
           },
         );
       }
     },
-    [cancelOrderMutation, order],
+    [cancelOrderMutation, order, router],
   );
 
   // Early return for loading state
@@ -520,10 +531,12 @@ function OrderCardComponent({ order, loading }: Props) {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <OrderModal
+      <OrderCancelModal
         visible={isModalVisible}
         onClose={handleModalClose}
         onConfirm={handleConfirmCancel}
+        loading={cancelOrderMutation.isPending}
+        isCancelling={cancelOrderMutation.isPending}
       />
 
       <SupportModal

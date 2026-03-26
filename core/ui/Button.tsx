@@ -86,7 +86,19 @@ export function Button({
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color={getTextColor()} />
+        <>
+          <ActivityIndicator color={getTextColor()} />
+          <Text
+            weight="semibold"
+            style={[
+              styles.text,
+              { color: getTextColor(), marginLeft: spacing.s },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        </>
       ) : (
         <>
           {icon}
