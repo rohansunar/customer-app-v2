@@ -44,18 +44,23 @@ export function AddressPickerModal({
   const updateMutation = useUpdateAddress();
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [settingDefaultId, setSettingDefaultId] = useState<string | null>(null);
   const showToast = useToastHelpers();
   const { showConfirm } = useAlert();
 
   const handleSetDefault = useCallback(
     (id: string) => {
+      setSettingDefaultId(id);
       setDefaultMutation.mutate(id, {
         onSuccess: () => {
           showToast.success('Location updated');
+          setSettingDefaultId(null);
           onClose();
         },
         onError: (error) => {
           showToast.error(getErrorMessage(error));
+          setSettingDefaultId(null);
+          onClose();
         },
       });
     },
@@ -87,7 +92,7 @@ export function AddressPickerModal({
             },
           });
         },
-        () => {},
+        () => { },
 
         'Delete', // confirmText
         'Cancel', // cancelText
@@ -134,12 +139,16 @@ export function AddressPickerModal({
     ({ item }: { item: Address }) => (
       <AddressItem
         address={item}
-        onPress={() => handleSetDefault(item.id)}
+        onPress={() => {
+          if (settingDefaultId) return;
+          handleSetDefault(item.id);
+        }}
+        isLoading={settingDefaultId === item.id}
         onEdit={() => handleEdit(item)}
         onDelete={() => handleDelete(item.id)}
       />
     ),
-    [handleSetDefault, handleEdit, handleDelete],
+    [handleSetDefault, handleEdit, handleDelete, settingDefaultId],
   );
 
   const handleBackAction = useCallback(() => {

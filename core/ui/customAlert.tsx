@@ -23,7 +23,7 @@ export type IconName = keyof typeof Ionicons.glyphMap;
 export interface AlertProps {
   visible: boolean;
   title?: string;
-  message: string;
+  message: string | React.ReactNode;
   type?: AlertType;
   primaryButtonText?: string;
   secondaryButtonText?: string;
@@ -91,8 +91,10 @@ const Alert: React.FC<AlertProps> = ({
 
   // Announce to screen readers
   useEffect(() => {
-    if (visible) {
+    if (visible && typeof message === 'string') {
       AccessibilityInfo.announceForAccessibility(`${title}. ${message}`);
+    } else if (visible && title) {
+      AccessibilityInfo.announceForAccessibility(title);
     }
   }, [visible, title, message]);
 
@@ -229,7 +231,10 @@ const Alert: React.FC<AlertProps> = ({
               accessibilityViewIsModal
               accessible
               accessibilityLabel={accessibility?.alertTitle || title}
-              accessibilityHint={accessibility?.alertMessage || message}
+              accessibilityHint={
+                accessibility?.alertMessage ||
+                (typeof message === 'string' ? message : '')
+              }
             >
               <View style={styles.alertBox}>
                 {showCloseButton && onClose && (
@@ -259,9 +264,15 @@ const Alert: React.FC<AlertProps> = ({
                 )}
 
                 {!!message && (
-                  <Text style={styles.message} accessibilityRole="text">
-                    {message}
-                  </Text>
+                  typeof message === 'string' ? (
+                    <Text style={styles.message} accessibilityRole="text">
+                      {message}
+                    </Text>
+                  ) : (
+                    <View style={styles.customMessageContainer}>
+                      {message}
+                    </View>
+                  )
                 )}
 
                 <View style={styles.buttonContainer}>
@@ -357,6 +368,10 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     textAlign: 'center',
     lineHeight: 24,
+    marginBottom: 24,
+  },
+  customMessageContainer: {
+    width: '100%',
     marginBottom: 24,
   },
   buttonContainer: {

@@ -459,7 +459,45 @@ export function SubscriptionCard({ subscription, index }: Props) {
       <CustomAlert
         visible={alertVisible}
         title="Cancel Subscription"
-        message={`Are you sure you want to cancel your subscription for ${subscription.product.name}? This action cannot be undone.`}
+        message={
+          <View style={styles.alertContent}>
+            <Text style={styles.alertMainMessage}>
+              Are you sure you want to cancel your subscription for{' '}
+              <Text weight="bold">{subscription.product.name}</Text>?
+            </Text>
+
+            <View style={styles.alertInfoBox}>
+              <View style={styles.alertInfoRow}>
+                <Ionicons
+                  name="time-outline"
+                  size={18}
+                  color={colors.primary}
+                />
+                <Text variant="s" style={styles.alertInfoText}>
+                  Cancellation will be processed and it will take{' '}
+                  <Text weight="bold">7 working days</Text> to credit the amount
+                  back to your account.
+                </Text>
+              </View>
+
+              <View style={[styles.alertInfoRow, { marginTop: spacing.s }]}>
+                <Ionicons
+                  name="information-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+                <Text variant="s" style={styles.alertInfoText}>
+                  As per payment partner policies, a processing fee of{' '}
+                  <Text weight="bold">2.5% + 18% GST</Text> is non-refundable.
+                </Text>
+              </View>
+            </View>
+
+            <Text variant="xs" color={colors.textTertiary} centered>
+              This action cannot be undone.
+            </Text>
+          </View>
+        }
         type="error"
         icon="warning"
         primaryButtonText="Yes, Cancel"
@@ -669,5 +707,37 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+
+  // Alert Content Styles
+  alertContent: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  alertMainMessage: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: spacing.l,
+  },
+  alertInfoBox: {
+    width: '100%',
+    backgroundColor: colors.background,
+    padding: spacing.m,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.m,
+  },
+  alertInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.s,
+  },
+  alertInfoText: {
+    flex: 1,
+    color: colors.textSecondary,
+    lineHeight: 20,
   },
 });

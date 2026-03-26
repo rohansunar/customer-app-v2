@@ -29,7 +29,7 @@ export const paymentService = {
       amount: order.payment.provider_payload.amount,
       currency: 'INR',
       order_id: order.payment.provider_payment_id,
-      name: 'My App',
+      name: 'Droptro',
       description: order.description,
       prefill: {
         name: order.customer.name,

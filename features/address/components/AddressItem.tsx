@@ -3,7 +3,7 @@ import { spacing } from '@/core/theme/spacing';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import React, { memo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Address } from '../address.types';
 
 /**
@@ -21,10 +21,11 @@ interface AddressItemProps {
   onPress: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  isLoading?: boolean;
 }
 
 export const AddressItem = memo(
-  ({ address, onPress, onEdit, onDelete }: AddressItemProps) => {
+  ({ address, onPress, onEdit, onDelete, isLoading }: AddressItemProps) => {
     const label = address.label?.toLowerCase() || 'other';
     const iconName =
       label === 'home'
@@ -86,17 +87,19 @@ export const AddressItem = memo(
               </Text>
               {/* cspell:ignore pincode */}
               <Text variant="xs" color={colors.textTertiary}>
-                {address.location?.name}, {address.pincode}
+                {address.location?.name}, {address.location?.state}, {address.pincode}
               </Text>
             </View>
           </View>
 
           <View style={styles.rightActions}>
-            {address.isDefault && (
+            {isLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : address.isDefault ? (
               <View style={styles.checkWrap}>
                 <Ionicons name="checkmark" size={12} color={colors.surface} />
               </View>
-            )}
+            ) : null}
           </View>
         </View>
 

@@ -96,8 +96,7 @@ export function AddressForm({
       pincode: formState.pincode,
       city: formState.city,
       state: formState.state,
-      lng: formState.lng,
-      lat: formState.lat,
+      ...(isEdit ? {} : { lng: formState.lng, lat: formState.lat }),
     });
   };
 
@@ -123,31 +122,33 @@ export function AddressForm({
       </View>
 
       {/* Location Buttons: Enhanced UX for setting current location. */}
-      <View style={styles.locationButtonsContainer}>
-        {permissionStatus === 'granted' && (
-          <TouchableOpacity
-            style={[styles.locationButton, { backgroundColor: colors.primary }]}
-            onPress={handleUseCurrentLocation}
-            disabled={locationLoading}
-          >
-            {locationLoading ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <>
-                <Ionicons name="locate" size={20} color={colors.white} />
-                <Text
-                  variant="s"
-                  color={colors.white}
-                  weight="medium"
-                  style={styles.buttonText}
-                >
-                  Use Current Location
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
+      {!isEdit && (
+        <View style={styles.locationButtonsContainer}>
+          {permissionStatus === 'granted' && (
+            <TouchableOpacity
+              style={[styles.locationButton, { backgroundColor: colors.primary }]}
+              onPress={handleUseCurrentLocation}
+              disabled={locationLoading}
+            >
+              {locationLoading ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <>
+                  <Ionicons name="locate" size={20} color={colors.white} />
+                  <Text
+                    variant="s"
+                    color={colors.white}
+                    weight="medium"
+                    style={styles.buttonText}
+                  >
+                    Use Current Location
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       {/* Geocode Info: Displays address derived from coordinates.
           Provides feedback on geocoding process. */}
@@ -164,6 +165,7 @@ export function AddressForm({
       {/* Form Inputs: Text fields for address details.
          Controlled inputs linked to form state. */}
       <AddressFormInputs
+        isEdit={isEdit}
         addressText={formState.addressText}
         onAddressTextChange={(text) => {
           formState.setAddressText(text);
@@ -194,7 +196,7 @@ export function AddressForm({
       />
 
       {/* Location Permission Message */}
-      {permissionStatus !== 'granted' && (
+      {!isEdit && permissionStatus !== 'granted' && (
         <View style={styles.permissionContainer}>
           <Ionicons
             name="information-circle-outline"
@@ -229,7 +231,7 @@ export function AddressForm({
         title={isPending ? 'Saving...' : 'Save'}
         onPress={handleSave}
         loading={isPending}
-        disabled={isPending || permissionStatus !== 'granted'}
+        disabled={isPending || (!isEdit && permissionStatus !== 'granted')}
         style={styles.saveButton}
       />
     </ScrollView>

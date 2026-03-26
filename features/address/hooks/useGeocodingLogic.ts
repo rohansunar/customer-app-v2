@@ -37,7 +37,7 @@ export function useGeocodingLogic(
   // If we use onRegionChangeComplete, we get stable coordinates.
 
   const showToast = useToastHelpers();
-  const lastGeocodedCoords = useRef({ lat: 0, lng: 0 });
+  const lastGeocodedCoords = useRef({ lat: address?.lat || 0, lng: address?.lng || 0 });
 
   const debounceTimer = useRef<any>(null);
 
@@ -83,7 +83,7 @@ export function useGeocodingLogic(
   // Auto-fill address details from geocode result
   // Added guard checks to prevent redundant state updates that cause flickering/loops
   useEffect(() => {
-    if (geocodeResult && !address) {
+    if (geocodeResult) {
       if (
         geocodeResult.postalCode &&
         geocodeResult.postalCode !== currentPincode

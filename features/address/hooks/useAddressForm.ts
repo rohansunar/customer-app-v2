@@ -24,7 +24,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   const [city, setCity] = useState(address?.location.name || '');
   const [lng, setLng] = useState(address?.lng || 0);
   const [lat, setLat] = useState(address?.lat || 0);
-  const [state, setState] = useState('');
+  const [state, setState] = useState(address?.location.state || '');
   const [errors, setErrors] = useState<AddressFormErrors>({});
 
   useEffect(() => {
@@ -34,6 +34,8 @@ export function useAddressForm(address?: Address): AddressFormState & {
       setPincode(address.pincode);
       setLng(address.lng || 0);
       setLat(address.lat || 0);
+      setCity(address.location.name);
+      setState(address.location.state);
     }
   }, [address]);
 

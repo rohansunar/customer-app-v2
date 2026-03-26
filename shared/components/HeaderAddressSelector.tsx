@@ -61,7 +61,7 @@ export function HeaderAddressSelector() {
             numberOfLines={1}
             style={styles.addressSnippet}
           >
-            {defaultAddress?.address || 'Tap to set your location'}
+            {defaultAddress?.address || 'Tap to set your location'}, {defaultAddress?.location.name || ''}, {defaultAddress?.pincode || ''}
           </Text>
         </View>
       </TouchableOpacity>

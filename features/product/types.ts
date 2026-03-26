@@ -14,4 +14,5 @@ export type Product = {
   images?: string[];
   distance: Distance;
   is_schedulable?: boolean;
+  isReadyToAcceptOrders?: boolean;
 };

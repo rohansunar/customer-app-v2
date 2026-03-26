@@ -19,7 +19,12 @@ export function Input({ label, error, style, ...props }: Props) {
         </Text>
       )}
       <TextInput
-        style={[styles.input, error ? styles.inputError : null, style]}
+        style={[
+          styles.input,
+          error ? styles.inputError : null,
+          props.editable === false ? styles.inputDisabled : null,
+          style
+        ]}
         placeholderTextColor={colors.textTertiary}
         {...props}
       />
@@ -55,6 +60,10 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: colors.error,
+  },
+  inputDisabled: {
+    backgroundColor: colors.border + '40', // light grey tint
+    color: colors.textTertiary,
   },
   error: {
     marginTop: spacing.xs,

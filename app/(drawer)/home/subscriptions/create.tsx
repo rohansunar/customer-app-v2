@@ -4,7 +4,7 @@ import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateSubscription';
@@ -28,6 +28,7 @@ export default function CreateSubscriptionScreen() {
 
   const form = useSubscriptionForm();
   const createSubscription = useCreateSubscription();
+  const [policyAccepted, setPolicyAccepted] = useState(false);
 
   const handleSave = () => {
     const payload: SubscriptionRequest = {
@@ -117,6 +118,53 @@ export default function CreateSubscriptionScreen() {
             </View>
           </View>
 
+          {/* Policy Disclaimer Section */}
+          <View style={styles.disclaimerSection}>
+            <Text variant="s" weight="bold" style={styles.sectionTitle}>
+              Subscription Policies
+            </Text>
+            <View style={styles.disclaimerCard}>
+              <View style={styles.disclaimerRow}>
+                <Ionicons
+                  name="time-outline"
+                  size={18}
+                  color={colors.primary}
+                />
+                <Text variant="xs" color={colors.textSecondary} style={styles.disclaimerText}>
+                  Refunds take <Text weight="bold">7 working days</Text> to process after cancellation.
+                </Text>
+              </View>
+              <View style={[styles.disclaimerRow, { marginTop: spacing.s }]}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+                <Text variant="xs" color={colors.textSecondary} style={styles.disclaimerText}>
+                  A non-refundable processing fee of <Text weight="bold">2.5% + 18% GST</Text> applies as per payment partner policies.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setPolicyAccepted(!policyAccepted)}
+              activeOpacity={0.7}
+            >
+              <View style={[
+                styles.checkbox,
+                policyAccepted && styles.checkboxChecked
+              ]}>
+                {policyAccepted && (
+                  <Ionicons name="checkmark" size={16} color={colors.white} />
+                )}
+              </View>
+              <Text variant="s" color={colors.textPrimary} style={styles.checkboxLabel}>
+                I agree to the subscription and refund policies.
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>
@@ -131,6 +179,7 @@ export default function CreateSubscriptionScreen() {
           onPress={handleSave}
           disabled={
             createSubscription.isPending ||
+            !policyAccepted ||
             (form.state.frequency === 'CUSTOM_DAYS' &&
               form.state.customDays.length === 0)
           }
@@ -209,5 +258,48 @@ const styles = StyleSheet.create({
   confirmButton: {
     height: 56,
     borderRadius: spacing.radius.xl,
+  },
+  disclaimerSection: {
+    marginBottom: spacing.xxl,
+  },
+  disclaimerCard: {
+    backgroundColor: colors.background,
+    padding: spacing.m,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.m,
+  },
+  disclaimerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.s,
+  },
+  disclaimerText: {
+    flex: 1,
+    lineHeight: 18,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.s,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.s,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontWeight: '500',
   },
 });

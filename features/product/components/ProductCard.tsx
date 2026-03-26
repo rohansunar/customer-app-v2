@@ -114,6 +114,32 @@ export const ProductCard = memo(function ProductCard({
             style={styles.badge}
           />
         ) : null}
+        {product.isReadyToAcceptOrders === false && (
+          <View style={styles.availabilityOverlay}>
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              style={styles.overlayGradient}
+            >
+              <View style={styles.overlayContent}>
+                <Ionicons
+                  name="information-circle"
+                  size={18}
+                  color={colors.primary}
+                />
+                <Text
+                  variant="xs"
+                  weight="bold"
+                  color={colors.white}
+                  style={styles.overlayText}
+                >
+                  {product.is_schedulable
+                    ? 'Currently Unavailable for instant delivery. Subscribe for next scheduled slot.'
+                    : 'Currently Unavailable for instant delivery.'}
+                </Text>
+              </View>
+            </LinearGradient>
+          </View>
+        )}
       </View>
 
       <View style={styles.details}>
@@ -169,7 +195,7 @@ export const ProductCard = memo(function ProductCard({
             variant="secondary"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
-            disabled={addToCartMutation.isPending}
+            disabled={addToCartMutation.isPending || product.isReadyToAcceptOrders === false}
             icon={
               <IconSymbol name="cart.fill" color={colors.primary} size={20} />
             }
@@ -307,26 +333,26 @@ const styles = StyleSheet.create({
   },
   gradientContainer: {
     flex: 1,
-    paddingHorizontal: spacing.m,
+    paddingHorizontal: spacing.l,
     justifyContent: 'center',
-  },
-  buttonInner: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Center content
-    position: 'relative',
-    height: '100%',
   },
-  rightBadge: {
-    backgroundColor: '#FFE135',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: spacing.radius.circle,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    position: 'absolute', // Absolute to not affect centering
-    right: 0,
-  },
+   buttonInner: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     justifyContent: 'center',
+     position: 'relative',
+     height: '100%',
+   },
+   rightBadge: {
+     backgroundColor: '#FFE135',
+     paddingHorizontal: 8,
+     paddingVertical: 2,
+     borderRadius: spacing.radius.circle,
+     borderWidth: 1,
+     borderColor: 'rgba(0,0,0,0.1)',
+     marginLeft: 10,
+   },
   rightBadgeText: {
     color: '#D84315',
     fontSize: 10,
@@ -338,5 +364,26 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textAlign: 'center',
     textTransform: 'uppercase', // More modern/urgent
+  },
+  availabilityOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 11,
+  },
+  overlayGradient: {
+    paddingTop: spacing.l,
+    paddingBottom: spacing.s,
+    paddingHorizontal: spacing.m,
+  },
+  overlayContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  overlayText: {
+    flex: 1,
+    lineHeight: 14,
   },
 });

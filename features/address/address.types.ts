@@ -17,6 +17,7 @@ export type Address = {
   location: {
     id: string;
     name: string;
+    state: string;
   };
   lng: number;
   lat: number;
@@ -45,8 +46,8 @@ export type CreateAddressData = {
   pincode: string;
   city: string;
   state: string;
-  lng: number;
-  lat: number;
+  lng?: number;
+  lat?: number;
   isDefault?: boolean;
 };
 
@@ -131,6 +132,7 @@ export interface AddressFormInputsProps {
   city: string;
   onCityChange: (text: string) => void;
   errors: AddressFormErrors;
+  isEdit?: boolean;
 }
 
 /**
