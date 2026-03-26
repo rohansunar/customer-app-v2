@@ -64,6 +64,7 @@ export function useAddToCart() {
   const showToast = useToastHelpers();
 
   return useMutation({
+    mutationKey: ['cart'],
     /**
      * The mutation function that makes the actual API call
      * Called after optimistic update is applied

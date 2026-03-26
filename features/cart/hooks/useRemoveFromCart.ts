@@ -56,6 +56,7 @@ export function useRemoveFromCart() {
   const showToast = useToastHelpers();
 
   return useMutation({
+    mutationKey: ['cart'],
     /**
      * The mutation function that makes the actual API call
      * @param id - The ID of the cart item to remove
@@ -100,7 +101,7 @@ export function useRemoveFromCart() {
      */
     onSuccess: (_data, id) => {
       // Show success feedback to user
-      showToast.success('Item removed');
+      showToast.success('Item removed from cart');
 
       // Ensure cache consistency
       queryClient.invalidateQueries({ queryKey: ['cart'] });

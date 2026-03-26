@@ -41,6 +41,8 @@ export interface Order {
   address: Address;
   assigned_rider_phone: string;
   delivery_otp: string;
+  cancelReason?: string;
+  cancellation_origin?: string;
 }
 
 export interface OrdersResponse {

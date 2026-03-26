@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useIsMutating } from '@tanstack/react-query';
 import { useHandlePayment } from '@/features/payment/hooks/useHandlePayment';
 import { PaymentMode } from '@/features/payment/types';
 import { useCart } from '../hooks/useCart';
@@ -20,8 +21,11 @@ import { useRemoveFromCart } from '../hooks/useRemoveFromCart';
 import { CartItem } from '../types';
 
 export function CartSummary() {
-  const { data, isLoading, error } = useCart();
+  const { data, isLoading, error, isFetching } = useCart();
+  const isMutatingCart = useIsMutating({ mutationKey: ['cart'] });
   const removeFromCart = useRemoveFromCart();
+
+  const isUpdatingCart = isFetching || isMutatingCart > 0;
 
   const cartItems = data?.cartItems || [];
 
@@ -293,11 +297,11 @@ export function CartSummary() {
           {renderPaymentSelection()}
 
           <Button
-            title={isPending ? 'Processing...' : 'Place Order'}
+            title={isPending ? 'Processing...' : isUpdatingCart ? 'Updating Cart...' : 'Place Order'}
             onPress={() => handlePayment(selectedPaymentMode)}
             style={styles.checkoutButton}
             loading={isPending}
-            disabled={isPending}
+            disabled={isPending || isUpdatingCart}
           />
         </View>
       </View>

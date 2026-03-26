@@ -38,10 +38,8 @@ export const useAddressValidation = () => {
       setErrors(mapZodErrors(zodError));
 
       // Show FIRST error only (better UX)
+      // Removed global toast as errors are shown inline in the form
       const firstError = zodError.issues[0]?.message;
-      if (firstError) {
-        showToast.error(firstError);
-      }
 
       return false;
     }
@@ -52,17 +50,21 @@ export const useAddressValidation = () => {
 
   /* ---------------- BUSINESS RULE VALIDATION ---------------- */
 
-  const validateRequiredFields = (formState: AddressFormState): boolean => {
+  const validateRequiredFields = (
+    formState: AddressFormState,
+    setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
+    isEdit: boolean
+  ): boolean => {
     const { label, lng, lat } = formState;
 
     if (!label) {
-      showToast.error('Please select an address type (Home, Work, Other)');
+      setErrors((prev) => ({ ...prev, label: 'Please select an address type (Home, Work, Other)' }));
       return false;
     }
 
     // Map selection is CRITICAL for delivery apps
-    if (!lng || !lat) {
-      showToast.error('Please select your location on the map');
+    if (!isEdit && (!lng || !lat)) {
+      setErrors((prev) => ({ ...prev, location: 'Please select your location on the map' }));
       return false;
     }
 
@@ -74,13 +76,14 @@ export const useAddressValidation = () => {
   const validateForm = (
     formState: AddressFormState,
     setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
+    isEdit: boolean = false
   ): boolean => {
     // Step 1 → Validate inputs (Zod)
     const zodValid = validateZodFields(formState, setErrors);
     if (!zodValid) return false;
 
     // Step 2 → Validate delivery logic
-    const requiredFieldValid = validateRequiredFields(formState);
+    const requiredFieldValid = validateRequiredFields(formState, setErrors, isEdit);
     if (!requiredFieldValid) return false;
 
     return true;

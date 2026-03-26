@@ -81,7 +81,7 @@ function OrderCardComponent({ order, loading }: Props) {
     } else {
       menuAnchorRef.current?.measureInWindow((_x, y, _width, height) => {
         setMenuPosition({
-          top: y + height + 5,
+          top: y + height + spacing.xs,
           right: spacing.m,
         });
         setIsMenuVisible(true);
@@ -169,6 +169,11 @@ function OrderCardComponent({ order, loading }: Props) {
     [order.payment_mode],
   );
 
+  const isCancelled = useMemo(
+    () => order.delivery_status === 'CANCELLED',
+    [order.delivery_status],
+  );
+
   return (
     <Card
       style={styles.card}
@@ -204,7 +209,7 @@ function OrderCardComponent({ order, loading }: Props) {
               name="time-outline"
               size={14}
               color={statusColor}
-              style={{ marginRight: 4 }}
+              style={{ marginRight: spacing.xs }}
             />
             <Text variant="xs" weight="bold" color={statusColor}>
               {statusLabel}
@@ -340,7 +345,7 @@ function OrderCardComponent({ order, loading }: Props) {
               }
               size={12}
               color={paymentStatusColor}
-              style={{ marginRight: 3 }}
+              style={{ marginRight: spacing.xs }}
             />
             <Text variant="xs" weight="medium" color={paymentStatusColor}>
               {paymentStatusLabel}
@@ -363,7 +368,7 @@ function OrderCardComponent({ order, loading }: Props) {
               }
               size={12}
               color={paymentModeColor}
-              style={{ marginRight: 3 }}
+              style={{ marginRight: spacing.xs }}
             />
             <Text variant="xs" weight="medium" color={paymentModeColor}>
               {paymentModeLabel}
@@ -392,6 +397,66 @@ function OrderCardComponent({ order, loading }: Props) {
           >
             {order.delivery_otp}
           </Text>
+        </View>
+      )}
+
+      {/* Cancellation Info */}
+      {isCancelled && (order.cancelReason || order.cancellation_origin) && (
+        <View style={styles.cancellationContainer}>
+          {order.cancelReason && (
+            <View style={styles.cancellationRow}>
+              <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+              </View>
+              <View style={styles.cancellationContent}>
+                <Text
+                  variant="xs"
+                  color={colors.textTertiary}
+                  style={styles.cancellationLabel}
+                >
+                  Cancellation Reason
+                </Text>
+                <Text
+                  variant="s"
+                  color={colors.textPrimary}
+                  style={styles.cancellationValue}
+                >
+                  {order.cancelReason}
+                </Text>
+              </View>
+            </View>
+          )}
+          {order.cancellation_origin && (
+            <View style={styles.cancellationRow}>
+              <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons
+                  name="person-outline"
+                  size={18}
+                  color="#D97706"
+                />
+              </View>
+              <View style={styles.cancellationContent}>
+                <Text
+                  variant="xs"
+                  color={colors.textTertiary}
+                  style={styles.cancellationLabel}
+                >
+                  Cancelled By
+                </Text>
+                <Text
+                  variant="s"
+                  color={colors.textPrimary}
+                  style={styles.cancellationValue}
+                >
+                  {order.cancellation_origin === 'VENDOR' ? 'SELLER' : 'SYSTEM'}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
       )}
 
@@ -470,6 +535,8 @@ function OrderCardComponent({ order, loading }: Props) {
   );
 }
 
+const ICON_BOX_SIZE = 28;
+
 const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.m,
@@ -490,7 +557,7 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   orderNo: {
     fontSize: 12,
@@ -499,27 +566,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   dateText: {
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.s,
-    paddingVertical: 2,
-    borderRadius: 16,
+    paddingVertical: spacing.xxs,
+    borderRadius: spacing.radius.xl,
     borderWidth: 1,
     backgroundColor: '#FFFBEB',
   },
   menuTrigger: {
-    padding: 4,
+    padding: spacing.xs,
     marginLeft: spacing.xs,
-    marginTop: -4,
+    marginTop: -spacing.xs,
   },
   detailsContainer: {
     backgroundColor: colors.background,
     borderRadius: spacing.radius.m,
     padding: spacing.s,
-    paddingVertical: spacing.s,
     marginBottom: spacing.s,
   },
   detailRow: {
@@ -528,9 +594,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.s,
   },
   iconBox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: ICON_BOX_SIZE,
+    height: ICON_BOX_SIZE,
+    borderRadius: ICON_BOX_SIZE / 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.s,
@@ -550,12 +616,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: spacing.s,
-    paddingLeft: 28 + spacing.s,
+    paddingLeft: ICON_BOX_SIZE + spacing.s,
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   itemName: {
     flex: 1,
@@ -584,16 +650,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.s,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingVertical: spacing.xxs,
+    borderRadius: spacing.radius.m + 4,
     borderWidth: 1,
   },
   paymentModeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.s,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingVertical: spacing.xxs,
+    borderRadius: spacing.radius.m + 4,
     borderWidth: 1,
     marginLeft: spacing.xs,
   },
@@ -614,7 +680,7 @@ const styles = StyleSheet.create({
     borderColor: '#DBEAFE',
   },
   otpText: {
-    marginLeft: 8,
+    marginLeft: spacing.s,
   },
   modalBackdrop: {
     flex: 1,
@@ -647,6 +713,27 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginHorizontal: spacing.s,
+  },
+  cancellationContainer: {
+    marginTop: spacing.s,
+    backgroundColor: colors.background,
+    borderRadius: spacing.radius.m,
+    padding: spacing.s,
+  },
+  cancellationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: spacing.s,
+  },
+  cancellationContent: {
+    flex: 1,
+    marginLeft: spacing.s,
+  },
+  cancellationLabel: {
+    marginBottom: spacing.xxs,
+  },
+  cancellationValue: {
+    lineHeight: 18,
   },
 });
 

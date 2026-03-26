@@ -29,6 +29,9 @@ export type AddressFormErrors = {
   state?: string;
   city?: string;
   pincode?: string;
+  location?: string;
+  label?: string;
+  global?: string;
 };
 
 /**

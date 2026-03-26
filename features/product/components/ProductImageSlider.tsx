@@ -10,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { BlurView } from 'expo-blur';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 const CARD_MARGIN = spacing.m * 2;
@@ -57,19 +56,6 @@ export function ProductImageSlider({ images }: ProductImageSliderProps) {
         scrollEventThrottle={16}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            {/* Blurred Background to fill all dimensions */}
-            <Image
-              source={{ uri: item }}
-              style={styles.backgroundImage}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-            />
-            <BlurView
-              intensity={30}
-              tint="light"
-              style={StyleSheet.absoluteFill}
-            />
-
             {/* Main Product Image */}
             <Image
               source={{ uri: item }}
@@ -124,9 +110,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  backgroundImage: {
-    ...StyleSheet.absoluteFillObject,
   },
   dotsContainer: {
     flexDirection: 'row',

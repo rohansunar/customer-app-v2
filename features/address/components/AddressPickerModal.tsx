@@ -111,7 +111,6 @@ export function AddressPickerModal({
               showToast.success('Address updated');
               setShowForm(false);
               setEditingAddress(null);
-              onClose();
             },
             onError: (error) => {
               showToast.error(getErrorMessage(error));
@@ -124,7 +123,6 @@ export function AddressPickerModal({
             showToast.success('Address added');
             setShowForm(false);
             setEditingAddress(null);
-            onClose();
           },
           onError: (error) => {
             showToast.error(getErrorMessage(error));

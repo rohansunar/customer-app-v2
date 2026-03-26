@@ -89,7 +89,7 @@ export function AddressForm({
   // Only proceeds if validation passes; prevents invalid data submission.
   // Maps internal form state to API-expected structure.
   const handleSave = () => {
-    if (!validateForm(formState, formState.setErrors)) return;
+    if (!validateForm(formState, formState.setErrors, isEdit)) return;
     onSave({
       label: formState.label,
       address: formState.addressText,
@@ -225,6 +225,16 @@ export function AddressForm({
         </View>
       )}
 
+      {/* Form Level Errors */}
+      {(formState.errors.location || formState.errors.label || formState.errors.global) && (
+        <View style={styles.formErrorContainer}>
+          <Ionicons name="alert-circle" size={20} color={colors.error} />
+          <Text variant="s" color={colors.error} style={styles.formErrorText}>
+            {formState.errors.location || formState.errors.label || formState.errors.global}
+          </Text>
+        </View>
+      )}
+
       {/* Save Button: Triggers validation and save.
          Disabled during pending state or when location is missing to prevent invalid submissions. */}
       <Button
@@ -287,5 +297,17 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     marginTop: spacing.xs,
+  },
+  formErrorContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.error + '10', // 10% opacity for subtle background
+    padding: spacing.m,
+    borderRadius: spacing.radius.m,
+    marginTop: spacing.m,
+    gap: spacing.s,
+    alignItems: 'center',
+  },
+  formErrorText: {
+    flex: 1,
   },
 });
