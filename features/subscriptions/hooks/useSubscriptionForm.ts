@@ -1,9 +1,5 @@
-import { useMemo, useState } from 'react';
-import { DayOfWeek, Subscription, SubscriptionType } from '../types';
-import {
-  calculateUpcomingDates,
-  convertDaysToNames,
-} from '../utils/subscriptionUtils';
+import { useState } from 'react';
+import { DayOfWeek, SubscriptionType } from '../types';
 
 // Interface for subscription form state - Interface Segregation Principle: Segregated from component props
 export interface ISubscriptionFormState {
@@ -22,38 +18,40 @@ export interface ISubscriptionFormActions {
   toggleDay: (day: DayOfWeek) => void;
   incrementQty: () => void;
   decrementQty: () => void;
+  reset: () => void;
+}
+
+const DEFAULT_FREQUENCY: SubscriptionType = 'DAILY';
+const DEFAULT_QUANTITY = 1;
+
+function getDefaultStartDate(): Date {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  return tomorrow;
 }
 
 // Combined interface for the hook return - Dependency Inversion Principle: Abstraction over concrete state
 export interface IUseSubscriptionForm {
   state: ISubscriptionFormState;
   actions: ISubscriptionFormActions;
-  getUpcomingDates: string[];
 }
 
 // Custom hook for managing subscription form state
 // Single Responsibility Principle: Handles only form state management
-export function useSubscriptionForm(
-  existingSubscription?: Subscription,
-): IUseSubscriptionForm {
-  const [frequency, setFrequency] = useState<SubscriptionType>(
-    existingSubscription?.frequency || 'DAILY',
-  );
-  // Convert numeric days from existing subscription to day names for form state
-  const [customDays, setCustomDays] = useState<DayOfWeek[]>(
-    existingSubscription?.custom_days
-      ? convertDaysToNames(existingSubscription.custom_days)
-      : [],
-  );
-  const [quantity, setQuantity] = useState(existingSubscription?.quantity || 1);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    if (existingSubscription?.start_date) {
-      return new Date(existingSubscription.start_date);
-    }
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
-  });
+export function useSubscriptionForm(): IUseSubscriptionForm {
+  const [frequency, setFrequency] =
+    useState<SubscriptionType>(DEFAULT_FREQUENCY);
+  const [customDays, setCustomDays] = useState<DayOfWeek[]>([]);
+  const [quantity, setQuantity] = useState(DEFAULT_QUANTITY);
+  const [selectedDate, setSelectedDate] = useState(getDefaultStartDate);
+
+  const reset = () => {
+    setFrequency(DEFAULT_FREQUENCY);
+    setCustomDays([]);
+    setQuantity(DEFAULT_QUANTITY);
+    setSelectedDate(getDefaultStartDate());
+  };
 
   const toggleDay = (day: DayOfWeek) => {
     setCustomDays((prev) =>
@@ -63,11 +61,6 @@ export function useSubscriptionForm(
 
   const incrementQty = () => setQuantity((q) => q + 1);
   const decrementQty = () => setQuantity((q) => Math.max(1, q - 1));
-
-  const getUpcomingDates = useMemo(
-    () => calculateUpcomingDates(frequency, selectedDate),
-    [frequency, selectedDate],
-  );
 
   return {
     state: {
@@ -84,7 +77,7 @@ export function useSubscriptionForm(
       toggleDay,
       incrementQty,
       decrementQty,
+      reset,
     },
-    getUpcomingDates,
   };
 }

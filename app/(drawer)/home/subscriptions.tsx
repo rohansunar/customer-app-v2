@@ -16,7 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Button } from '@/core/ui/Button';
 
@@ -24,6 +23,7 @@ type FilterType = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
 export default function SubscriptionsScreen() {
   const [filter, setFilter] = useState<FilterType>('ALL');
+  const router = useRouter();
 
   const {
     subscriptions,
@@ -85,13 +85,8 @@ export default function SubscriptionsScreen() {
     return <ErrorState error={error} onRetry={refetch} />;
   }
 
-  const router = useRouter();
-
   const renderEmpty = () => (
-    <Animated.View
-      entering={FadeInDown.springify()}
-      style={styles.emptyContainer}
-    >
+    <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
         <Ionicons name="repeat-outline" size={64} color={colors.primary} />
       </View>
@@ -108,7 +103,7 @@ export default function SubscriptionsScreen() {
         textStyle={styles.emptyButtonText}
         variant="primary"
       />
-    </Animated.View>
+    </View>
   );
 
   const renderFilterChip = (
@@ -192,9 +187,7 @@ export default function SubscriptionsScreen() {
       <FlatList
         data={filteredSubscriptions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <SubscriptionCard subscription={item} index={index} />
-        )}
+        renderItem={({ item }) => <SubscriptionCard subscription={item} />}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
@@ -245,6 +238,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.s,
   },
   filterChip: {

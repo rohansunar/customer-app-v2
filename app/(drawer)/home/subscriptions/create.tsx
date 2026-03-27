@@ -4,41 +4,176 @@ import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateSubscription';
 import { useSubscriptionForm } from '@/features/subscriptions/hooks/useSubscriptionForm';
-import { SubscriptionRequest } from '@/features/subscriptions/types';
+import {
+  DayOfWeek,
+  SubscriptionPreviewResponse,
+  SubscriptionRequest,
+  SubscriptionType,
+} from '@/features/subscriptions/types';
+import { subscriptionService } from '@/features/subscriptions/services/subscription.service';
 import { CalendarPicker } from '@/features/subscriptions/components/CalendarPicker';
 import { SubscriptionSummary } from '@/features/subscriptions/components/SubscriptionSummary';
 import { QuantitySelector } from '@/features/subscriptions/components/QuantitySelector';
 import { FrequencySelector } from '@/features/subscriptions/components/FrequencySelector';
-import { convertDaysToNumeric } from '@/features/subscriptions/utils/subscriptionUtils';
+import {
+  convertDaysToNumeric,
+  formatDateForApi,
+} from '@/features/subscriptions/utils/subscriptionUtils';
+
+function getSearchParamValue(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+
+  return value ?? '';
+}
 
 export default function CreateSubscriptionScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const productId = params.productId as string;
-  const productName = params.productName as string;
-  const productPrice = parseFloat((params.productPrice as string) || '0');
-  const productImage = params.productImage as string;
-  const productDescription = params.productDescription as string;
+  const productId = getSearchParamValue(params.productId);
+  const productName = getSearchParamValue(params.productName);
+  const productPrice = parseFloat(
+    getSearchParamValue(params.productPrice) || '0',
+  );
+  const productImage = getSearchParamValue(params.productImage);
+  const productDescription = getSearchParamValue(params.productDescription);
 
   const form = useSubscriptionForm();
   const createSubscription = useCreateSubscription();
   const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [previewData, setPreviewData] =
+    useState<SubscriptionPreviewResponse | null>(null);
+  const [hasPreviewError, setHasPreviewError] = useState(false);
+  const [isPreviewRefreshing, setIsPreviewRefreshing] = useState(false);
+  const previewRequestIdRef = useRef(0);
+  const [isAwaitingCustomDaySelection, setIsAwaitingCustomDaySelection] =
+    useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      form.actions.reset();
+      setPolicyAccepted(false);
+      setPreviewData(null);
+      setHasPreviewError(false);
+    }, [form.actions]),
+  );
+
+  const defaultStartDate = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    return formatDateForApi(tomorrow);
+  }, []);
+  const startDate = formatDateForApi(form.state.selectedDate);
+  const customDays = useMemo(() => {
+    if (form.state.frequency !== 'CUSTOM_DAYS') {
+      return undefined;
+    }
+
+    return [...convertDaysToNumeric(form.state.customDays)].sort(
+      (a, b) => a - b,
+    );
+  }, [form.state.customDays, form.state.frequency]);
+  const hasCustomDays = Boolean(customDays && customDays.length > 0);
+  const isInitialPreviewRequest =
+    form.state.frequency === 'DAILY' &&
+    form.state.quantity === 1 &&
+    startDate === defaultStartDate &&
+    !hasCustomDays;
+
+  const previewEnabled =
+    Boolean(productId) &&
+    (form.state.frequency !== 'CUSTOM_DAYS' || hasCustomDays);
+
+  const handleSelectFrequency = (frequency: SubscriptionType) => {
+    // Do not refresh the preview when the user only opens the Custom Days tab.
+    setIsAwaitingCustomDaySelection(
+      frequency === 'CUSTOM_DAYS' && form.state.frequency !== 'CUSTOM_DAYS',
+    );
+    form.actions.setFrequency(frequency);
+  };
+
+  const handleToggleCustomDay = (day: DayOfWeek) => {
+    setIsAwaitingCustomDaySelection(false);
+    form.actions.toggleDay(day);
+  };
+
+  const hasSelectedCustomDays = customDays && customDays.length > 0;
+
+  useEffect(() => {
+    const isCustomDaysFrequency = form.state.frequency === 'CUSTOM_DAYS';
+    const shouldSkipPreview =
+      isCustomDaysFrequency &&
+      (!hasSelectedCustomDays || isAwaitingCustomDaySelection);
+
+    if (!previewEnabled || shouldSkipPreview) {
+      previewRequestIdRef.current += 1;
+      setHasPreviewError(false);
+      setIsPreviewRefreshing(false);
+      return;
+    }
+
+    const requestId = ++previewRequestIdRef.current;
+    const request = {
+      productId,
+      ...(isInitialPreviewRequest
+        ? {}
+        : {
+            frequency: form.state.frequency,
+            start_date: startDate,
+            unit: form.state.quantity,
+            ...(hasCustomDays ? { custom_days: customDays } : {}),
+          }),
+    };
+
+    setHasPreviewError(false);
+    setPreviewData(null);
+    setIsPreviewRefreshing(true);
+
+    void subscriptionService
+      .getSubscriptionPreview(request)
+      .then((response) => {
+        if (requestId !== previewRequestIdRef.current) {
+          return;
+        }
+
+        setPreviewData(response);
+        setIsPreviewRefreshing(false);
+      })
+      .catch(() => {
+        if (requestId !== previewRequestIdRef.current) {
+          return;
+        }
+
+        setHasPreviewError(true);
+        setIsPreviewRefreshing(false);
+      });
+  }, [
+    customDays,
+    form.state.frequency,
+    form.state.quantity,
+    hasSelectedCustomDays,
+    isAwaitingCustomDaySelection,
+    isInitialPreviewRequest,
+    previewEnabled,
+    productId,
+    startDate,
+  ]);
 
   const handleSave = () => {
     const payload: SubscriptionRequest = {
       productId,
       frequency: form.state.frequency,
-      start_date: form.state.selectedDate.toISOString().split('T')[0],
-      custom_days:
-        form.state.frequency === 'CUSTOM_DAYS'
-          ? convertDaysToNumeric(form.state.customDays)
-          : undefined,
+      start_date: startDate,
+      custom_days: customDays,
       quantity: form.state.quantity,
     };
 
@@ -74,7 +209,10 @@ export default function CreateSubscriptionScreen() {
             startDate={form.state.selectedDate}
             quantity={form.state.quantity}
             frequency={form.state.frequency}
-            customDays={convertDaysToNumeric(form.state.customDays)}
+            customDays={customDays}
+            preview={previewData}
+            isRefreshing={isPreviewRefreshing}
+            hasPreviewError={hasPreviewError}
           />
 
           <Text variant="m" weight="bold" style={styles.sectionTitle}>
@@ -92,9 +230,9 @@ export default function CreateSubscriptionScreen() {
 
             <FrequencySelector
               selectedFrequency={form.state.frequency}
-              onSelectFrequency={form.actions.setFrequency}
+              onSelectFrequency={handleSelectFrequency}
               selectedCustomDays={form.state.customDays}
-              onToggleCustomDay={form.actions.toggleDay}
+              onToggleCustomDay={handleToggleCustomDay}
             />
           </View>
 
@@ -130,8 +268,13 @@ export default function CreateSubscriptionScreen() {
                   size={18}
                   color={colors.primary}
                 />
-                <Text variant="xs" color={colors.textSecondary} style={styles.disclaimerText}>
-                  Refunds take <Text weight="bold">7 working days</Text> to process after cancellation.
+                <Text
+                  variant="xs"
+                  color={colors.textSecondary}
+                  style={styles.disclaimerText}
+                >
+                  Refunds take <Text weight="bold">7 working days</Text> to
+                  process after cancellation.
                 </Text>
               </View>
               <View style={[styles.disclaimerRow, { marginTop: spacing.s }]}>
@@ -140,8 +283,14 @@ export default function CreateSubscriptionScreen() {
                   size={18}
                   color={colors.error}
                 />
-                <Text variant="xs" color={colors.textSecondary} style={styles.disclaimerText}>
-                  A non-refundable processing fee of <Text weight="bold">2.5% + 18% GST</Text> applies as per payment partner policies.
+                <Text
+                  variant="xs"
+                  color={colors.textSecondary}
+                  style={styles.disclaimerText}
+                >
+                  A non-refundable processing fee of{' '}
+                  <Text weight="bold">2.5% + 18% GST</Text> applies as per
+                  payment partner policies.
                 </Text>
               </View>
             </View>
@@ -151,15 +300,21 @@ export default function CreateSubscriptionScreen() {
               onPress={() => setPolicyAccepted(!policyAccepted)}
               activeOpacity={0.7}
             >
-              <View style={[
-                styles.checkbox,
-                policyAccepted && styles.checkboxChecked
-              ]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  policyAccepted && styles.checkboxChecked,
+                ]}
+              >
                 {policyAccepted && (
                   <Ionicons name="checkmark" size={16} color={colors.white} />
                 )}
               </View>
-              <Text variant="s" color={colors.textPrimary} style={styles.checkboxLabel}>
+              <Text
+                variant="s"
+                color={colors.textPrimary}
+                style={styles.checkboxLabel}
+              >
                 I agree to the subscription and refund policies.
               </Text>
             </TouchableOpacity>
@@ -174,11 +329,16 @@ export default function CreateSubscriptionScreen() {
           title={
             createSubscription.isPending
               ? 'Processing...'
-              : 'Confirm & Subscribe'
+              : isPreviewRefreshing
+                ? 'Updating Preview...'
+                : 'Confirm & Subscribe'
           }
           onPress={handleSave}
           disabled={
             createSubscription.isPending ||
+            isPreviewRefreshing ||
+            hasPreviewError ||
+            !previewData ||
             !policyAccepted ||
             (form.state.frequency === 'CUSTOM_DAYS' &&
               form.state.customDays.length === 0)

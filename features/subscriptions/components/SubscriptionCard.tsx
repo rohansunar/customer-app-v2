@@ -2,34 +2,23 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { statusColors } from '@/core/theme/statusColors';
 import { Badge } from '@/core/ui/Badge';
-import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
 import CustomAlert from '@/core/ui/customAlert';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
+  Image,
   Modal,
-  Platform,
-  Pressable,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  Image,
 } from 'react-native';
-import Animated, {
-  FadeInDown,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import { useDeleteSubscription } from '../hooks/useDeleteSubscription';
 import { useUpdateSubscriptionStatus } from '../hooks/useUpdateSubscriptionStatus';
 import { Subscription } from '../types';
@@ -47,14 +36,15 @@ import {
 
 interface Props {
   subscription: Subscription;
-  index: number;
 }
 
 /**
  * Modern SubscriptionCard with gradients, animations, and enhanced UI
  * Refactored following SOLID principles
  */
-export function SubscriptionCard({ subscription, index }: Props) {
+const MENU_WIDTH = 220;
+
+export function SubscriptionCard({ subscription }: Props) {
   const updateStatus = useUpdateSubscriptionStatus();
   const deleteSubscription = useDeleteSubscription();
   const isActive = subscription.status === 'ACTIVE';
@@ -65,10 +55,6 @@ export function SubscriptionCard({ subscription, index }: Props) {
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [alertVisible, setAlertVisible] = useState(false);
   const menuButtonRef = useRef<View>(null);
-
-  // Animation values
-  const pulseScale = useSharedValue(1);
-  const pressScale = useSharedValue(1);
 
   // Use centralized utility functions
   const daysUntilDelivery = useMemo(
@@ -91,50 +77,44 @@ export function SubscriptionCard({ subscription, index }: Props) {
     () => getOverlayGradient(isActive),
     [isActive],
   );
-
-  // Pulse animation for active status badge
-  useEffect(() => {
-    if (isActive) {
-      pulseScale.value = withRepeat(
-        withSequence(
-          withTiming(1.05, { duration: 1000 }),
-          withTiming(1, { duration: 1000 }),
-        ),
-        -1,
-        false,
-      );
-    } else {
-      pulseScale.value = withTiming(1);
-    }
-  }, [isActive, pulseScale]);
-
-  const pulseStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale.value }],
-  }));
-
-  const pressStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pressScale.value }],
-  }));
-
-  const handlePressIn = () => {
-    pressScale.value = withSpring(0.98);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const handlePressOut = () => {
-    pressScale.value = withSpring(1);
-  };
+  const addressLocation = [
+    subscription.customerAddress?.location?.name,
+    subscription.customerAddress?.location?.state,
+    subscription.customerAddress?.pincode,
+  ].filter(Boolean);
+  const statusActionLabel = isActive
+    ? 'Pause Subscription'
+    : 'Resume Subscription';
+  const statusActionIcon = isActive ? 'pause-outline' : 'play-outline';
 
   const handleToggleStatus = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     updateStatus.mutate({ id: subscription.id });
   };
 
+  const handleStatusMenuPress = () => {
+    closeMenu();
+    handleToggleStatus();
+  };
+
   const openMenu = () => {
     menuButtonRef.current?.measureInWindow((x, y, width, height) => {
+      const screen = Dimensions.get('window');
+      const menuHeight =
+        (isProcessing ? 0 : 56) + 56 + spacing.xs * 2 + (isProcessing ? 0 : 1);
+      const proposedTop = y + height + spacing.xs;
+      const maxLeft = screen.width - MENU_WIDTH - spacing.m;
+      const maxTop = screen.height - menuHeight - spacing.l;
+
       setMenuPosition({
-        top: y + height + 2,
-        left: x + width - 200,
+        top:
+          proposedTop > maxTop
+            ? Math.max(spacing.l, y - menuHeight - spacing.xs)
+            : proposedTop,
+        left: Math.min(
+          Math.max(spacing.m, x + width - MENU_WIDTH),
+          Math.max(spacing.m, maxLeft),
+        ),
       });
       setMenuVisible(true);
       Haptics.selectionAsync();
@@ -159,267 +139,247 @@ export function SubscriptionCard({ subscription, index }: Props) {
 
   return (
     <>
-      <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
-        <Animated.View style={pressStyle}>
-          <Pressable
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            style={styles.pressable}
-            disabled={isProcessing}
-          >
-            <Card
-              style={[
-                styles.card,
-                !isActive && !isProcessing && styles.pausedCard,
-              ]}
-            >
-              {/* Gradient Background for Active */}
-              {isActive && (
-                <LinearGradient
-                  colors={overlayGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.gradientOverlay}
-                />
-              )}
+      <View style={styles.pressable}>
+        <Card
+          style={[styles.card, !isActive && !isProcessing && styles.pausedCard]}
+        >
+          {/* Gradient Background for Active */}
+          {isActive && (
+            <LinearGradient
+              colors={overlayGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientOverlay}
+            />
+          )}
 
-              {/* Header Section */}
-              <View style={styles.header}>
-                <View style={styles.headerContent}>
-                  {/* Product Icon with Gradient */}
-                  <LinearGradient
-                    colors={gradientColors}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.iconContainer}
-                  >
-                    {subscription.product?.images?.[0] ? (
-                      <Image
-                        source={{ uri: subscription.product.images[0] }}
-                        style={styles.productImage}
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Ionicons name="water" size={28} color={colors.white} />
-                    )}
-                  </LinearGradient>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              {/* Product Icon with Gradient */}
+              <LinearGradient
+                colors={gradientColors}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.iconContainer}
+              >
+                {subscription.product?.images?.[0] ? (
+                  <Image
+                    source={{ uri: subscription.product.images[0] }}
+                    style={styles.productImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Ionicons name="water" size={28} color={colors.white} />
+                )}
+              </LinearGradient>
 
-                  {/* Product Info */}
-                  <View style={styles.productInfo}>
-                    <Text
-                      variant="l"
-                      weight="bold"
-                      color={
-                        isActive ? colors.textPrimary : colors.textSecondary
-                      }
-                    >
-                      {subscription.product.name}
-                    </Text>
-                    <View style={styles.quantityRow}>
-                      <View style={styles.quantityBadge}>
-                        <Ionicons
-                          name="cube-outline"
-                          size={14}
-                          color={colors.primary}
-                        />
-                        <Text
-                          variant="xs"
-                          color={colors.primary}
-                          weight="medium"
-                        >
-                          {subscription.quantity} Unit
-                          {subscription.quantity > 1 ? 's' : ''}
-                        </Text>
-                      </View>
-                      <View style={styles.frequencyBadge}>
-                        <Ionicons
-                          name="repeat-outline"
-                          size={14}
-                          color={colors.textSecondary}
-                        />
-                        <Text variant="xs" color={colors.textSecondary}>
-                          {getFrequencyLabel(
-                            subscription.frequency,
-                            subscription.custom_days,
-                          )}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Menu Trigger Icon */}
-                <View style={styles.menuContainer}>
-                  <TouchableOpacity
-                    ref={menuButtonRef}
-                    onPress={openMenu}
-                    style={styles.menuButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
+              {/* Product Info */}
+              <View style={styles.productInfo}>
+                <Text
+                  variant="l"
+                  weight="bold"
+                  color={isActive ? colors.textPrimary : colors.textSecondary}
+                >
+                  {subscription.product.name}
+                </Text>
+                <View style={styles.quantityRow}>
+                  <View style={styles.quantityBadge}>
                     <Ionicons
-                      name="ellipsis-vertical"
-                      size={20}
+                      name="cube-outline"
+                      size={14}
+                      color={colors.primary}
+                    />
+                    <Text variant="xs" color={colors.primary} weight="medium">
+                      {subscription.quantity} Unit
+                      {subscription.quantity > 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                  <View style={styles.frequencyBadge}>
+                    <Ionicons
+                      name="repeat-outline"
+                      size={14}
                       color={colors.textSecondary}
                     />
-                  </TouchableOpacity>
-
-                  {/* Animated Status Badge */}
-                  <Animated.View
-                    style={[
-                      pulseStyle,
-                      { marginTop: spacing.s, alignSelf: 'flex-end' },
-                    ]}
-                  >
-                    <Badge
-                      label={subscription.status}
-                      backgroundColor={
-                        isProcessing
-                          ? statusColors.PROCESSING.background
-                          : isActive
-                            ? statusColors.ACTIVE.background
-                            : statusColors.PAUSED.background
-                      }
-                      textColor={
-                        isProcessing
-                          ? statusColors.PROCESSING.text
-                          : isActive
-                            ? statusColors.ACTIVE.text
-                            : statusColors.PAUSED.text
-                      }
-                      borderColor={
-                        isProcessing
-                          ? statusColors.PROCESSING.border
-                          : isActive
-                            ? statusColors.ACTIVE.border
-                            : statusColors.PAUSED.border
-                      }
-                    />
-                  </Animated.View>
-                </View>
-              </View>
-
-              {/* Details Section */}
-              <View style={styles.detailsContainer}>
-                {/* Start Date */}
-                <View style={styles.detailRow}>
-                  <View
-                    style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}
-                  >
-                    <Ionicons
-                      name="calendar-outline"
-                      size={16}
-                      color={colors.primary}
-                    />
-                  </View>
-                  <View style={styles.detailContent}>
-                    <Text variant="xs" color={colors.textTertiary}>
-                      Started
+                    <Text variant="xs" color={colors.textSecondary}>
+                      {getFrequencyLabel(
+                        subscription.frequency,
+                        subscription.custom_days,
+                      )}
                     </Text>
-                    <Text
-                      variant="s"
-                      weight="medium"
-                      color={colors.textPrimary}
-                    >
-                      {formatSubscriptionDate(subscription.start_date)}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Next Delivery with Countdown */}
-                <View style={styles.detailRow}>
-                  <View
-                    style={[
-                      styles.iconBox,
-                      { backgroundColor: urgencyColor + '20' },
-                    ]}
-                  >
-                    <Ionicons
-                      name="time-outline"
-                      size={16}
-                      color={urgencyColor}
-                    />
-                  </View>
-                  <View style={styles.detailContent}>
-                    <Text variant="xs" color={colors.textTertiary}>
-                      Next Delivery
-                    </Text>
-                    <View style={styles.deliveryInfo}>
-                      <Text
-                        variant="s"
-                        weight="medium"
-                        color={colors.textPrimary}
-                      >
-                        {formatShortDate(subscription.next_delivery_date)}
-                      </Text>
-                      <View
-                        style={[
-                          styles.countdownBadge,
-                          { backgroundColor: urgencyColor + '15' },
-                        ]}
-                      >
-                        <Text variant="xs" weight="bold" color={urgencyColor}>
-                          {formatCountdown(daysUntilDelivery)}
-                        </Text>
-                      </View>
-                    </View>
                   </View>
                 </View>
               </View>
+            </View>
 
-              {/* Progress Bar */}
-              {isActive && daysUntilDelivery <= 7 && (
-                <View style={styles.progressContainer}>
-                  <View style={styles.progressBarBg}>
-                    <View
-                      style={[
-                        styles.progressBarFill,
-                        {
-                          width: `${deliveryProgress}%`,
-                          backgroundColor: urgencyColor,
-                        },
-                      ]}
-                    />
-                  </View>
-                </View>
-              )}
+            {/* Menu Trigger Icon */}
+            <View style={styles.menuContainer}>
+              <TouchableOpacity
+                ref={menuButtonRef}
+                onPress={openMenu}
+                style={styles.menuButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name="ellipsis-vertical"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
 
-              {/* Action Buttons */}
-              <View style={styles.footer}>
-                {isProcessing ? (
-                  <View style={styles.progressFooter}>
-                    <ActivityIndicator size="small" color={colors.primary} />
-                    <Text
-                      variant="s"
-                      color={colors.primary}
-                      weight="medium"
-                      style={{ marginLeft: spacing.s }}
-                    >
-                      Processing Subscription...
+              <View style={styles.statusBadge}>
+                <Badge
+                  label={subscription.status}
+                  backgroundColor={
+                    isProcessing
+                      ? statusColors.PROCESSING.background
+                      : isActive
+                        ? statusColors.ACTIVE.background
+                        : statusColors.PAUSED.background
+                  }
+                  textColor={
+                    isProcessing
+                      ? statusColors.PROCESSING.text
+                      : isActive
+                        ? statusColors.ACTIVE.text
+                        : statusColors.PAUSED.text
+                  }
+                  borderColor={
+                    isProcessing
+                      ? statusColors.PROCESSING.border
+                      : isActive
+                        ? statusColors.ACTIVE.border
+                        : statusColors.PAUSED.border
+                  }
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Details Section */}
+          <View style={styles.detailsContainer}>
+            <View style={styles.detailRow}>
+              <View style={[styles.iconBox, { backgroundColor: '#DBEAFE' }]}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={16}
+                  color={colors.primary}
+                />
+              </View>
+              <View style={styles.detailContent}>
+                <Text variant="xs" color={colors.textTertiary}>
+                  Started
+                </Text>
+                <Text variant="s" weight="medium" color={colors.textPrimary}>
+                  {formatSubscriptionDate(subscription.start_date)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.detailRow}>
+              <View
+                style={[styles.iconBox, { backgroundColor: urgencyColor + '20' }]}
+              >
+                <Ionicons
+                  name="time-outline"
+                  size={16}
+                  color={urgencyColor}
+                />
+              </View>
+              <View style={styles.detailContent}>
+                <Text variant="xs" color={colors.textTertiary}>
+                  Next Delivery
+                </Text>
+                <View style={styles.deliveryInfo}>
+                  <Text variant="s" weight="medium" color={colors.textPrimary}>
+                    {formatShortDate(subscription.next_delivery_date)}
+                  </Text>
+                  <View
+                    style={[
+                      styles.countdownBadge,
+                      { backgroundColor: urgencyColor + '15' },
+                    ]}
+                  >
+                    <Text variant="xs" weight="bold" color={urgencyColor}>
+                      {formatCountdown(daysUntilDelivery)}
                     </Text>
                   </View>
-                ) : (
-                  <Button
-                    title={
-                      isActive ? 'Pause Subscription' : 'Resume Subscription'
-                    }
-                    onPress={handleToggleStatus}
-                    variant={isActive ? 'outline' : 'primary'}
-                    style={styles.actionButton}
-                    loading={updateStatus.isPending}
-                    icon={
-                      <Ionicons
-                        name={isActive ? 'pause' : 'play'}
-                        size={18}
-                        color={isActive ? colors.primary : colors.white}
-                      />
-                    }
+                </View>
+              </View>
+            </View>
+
+            {subscription.customerAddress && (
+              <View style={[styles.detailRow, styles.detailRowTopAligned]}>
+                <View
+                  style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}
+                >
+                  <Ionicons
+                    name="location-outline"
+                    size={16}
+                    color={colors.primary}
                   />
-                )}
+                </View>
+                <View style={styles.detailContent}>
+                  <Text variant="xs" color={colors.textTertiary}>
+                    Delivery Address
+                  </Text>
+                  <Text variant="s" weight="medium" color={colors.textPrimary}>
+                    {subscription.customerAddress.label}
+                  </Text>
+                  <Text
+                    variant="s"
+                    color={colors.textSecondary}
+                    style={styles.addressLine}
+                  >
+                    {subscription.customerAddress.address}
+                  </Text>
+                  {addressLocation.length > 0 && (
+                    <Text
+                      variant="xs"
+                      color={colors.textTertiary}
+                      style={styles.addressMeta}
+                    >
+                      {addressLocation.join(', ')}
+                    </Text>
+                  )}
+                </View>
               </View>
-            </Card>
-          </Pressable>
-        </Animated.View>
-      </Animated.View>
+            )}
+          </View>
+
+          {isActive && daysUntilDelivery <= 7 && (
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBarBg}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      width: `${deliveryProgress}%`,
+                      backgroundColor: urgencyColor,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          )}
+
+          {isProcessing && (
+            <View style={styles.footer}>
+              <View style={styles.progressFooter}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text
+                  variant="s"
+                  color={colors.primary}
+                  weight="medium"
+                  style={{ marginLeft: spacing.s }}
+                >
+                  Processing Subscription...
+                </Text>
+              </View>
+            </View>
+          )}
+        </Card>
+      </View>
 
       {/* Menu Modal */}
       <Modal
@@ -439,6 +399,30 @@ export function SubscriptionCard({ subscription, index }: Props) {
                 },
               ]}
             >
+              {!isProcessing && (
+                <>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={handleStatusMenuPress}
+                    accessibilityRole="menuitem"
+                    accessibilityLabel={statusActionLabel}
+                  >
+                    <Ionicons
+                      name={statusActionIcon as any}
+                      size={20}
+                      color={colors.textPrimary}
+                    />
+                    <Text
+                      variant="s"
+                      color={colors.textPrimary}
+                      style={styles.menuText}
+                    >
+                      {statusActionLabel}
+                    </Text>
+                  </TouchableOpacity>
+                  <View style={styles.menuDivider} />
+                </>
+              )}
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={handleDeleteRequest}
@@ -588,9 +572,11 @@ const styles = StyleSheet.create({
   productInfo: {
     flex: 1,
     justifyContent: 'center',
+    minWidth: 0,
   },
   quantityRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.s,
     marginTop: spacing.xs,
   },
@@ -621,6 +607,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  detailRowTopAligned: {
+    alignItems: 'flex-start',
+  },
   iconBox: {
     width: 36,
     height: 36,
@@ -635,6 +624,7 @@ const styles = StyleSheet.create({
   deliveryInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.s,
     marginTop: 2,
   },
@@ -642,6 +632,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.s,
     paddingVertical: 2,
     borderRadius: 8,
+  },
+  addressLine: {
+    lineHeight: 20,
+    marginTop: 2,
+  },
+  addressMeta: {
+    lineHeight: 18,
+    marginTop: 2,
   },
   progressContainer: {
     marginBottom: spacing.m,
@@ -660,11 +658,6 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     zIndex: 1,
-  },
-  actionButton: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: spacing.radius.l,
   },
   progressFooter: {
     flexDirection: 'row',
@@ -685,7 +678,7 @@ const styles = StyleSheet.create({
   },
   menuPopover: {
     position: 'absolute',
-    width: 200,
+    width: MENU_WIDTH,
     backgroundColor: colors.surface,
     borderRadius: spacing.radius.m,
     paddingVertical: spacing.xs,
@@ -707,6 +700,15 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.m,
+  },
+  statusBadge: {
+    marginTop: spacing.s,
+    alignSelf: 'flex-end',
   },
 
   // Alert Content Styles

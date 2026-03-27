@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Animated as RNAnimated } from 'react-native';
+import React, { ReactNode, useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
@@ -19,9 +19,15 @@ interface ErrorStateProps {
   error: any;
   onRetry?: () => void;
   title?: string;
+  children?: ReactNode;
 }
 
-export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
+export function ErrorState({
+  error,
+  onRetry,
+  title,
+  children,
+}: ErrorStateProps) {
   const { logout } = useAuth();
   const scale = useSharedValue(1);
 
@@ -34,7 +40,7 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
       -1,
       true,
     );
-  }, []);
+  }, [scale]);
 
   const animatedIconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -65,7 +71,7 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
         icon: 'server-outline' as const,
         title: title || 'Server Unavailable',
         message:
-          'The server is currently unreachable. Please try logging out and logging in again.',
+          'The service is temporarily unavailable. Please try again later. If the issue persists, kindly logout and login in again.',
         showLogout: true,
       };
     }
@@ -117,6 +123,8 @@ export function ErrorState({ error, onRetry, title }: ErrorStateProps) {
             style={styles.button}
           />
         )}
+
+        {children}
       </View>
     </Animated.View>
   );

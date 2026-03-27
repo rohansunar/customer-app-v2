@@ -8,6 +8,8 @@ export const API_ENDPOINTS = {
   CUSTOMER_ORDER: '/customer/orders',
   CUSTOMER_ORDER_CANCEL: '/customer/orders/:orderId/cancel',
   SUBSCRIPTION: '/customer/subscriptions',
+  SUBSCRIPTION_PREVIEW_RECALCULATE:
+    '/customer/subscriptions/preview',
   NOTIFICATION_REGISTER: '/tokens/register',
   SUPPORT_TICKET: '/customer/support-tickets',
   WALLET_PAYMENTS: '/customer/wallet/payments',

@@ -19,6 +19,37 @@ export interface SubscriptionRequest {
   quantity: number;
 }
 
+export interface SubscriptionPreviewRequest {
+  productId: string;
+  frequency?: SubscriptionType;
+  custom_days?: number[];
+  start_date?: string;
+  unit?: number;
+}
+
+export interface SubscriptionPreviewResponse {
+  productName: string;
+  productImage?: string;
+  totalAmount: number;
+  totalUnits: number;
+  subscriptionPrice: number;
+  frequency: SubscriptionType;
+  startDate: string;
+  nextDeliveryDate: string;
+  forMonth: string;
+  totalDeliveries: number;
+}
+
+export interface SubscriptionCustomerAddress {
+  label: string;
+  address: string;
+  pincode: string;
+  location?: {
+    name: string;
+    state: string;
+  } | null;
+}
+
 export interface Subscription extends SubscriptionRequest {
   id: string;
   productId: string;
@@ -26,6 +57,7 @@ export interface Subscription extends SubscriptionRequest {
   status: 'ACTIVE' | 'INACTIVE' | 'PROCESSING';
   createdAt: string;
   next_delivery_date: string;
+  customerAddress?: SubscriptionCustomerAddress | null;
 }
 
 export interface PaginatedSubscriptionsResponse {

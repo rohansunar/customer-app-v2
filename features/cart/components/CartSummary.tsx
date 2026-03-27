@@ -1,6 +1,7 @@
 import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
+import { ErrorState } from '@/core/ui/ErrorState';
 import { Text } from '@/core/ui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -21,12 +22,14 @@ import { useRemoveFromCart } from '../hooks/useRemoveFromCart';
 import { CartItem } from '../types';
 
 export function CartSummary() {
-  const { data, isLoading, error, isFetching } = useCart();
+  const { data, isLoading, error, isFetching, refetch } = useCart();
   const isMutatingCart = useIsMutating({ mutationKey: ['cart'] });
-  const removeFromCart = useRemoveFromCart();
+  const { mutate: removeFromCart } = useRemoveFromCart();
+  const { handlePayment, isPending } = useHandlePayment(data?.cartId || '');
+  const [selectedPaymentMode, setSelectedPaymentMode] =
+    React.useState<PaymentMode>('ONLINE');
 
   const isUpdatingCart = isFetching || isMutatingCart > 0;
-
   const cartItems = data?.cartItems || [];
 
   const renderItem = useCallback(
@@ -50,7 +53,7 @@ export function CartSummary() {
                 {item.name}
               </Text>
               <TouchableOpacity
-                onPress={() => removeFromCart.mutate(item.id)}
+                onPress={() => removeFromCart(item.id)}
                 style={styles.deleteButton}
                 hitSlop={8}
               >
@@ -85,7 +88,7 @@ export function CartSummary() {
         </View>
       );
     },
-    [removeFromCart.mutate, cartItems.length],
+    [removeFromCart, cartItems.length],
   );
 
   if (isLoading) {
@@ -97,40 +100,14 @@ export function CartSummary() {
     );
   }
 
-  if (error && cartItems.length > 0) {
+  if (error) {
     return (
-      <View style={styles.center}>
-        <Text color={colors.error}>Error loading cart</Text>
-        <Button
-          title="Go to Products"
-          onPress={() => router.push('/home' as any)}
-          variant="outline"
-          style={styles.retryButton}
-        />
+      <View style={styles.errorContainer}>
+        <ErrorState error={error} onRetry={refetch}>
+        </ErrorState>
       </View>
     );
   }
-
-  const { handlePayment, isPending } = useHandlePayment(data?.cartId || '');
-  const [selectedPaymentMode, setSelectedPaymentMode] =
-    React.useState<PaymentMode>('ONLINE');
-
-  const paymentModes: {
-    mode: PaymentMode;
-    label: string;
-    description: string;
-  }[] = [
-    {
-      mode: 'ONLINE',
-      label: 'Pay Online',
-      description: 'Card, UPI, Netbanking',
-    },
-    {
-      mode: 'COD',
-      label: 'COD',
-      description: 'Pay on delivery',
-    },
-  ];
 
   if (cartItems.length === 0) {
     return (
@@ -152,6 +129,23 @@ export function CartSummary() {
       </View>
     );
   }
+
+  const paymentModes: {
+    mode: PaymentMode;
+    label: string;
+    description: string;
+  }[] = [
+    {
+      mode: 'ONLINE',
+      label: 'Pay Online',
+      description: 'Card, UPI, Netbanking',
+    },
+    {
+      mode: 'COD',
+      label: 'COD',
+      description: 'Pay on delivery',
+    },
+  ];
 
   const renderPaymentSelection = () => (
     <View style={styles.paymentSection}>
@@ -251,14 +245,14 @@ export function CartSummary() {
               </View>
               <View style={styles.addressContent}>
                 <View style={{ flex: 1 }}>
-                  <Text weight="semibold">{data!.deliveryAddress.label}</Text>
+                  <Text weight="semibold">{data!.deliveryAddress?.label}</Text>
                   <Text
                     variant="s"
                     color={colors.textSecondary}
                     numberOfLines={1}
                   >
-                    {data!.deliveryAddress.address},{' '}
-                    {data!.deliveryAddress.city}
+                    {data!.deliveryAddress?.address},{' '}
+                    {data!.deliveryAddress?.city}
                   </Text>
                 </View>
               </View>
@@ -338,6 +332,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.l,
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  errorActionButton: {
+    width: '100%',
   },
   loadingText: {
     marginTop: spacing.s,

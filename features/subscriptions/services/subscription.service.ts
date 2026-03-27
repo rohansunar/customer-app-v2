@@ -4,11 +4,38 @@ import { ENV } from '@/core/config/env';
 import {
   PaginatedSubscriptionsResponse,
   Subscription,
+  SubscriptionPreviewRequest,
+  SubscriptionPreviewResponse,
   SubscriptionRequest,
 } from '../types';
 import RazorpayCheckout from 'react-native-razorpay';
 
 export const subscriptionService = {
+  /**
+   * Fetch the backend-calculated subscription preview for the current form state.
+   */
+  getSubscriptionPreview: async (
+    request: SubscriptionPreviewRequest,
+  ): Promise<SubscriptionPreviewResponse> => {
+    try {
+      const response = await apiClient.post(
+        API_ENDPOINTS.SUBSCRIPTION_PREVIEW_RECALCULATE,
+        request,
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        throw new Error(
+          error.response.data?.message || 'Invalid subscription preview details',
+        );
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Please login to preview a subscription');
+      }
+      throw error;
+    }
+  },
+
   /**
    * Creating a new subscription.
    */

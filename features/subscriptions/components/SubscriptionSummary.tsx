@@ -5,11 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View, Image } from 'react-native';
-import { SubscriptionType } from '../types';
-import {
-  getFrequencyLabel,
-  getSubscriptionDetails,
-} from '../utils/subscriptionUtils';
+import { SubscriptionPreviewResponse, SubscriptionType } from '../types';
+import { getFrequencyLabel, parseApiDate } from '../utils/subscriptionUtils';
 
 interface Props {
   productName: string;
@@ -20,26 +17,23 @@ interface Props {
   quantity: number;
   frequency: SubscriptionType;
   customDays?: number[];
+  preview?: SubscriptionPreviewResponse | null;
+  isRefreshing?: boolean;
+  hasPreviewError?: boolean;
 }
 
 export function SubscriptionSummary({
   productName,
   productPrice,
   productImage,
-  productDescription,
   startDate,
   quantity,
   frequency,
   customDays = [],
+  preview,
+  isRefreshing = false,
+  hasPreviewError = false,
 }: Props) {
-  const details = getSubscriptionDetails(
-    startDate,
-    frequency,
-    quantity,
-    productPrice,
-    customDays,
-  );
-
   const formatDate = (date: Date) => {
     return date.toLocaleDateString(undefined, {
       day: 'numeric',
@@ -48,12 +42,49 @@ export function SubscriptionSummary({
     });
   };
 
+  const displayProductName = preview?.productName ?? productName;
+  const displayProductImage = preview?.productImage || productImage;
+  const displayUnits = preview?.totalUnits ?? quantity;
+  const displayFrequency = preview?.frequency ?? frequency;
+  const displayUnitPrice = preview?.subscriptionPrice ?? productPrice;
+  const displayAmount =
+    preview?.totalAmount !== undefined
+      ? `₹${preview.totalAmount.toFixed(0)}`
+      : '--';
+  const displayDeliveries =
+    preview?.totalDeliveries !== undefined ? String(preview.totalDeliveries) : '--';
+  const displayStartDate = preview?.startDate
+    ? formatDate(parseApiDate(preview.startDate))
+    : formatDate(startDate);
+  const displayNextDelivery = preview?.nextDeliveryDate
+    ? formatDate(parseApiDate(preview.nextDeliveryDate))
+    : '--';
+
+  const billingLabel = (() => {
+    if (isRefreshing && !preview) {
+      return 'FETCHING LATEST PREVIEW...';
+    }
+    if (frequency === 'CUSTOM_DAYS' && customDays.length === 0) {
+      return 'SELECT CUSTOM DAYS TO PREVIEW BILLING';
+    }
+    if (preview?.forMonth) {
+      return `ESTIMATED BILLING: ${preview.forMonth}`;
+    }
+    if (isRefreshing) {
+      return 'UPDATING LATEST PREVIEW...';
+    }
+    if (hasPreviewError) {
+      return 'LATEST PREVIEW UNAVAILABLE';
+    }
+    return 'FETCHING LATEST PREVIEW...';
+  })();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {productImage ? (
+        {displayProductImage ? (
           <Image
-            source={{ uri: productImage }}
+            source={{ uri: displayProductImage }}
             style={styles.productImage}
             resizeMode="cover"
           />
@@ -67,11 +98,11 @@ export function SubscriptionSummary({
         )}
         <View style={styles.productInfo}>
           <Text variant="l" weight="bold">
-            {productName}
+            {displayProductName}
           </Text>
           <Text variant="s" color={colors.textSecondary}>
-            {quantity} {quantity > 1 ? 'Units' : 'Unit'} •{' '}
-            {getFrequencyLabel(frequency, customDays)}
+            {displayUnits} {displayUnits > 1 ? 'Units' : 'Unit'} •{' '}
+            {getFrequencyLabel(displayFrequency, customDays)}
           </Text>
         </View>
       </View>
@@ -84,22 +115,22 @@ export function SubscriptionSummary({
           <View style={styles.calcLeft}>
             <View style={styles.qtyBubble}>
               <Text variant="xs" weight="bold" color={colors.primary}>
-                {quantity}
+                {displayUnits}
               </Text>
             </View>
             <Text variant="s" weight="semibold" color={colors.textSecondary}>
-              UNIT{quantity > 1 ? 'S' : ''} × ₹{productPrice.toFixed(0)} ×{' '}
-              {details.totalDeliveries} DAYS
+              UNIT{displayUnits > 1 ? 'S' : ''} × ₹{displayUnitPrice.toFixed(0)} ×{' '}
+              {displayDeliveries} DAYS
             </Text>
           </View>
           <View style={styles.calcRight}>
             <Text variant="xl" weight="bold" color={colors.primary}>
-              ₹{details.totalAmount.toFixed(0)}
+              {displayAmount}
             </Text>
           </View>
         </View>
         <Text variant="xs" color={colors.textTertiary} style={styles.calcSub}>
-          ESTIMATED BILLING: {details.periodLabel}
+          {billingLabel}
         </Text>
       </View>
 
@@ -111,37 +142,28 @@ export function SubscriptionSummary({
             Deliveries
           </Text>
           <Text variant="s" weight="bold">
-            {details.totalDeliveries}
+            {displayDeliveries}
           </Text>
         </View>
 
         <View style={styles.gridItem}>
           <Text variant="xs" color={colors.textTertiary}>
-            From
+            Start Date
           </Text>
           <Text variant="s" weight="bold">
-            {formatDate(details.effectiveStartDate)}
+            {displayStartDate}
           </Text>
         </View>
 
         <View style={styles.gridItem}>
           <Text variant="xs" color={colors.textTertiary}>
-            To
+            Next Delivery
           </Text>
           <Text variant="s" weight="bold">
-            {formatDate(details.effectiveEndDate)}
+            {displayNextDelivery}
           </Text>
         </View>
       </View>
-
-      {details.isNextMonth && (
-        <View style={styles.alertBox}>
-          <Ionicons name="calendar-outline" size={16} color={colors.primary} />
-          <Text variant="xs" color={colors.textPrimary} style={{ flex: 1 }}>
-            Starting next month because today is the last day.
-          </Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -194,15 +216,6 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-  },
-  alertBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.s,
-    marginTop: spacing.s,
-    backgroundColor: colors.primary + '10',
-    padding: spacing.s,
-    borderRadius: spacing.radius.m,
   },
   calculationRow: {
     paddingVertical: spacing.s,

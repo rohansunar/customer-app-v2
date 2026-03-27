@@ -2,10 +2,12 @@ import { colors } from '@/core/theme/colors';
 import { HeaderAddressSelector } from '@/shared/components/HeaderAddressSelector';
 import { HeaderAvatar } from '@/shared/components/HeaderAvatar';
 import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 
 export default function AppLayout() {
   useAuthGuard();
+  const pathname = usePathname();
+  const isHomeIndexRoute = pathname === '/home';
 
   return (
     <Stack
@@ -22,7 +24,8 @@ export default function AppLayout() {
       <Stack.Screen
         name="home"
         options={{
-          headerTitle: () => <HeaderAddressSelector />,
+          headerTitle: () =>
+            isHomeIndexRoute ? <HeaderAddressSelector /> : null,
           headerBackVisible: false,
         }}
       />

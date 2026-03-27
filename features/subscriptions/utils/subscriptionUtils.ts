@@ -46,6 +46,25 @@ export function convertDaysToNames(numericDays: number[]): DayOfWeek[] {
 }
 
 /**
+ * Formats a date object as YYYY-MM-DD using local calendar values.
+ */
+export function formatDateForApi(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Parses a YYYY-MM-DD string into a local Date object.
+ */
+export function parseApiDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/**
  * Converts numeric day values to short day names for display.
  * @param numericDays - Array of numeric values (e.g., [1, 3])
  * @returns Array of short day names (e.g., ['Mon', 'Wed'])
@@ -91,130 +110,4 @@ export function getFrequencyLabel(
     default:
       return frequency;
   }
-}
-
-// Utility function for calculating upcoming dates - Single Responsibility Principle: Handles only date calculation logic
-export function calculateUpcomingDates(
-  frequency: SubscriptionType,
-  selectedDate: Date,
-): string[] {
-  if (frequency === 'CUSTOM_DAYS') return [];
-  const dates = [];
-  const baseDate = new Date(selectedDate);
-  const interval = frequency === 'DAILY' ? 1 : 2;
-  for (let i = 0; i < 4; i++) {
-    const d = new Date(baseDate);
-    d.setDate(baseDate.getDate() + i * interval);
-    dates.push(
-      d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
-    );
-  }
-  return dates;
-}
-
-/**
- * Interface for detailed subscription calculation results
- */
-export interface SubscriptionDetails {
-  effectiveStartDate: Date;
-  effectiveEndDate: Date;
-  periodLabel: string;
-  totalDeliveries: number;
-  daysRemaining: number;
-  totalAmount: number;
-  isNextMonth: boolean;
-}
-
-/**
- * Calculates all subscription details including zero-day handling.
- * If the start date is the last day of the month, the period shifts to the entire next month.
- */
-export function getSubscriptionDetails(
-  startDate: Date,
-  frequency: SubscriptionType,
-  quantity: number,
-  price: number,
-  customDays: number[] = [],
-): SubscriptionDetails {
-  const year = startDate.getFullYear();
-  const month = startDate.getMonth();
-
-  // Check if startDate is the last day of the month
-  const lastDayOfCurrentMonth = new Date(year, month + 1, 0).getDate();
-  const isLastDay = startDate.getDate() === lastDayOfCurrentMonth;
-
-  let effectiveStartDate: Date;
-  let effectiveEndDate: Date;
-  let periodLabel: string;
-  let isNextMonth = false;
-
-  if (isLastDay) {
-    // Shift to next month
-    effectiveStartDate = new Date(year, month + 1, 1);
-    effectiveEndDate = new Date(year, month + 2, 0);
-    const nextMonthName = effectiveStartDate.toLocaleDateString(undefined, {
-      month: 'long',
-    });
-    periodLabel = `Full Month (${nextMonthName})`;
-    isNextMonth = true;
-  } else {
-    // Stay in current month
-    effectiveStartDate = new Date(startDate);
-    effectiveEndDate = new Date(year, month + 1, 0);
-    const currentMonthName = effectiveStartDate.toLocaleDateString(undefined, {
-      month: 'long',
-    });
-    periodLabel = `Rest of ${currentMonthName}`;
-  }
-
-  // Calculate deliveries between effective start and end dates
-  let totalDeliveries = 0;
-  const loopDate = new Date(effectiveStartDate);
-
-  while (loopDate <= effectiveEndDate) {
-    const dayOfWeek = loopDate.getDay();
-    let isDeliveryDay = false;
-
-    if (frequency === 'DAILY') {
-      isDeliveryDay = true;
-    } else if (frequency === 'ALTERNATIVE_DAYS') {
-      // Calculate days difference from the *effective* start date to ensure consistent pattern
-      const diffInDays = Math.floor(
-        (loopDate.getTime() - effectiveStartDate.getTime()) /
-          (1000 * 60 * 60 * 24),
-      );
-      if (diffInDays % 2 === 0) {
-        isDeliveryDay = true;
-      }
-    } else if (frequency === 'CUSTOM_DAYS') {
-      if (customDays.includes(dayOfWeek)) {
-        isDeliveryDay = true;
-      }
-    }
-
-    if (isDeliveryDay) {
-      totalDeliveries++;
-    }
-
-    // Move to next day
-    loopDate.setDate(loopDate.getDate() + 1);
-  }
-
-  const daysRemaining =
-    Math.floor(
-      (effectiveEndDate.getTime() - effectiveStartDate.getTime()) /
-        (1000 * 60 * 60 * 24),
-    ) + 1;
-
-  const totalAmount = totalDeliveries * quantity * price;
-
-  return {
-    effectiveStartDate,
-    effectiveEndDate,
-    periodLabel,
-    totalDeliveries,
-    daysRemaining,
-    totalAmount,
-    isNextMonth,
-  };
 }
