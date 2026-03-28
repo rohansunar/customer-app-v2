@@ -19,7 +19,7 @@ export const subscriptionService = {
   ): Promise<SubscriptionPreviewResponse> => {
     try {
       const response = await apiClient.post(
-        API_ENDPOINTS.SUBSCRIPTION_PREVIEW_RECALCULATE,
+        API_ENDPOINTS.SUBSCRIPTION_PREVIEW_CALCULATE,
         request,
       );
       return response.data;

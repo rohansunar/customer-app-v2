@@ -1,5 +1,5 @@
 import { colors } from '@/core/theme/colors';
-import { showError } from '@/core/ui/toast';
+import { showError, showSuccess } from '@/core/ui/toast';
 import { spacing } from '@/core/theme/spacing';
 import { Card } from '@/core/ui/Card';
 import { Text } from '@/core/ui/Text';
@@ -15,7 +15,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCancelOrder } from '../hooks/useCancelOrder';
+import { useConfirmDelivery } from '../hooks/useConfirmDelivery';
 import { Order } from '../types';
+import { useAlert } from '@/core/context/AlertContext';
 import {
   calculateTotalQuantity,
   canCancelOrder,
@@ -32,16 +34,13 @@ import OrderCardSkeleton from './OrderCardSkeleton';
 import OrderCancelModal from './sub-components/OrderCancelModal';
 import OrderTracker from './OrderTracker';
 import SupportModal from './sub-components/SupportModal';
+import { orderCardStyles, iconBoxColors } from './styles';
 
 interface Props {
   order?: Order;
   loading?: boolean;
 }
 
-/**
- * OrderCard component displays a single order with collapsible item details
- * Optimized with React.memo to prevent unnecessary re-renders
- */
 function OrderCardComponent({ order, loading }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -50,9 +49,10 @@ function OrderCardComponent({ order, loading }: Props) {
   const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   const menuAnchorRef = useRef<View>(null);
   const cancelOrderMutation = useCancelOrder();
+  const confirmDeliveryMutation = useConfirmDelivery();
   const router = useRouter();
+  const { showConfirm } = useAlert();
 
-  // Memoized callbacks to prevent function recreation on each render
   const toggleExpanded = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsExpanded((prev) => !prev);
@@ -60,7 +60,6 @@ function OrderCardComponent({ order, loading }: Props) {
 
   const handleCancelPress = useCallback(() => {
     setIsMenuVisible(false);
-    // Small delay to ensure menu modal is dismissed before opening the next modal on Android
     setTimeout(() => {
       setIsModalVisible(true);
     }, 100);
@@ -68,7 +67,6 @@ function OrderCardComponent({ order, loading }: Props) {
 
   const handleContactPress = useCallback(() => {
     setIsMenuVisible(false);
-    // Small delay to ensure menu modal is dismissed before opening the next modal on Android
     setTimeout(() => {
       setIsSupportModalVisible(true);
     }, 100);
@@ -100,13 +98,17 @@ function OrderCardComponent({ order, loading }: Props) {
           {
             onSuccess: () => {
               setIsModalVisible(false);
-              // Navigate to order history tab
-              router.push('/(drawer)/home/orders?tab=HISTORY');
+              router.replace({
+                pathname: '/(drawer)/home/orders',
+                params: { tab: 'HISTORY' },
+              });
             },
             onError: (error: unknown) => {
               setIsModalVisible(false);
-              // Show error toast
-              const errorMessage = error instanceof Error ? error.message : 'Failed to cancel order';
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to cancel order';
               showError(errorMessage);
             },
           },
@@ -116,103 +118,275 @@ function OrderCardComponent({ order, loading }: Props) {
     [cancelOrderMutation, order, router],
   );
 
-  // Early return for loading state
+  const handleConfirmDelivery = useCallback(() => {
+    if (order) {
+      showConfirm(
+        'Confirm Delivery',
+        'Have you received all the products in your order? Please confirm only if you have received the complete order.',
+        () => {
+          confirmDeliveryMutation.mutate(order.id, {
+            onSuccess: () => {
+              showSuccess('Delivery confirmed successfully');
+            },
+            onError: (error: unknown) => {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to confirm delivery';
+              showError(errorMessage);
+            },
+          });
+        },
+        undefined,
+        'Yes, Received',
+        'Not Yet',
+      );
+    }
+  }, [confirmDeliveryMutation, order, showConfirm]);
+
   if (loading || !order) {
     return <OrderCardSkeleton />;
   }
 
-  // Memoized computed values
-  const productName = useMemo(
-    () => getPrimaryProductName(order.orderItems),
-    [order.orderItems],
-  );
-  const totalQuantity = useMemo(
-    () => calculateTotalQuantity(order.orderItems),
-    [order.orderItems],
-  );
-  const canCancel = useMemo(
-    () => canCancelOrder(order.delivery_status),
-    [order.delivery_status],
-  );
-  const statusColor = useMemo(
-    () => getStatusColor(order.delivery_status),
-    [order.delivery_status],
-  );
-  const statusLabel = useMemo(
-    () => getStatusLabel(order.delivery_status),
-    [order.delivery_status],
-  );
-  const formattedDate = useMemo(
-    () => formatOrderDate(order.created_at),
-    [order.created_at],
-  );
-  const canShowActionsMenu = useMemo(
-    () => canCancel && order.payment_status !== 'FAILED',
-    [canCancel, order.payment_status],
-  );
-
-  /**
-   * Determines whether to hide the Menu button and Order Tracker.
-   * Hidden when payment mode is ONLINE, payment status is PENDING,
-   * and delivery status is PENDING (payment verification in progress).
-   */
-  const shouldHideActionsAndTracker = useMemo(
-    () =>
+  const computedValues = useMemo(() => {
+    const isCancelled = order.delivery_status === 'CANCELLED';
+    const canCancel = canCancelOrder(order.delivery_status);
+    const canShowActionsMenu = canCancel && order.payment_status !== 'FAILED';
+    const shouldHideActionsAndTracker =
       order.payment_mode === 'ONLINE' &&
       order.payment_status === 'PENDING' &&
-      order.delivery_status === 'PENDING',
-    [order.payment_mode, order.payment_status, order.delivery_status],
-  );
-  const paymentStatusColor = useMemo(
-    () => getPaymentStatusColor(order.payment_status),
-    [order.payment_status],
-  );
-  const paymentStatusLabel = useMemo(
-    () => getPaymentStatusLabel(order.payment_status),
-    [order.payment_status],
-  );
-  const paymentModeColor = useMemo(
-    () => getPaymentModeColor(order.payment_mode || ''),
-    [order.payment_mode],
-  );
-  const paymentModeLabel = useMemo(
-    () => getPaymentModeLabel(order.payment_mode || ''),
-    [order.payment_mode],
+      order.delivery_status === 'PENDING';
+    const canConfirmDelivery =
+      order.delivery_status === 'OUT_FOR_DELIVERY' &&
+      order.payment_mode?.toUpperCase() === 'ONLINE' &&
+      order.payment_status?.toUpperCase() === 'PAID';
+    const isOutForDelivery = order.delivery_status === 'OUT_FOR_DELIVERY';
+
+    return {
+      productName: getPrimaryProductName(order.orderItems),
+      totalQuantity: calculateTotalQuantity(order.orderItems),
+      canCancel,
+      statusColor: getStatusColor(order.delivery_status),
+      statusLabel: getStatusLabel(order.delivery_status),
+      formattedDate: formatOrderDate(order.created_at),
+      canShowActionsMenu,
+      shouldHideActionsAndTracker,
+      paymentStatusColor: getPaymentStatusColor(order.payment_status),
+      paymentStatusLabel: getPaymentStatusLabel(order.payment_status),
+      paymentModeColor: getPaymentModeColor(order.payment_mode || ''),
+      paymentModeLabel: getPaymentModeLabel(order.payment_mode || ''),
+      isCancelled,
+      canConfirmDelivery,
+      isOutForDelivery,
+    };
+  }, [order]);
+
+  const {
+    productName,
+    totalQuantity,
+    statusColor,
+    statusLabel,
+    formattedDate,
+    canShowActionsMenu,
+    shouldHideActionsAndTracker,
+    paymentStatusColor,
+    paymentStatusLabel,
+    paymentModeColor,
+    paymentModeLabel,
+    isCancelled,
+    canConfirmDelivery,
+    isOutForDelivery,
+  } = computedValues;
+
+  const renderOrderItems = useCallback(
+    () =>
+      order.orderItems.map((item, index) => (
+        <View key={item.id || index} style={orderCardStyles.itemRow}>
+          <Text
+            variant="xs"
+            color={colors.textPrimary}
+            style={orderCardStyles.itemName}
+          >
+            {item.product.name}
+          </Text>
+          <Text variant="xs" color={colors.textSecondary}>
+            {item.quantity} x ₹{item.price} ={' '}
+            <Text weight="medium">₹{item.quantity * Number(item.price)}</Text>
+          </Text>
+        </View>
+      )),
+    [order.orderItems],
   );
 
-  const isCancelled = useMemo(
-    () => order.delivery_status === 'CANCELLED',
-    [order.delivery_status],
-  );
+  const renderCancellationInfo = useCallback(() => {
+    if (!isCancelled || (!order.cancelReason && !order.cancellation_origin)) {
+      return null;
+    }
+
+    return (
+      <View style={orderCardStyles.cancellationContainer}>
+        {order.cancelReason && (
+          <View style={orderCardStyles.cancellationRow}>
+            <View
+              style={[
+                orderCardStyles.iconBox,
+                { backgroundColor: iconBoxColors.cancellation },
+              ]}
+            >
+              <Ionicons
+                name="close-circle-outline"
+                size={18}
+                color={colors.error}
+              />
+            </View>
+            <View style={orderCardStyles.cancellationContent}>
+              <Text
+                variant="xs"
+                color={colors.textTertiary}
+                style={orderCardStyles.cancellationLabel}
+              >
+                Cancellation Reason
+              </Text>
+              <Text
+                variant="s"
+                color={colors.textPrimary}
+                style={orderCardStyles.cancellationValue}
+              >
+                {order.cancelReason}
+              </Text>
+            </View>
+          </View>
+        )}
+        {order.cancellation_origin && (
+          <View style={orderCardStyles.cancellationRow}>
+            <View
+              style={[
+                orderCardStyles.iconBox,
+                { backgroundColor: iconBoxColors.cancelledBy },
+              ]}
+            >
+              <Ionicons name="person-outline" size={18} color="#D97706" />
+            </View>
+            <View style={orderCardStyles.cancellationContent}>
+              <Text
+                variant="xs"
+                color={colors.textTertiary}
+                style={orderCardStyles.cancellationLabel}
+              >
+                Cancelled By
+              </Text>
+              <Text
+                variant="s"
+                color={colors.textPrimary}
+                style={orderCardStyles.cancellationValue}
+              >
+                {order.cancellation_origin === 'VENDOR'
+                  ? 'SELLER'
+                  : order.cancellation_origin}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    );
+  }, [isCancelled, order.cancelReason, order.cancellation_origin]);
+
+  const renderMenuModal = useCallback(() => {
+    if (!isMenuVisible) return null;
+
+    return (
+      <Modal
+        visible={isMenuVisible}
+        transparent
+        animationType="none"
+        onRequestClose={() => setIsMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsMenuVisible(false)}>
+          <View style={orderCardStyles.modalBackdrop}>
+            <View
+              style={[
+                orderCardStyles.menuOverlay,
+                {
+                  top: menuPosition.top,
+                  right: menuPosition.right,
+                },
+              ]}
+            >
+              <TouchableOpacity
+                style={orderCardStyles.menuItem}
+                onPress={handleCancelPress}
+              >
+                <Ionicons
+                  name="close-circle-outline"
+                  size={18}
+                  color={colors.error}
+                />
+                <Text
+                  variant="s"
+                  color={colors.error}
+                  style={orderCardStyles.menuItemText}
+                >
+                  Cancel Order
+                </Text>
+              </TouchableOpacity>
+
+              <View style={orderCardStyles.menuDivider} />
+
+              <TouchableOpacity
+                style={orderCardStyles.menuItem}
+                onPress={handleContactPress}
+              >
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={18}
+                  color={colors.primary}
+                />
+                <Text
+                  variant="s"
+                  color={colors.primary}
+                  style={orderCardStyles.menuItemText}
+                >
+                  Contact Support
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    );
+  }, [isMenuVisible, menuPosition, handleCancelPress, handleContactPress]);
 
   return (
     <Card
-      style={styles.card}
+      style={orderCardStyles.card}
       accessible={true}
       accessibilityLabel={`Order ${order.orderNo}, status ${order.delivery_status}, total ${order.total_amount}`}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTitleContainer}>
+      <View style={orderCardStyles.header}>
+        <View style={orderCardStyles.headerTitleContainer}>
           <Text
             variant="l"
             weight="bold"
             color={colors.textPrimary}
-            style={styles.productName}
+            style={orderCardStyles.productName}
           >
             {productName}
             {order.orderItems.length > 1 &&
               ` + ${order.orderItems.length - 1} more`}
           </Text>
-          <Text variant="s" color={colors.textTertiary} style={styles.orderNo}>
+          <Text
+            variant="s"
+            color={colors.textTertiary}
+            style={orderCardStyles.orderNo}
+          >
             Order #{order.orderNo}
           </Text>
         </View>
 
-        <View style={styles.headerRightContainer}>
+        <View style={orderCardStyles.headerRightContainer}>
           <View
             style={[
-              styles.statusBadge,
+              orderCardStyles.statusBadge,
               { borderColor: statusColor, backgroundColor: colors.surface },
             ]}
           >
@@ -229,18 +403,17 @@ function OrderCardComponent({ order, loading }: Props) {
           <Text
             variant="xs"
             color={colors.textTertiary}
-            style={styles.dateText}
+            style={orderCardStyles.dateText}
           >
             {formattedDate}
           </Text>
         </View>
 
-        {/* Menu Button */}
         {canShowActionsMenu && !shouldHideActionsAndTracker && (
           <TouchableOpacity
             ref={menuAnchorRef}
             onPress={toggleMenu}
-            style={styles.menuTrigger}
+            style={orderCardStyles.menuTrigger}
           >
             <Ionicons
               name="ellipsis-vertical"
@@ -251,11 +424,14 @@ function OrderCardComponent({ order, loading }: Props) {
         )}
       </View>
 
-      {/* Details Section */}
-      <View style={styles.detailsContainer}>
-        {/* Address */}
-        <View style={styles.detailRow}>
-          <View style={[styles.iconBox, { backgroundColor: '#E0F2FE' }]}>
+      <View style={orderCardStyles.detailsContainer}>
+        <View style={orderCardStyles.detailRow}>
+          <View
+            style={[
+              orderCardStyles.iconBox,
+              { backgroundColor: iconBoxColors.location },
+            ]}
+          >
             <Ionicons
               name="location-outline"
               size={18}
@@ -265,27 +441,31 @@ function OrderCardComponent({ order, loading }: Props) {
           <Text
             variant="s"
             color={colors.textSecondary}
-            style={styles.detailText}
+            style={orderCardStyles.detailText}
             numberOfLines={1}
           >
             {order.address.address}, {order.address.pincode}
           </Text>
         </View>
 
-        {/* Quantity (Collapsible Toggle) */}
         <TouchableOpacity
-          style={styles.detailRow}
+          style={orderCardStyles.detailRow}
           onPress={toggleExpanded}
           activeOpacity={0.7}
         >
-          <View style={[styles.iconBox, { backgroundColor: '#F3E8FF' }]}>
+          <View
+            style={[
+              orderCardStyles.iconBox,
+              { backgroundColor: iconBoxColors.quantity },
+            ]}
+          >
             <Ionicons name="cube-outline" size={18} color="#9333EA" />
           </View>
-          <View style={styles.quantityRow}>
+          <View style={orderCardStyles.quantityRow}>
             <Text
               variant="s"
               color={colors.textSecondary}
-              style={styles.detailText}
+              style={orderCardStyles.detailText}
             >
               Quantity: {totalQuantity} Items
             </Text>
@@ -297,33 +477,13 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
         </TouchableOpacity>
 
-        {/* Collapsible Items List */}
         {isExpanded && (
-          <View style={styles.itemsList}>
-            {order.orderItems.map((item, index) => (
-              <View key={item.id || index} style={styles.itemRow}>
-                <Text
-                  variant="xs"
-                  color={colors.textPrimary}
-                  style={styles.itemName}
-                >
-                  {item.product.name}
-                </Text>
-                <Text variant="xs" color={colors.textSecondary}>
-                  {item.quantity} x ₹{item.price} ={' '}
-                  <Text weight="medium">
-                    ₹{item.quantity * Number(item.price)}
-                  </Text>
-                </Text>
-              </View>
-            ))}
-          </View>
+          <View style={orderCardStyles.itemsList}>{renderOrderItems()}</View>
         )}
       </View>
 
-      {/* Footer: Amount and Payment Status */}
-      <View style={styles.footerContainer}>
-        <View style={styles.amountRow}>
+      <View style={orderCardStyles.footerContainer}>
+        <View style={orderCardStyles.amountRow}>
           <Text variant="m" color={colors.textSecondary}>
             Total Amount
           </Text>
@@ -331,17 +491,17 @@ function OrderCardComponent({ order, loading }: Props) {
             ₹{order.total_amount}
           </Text>
         </View>
-        <View style={styles.paymentStatusContainer}>
+        <View style={orderCardStyles.paymentStatusContainer}>
           <Text
             variant="xs"
             color={colors.textTertiary}
-            style={styles.paymentLabel}
+            style={orderCardStyles.paymentLabel}
           >
             Payment:
           </Text>
           <View
             style={[
-              styles.paymentStatusBadge,
+              orderCardStyles.paymentStatusBadge,
               {
                 borderColor: paymentStatusColor,
                 backgroundColor: colors.surface,
@@ -364,7 +524,7 @@ function OrderCardComponent({ order, loading }: Props) {
           </View>
           <View
             style={[
-              styles.paymentModeBadge,
+              orderCardStyles.paymentModeBadge,
               {
                 borderColor: paymentModeColor,
                 backgroundColor: `${paymentModeColor}15`,
@@ -388,15 +548,14 @@ function OrderCardComponent({ order, loading }: Props) {
         </View>
       </View>
 
-      {/* Tracker */}
       {!shouldHideActionsAndTracker && order.payment_status !== 'FAILED' && (
-        <View style={styles.trackerContainer}>
+        <View style={orderCardStyles.trackerContainer}>
           <OrderTracker status={order.delivery_status} />
         </View>
       )}
-      {/* OTP Segment */}
-      {order.delivery_status === 'OUT_FOR_DELIVERY' && (
-        <View style={styles.otpContainer}>
+
+      {isOutForDelivery && (
+        <View style={orderCardStyles.otpContainer}>
           <Text variant="s" color={colors.textSecondary}>
             OTP for Delivery:
           </Text>
@@ -404,132 +563,31 @@ function OrderCardComponent({ order, loading }: Props) {
             variant="l"
             weight="bold"
             color={colors.primary}
-            style={styles.otpText}
+            style={orderCardStyles.otpText}
           >
             {order.delivery_otp}
           </Text>
         </View>
       )}
 
-      {/* Cancellation Info */}
-      {isCancelled && (order.cancelReason || order.cancellation_origin) && (
-        <View style={styles.cancellationContainer}>
-          {order.cancelReason && (
-            <View style={styles.cancellationRow}>
-              <View style={[styles.iconBox, { backgroundColor: '#FEE2E2' }]}>
-                <Ionicons
-                  name="close-circle-outline"
-                  size={18}
-                  color={colors.error}
-                />
-              </View>
-              <View style={styles.cancellationContent}>
-                <Text
-                  variant="xs"
-                  color={colors.textTertiary}
-                  style={styles.cancellationLabel}
-                >
-                  Cancellation Reason
-                </Text>
-                <Text
-                  variant="s"
-                  color={colors.textPrimary}
-                  style={styles.cancellationValue}
-                >
-                  {order.cancelReason}
-                </Text>
-              </View>
-            </View>
-          )}
-          {order.cancellation_origin && (
-            <View style={styles.cancellationRow}>
-              <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
-                <Ionicons
-                  name="person-outline"
-                  size={18}
-                  color="#D97706"
-                />
-              </View>
-              <View style={styles.cancellationContent}>
-                <Text
-                  variant="xs"
-                  color={colors.textTertiary}
-                  style={styles.cancellationLabel}
-                >
-                  Cancelled By
-                </Text>
-                <Text
-                  variant="s"
-                  color={colors.textPrimary}
-                  style={styles.cancellationValue}
-                >
-                  {order.cancellation_origin === 'VENDOR' ? 'SELLER' : 'SYSTEM'}
-                </Text>
-              </View>
-            </View>
-          )}
-        </View>
+      {canConfirmDelivery && (
+        <TouchableOpacity
+          style={orderCardStyles.confirmDeliveryButton}
+          onPress={handleConfirmDelivery}
+          disabled={confirmDeliveryMutation.isPending}
+        >
+          <Ionicons name="checkmark-circle" size={18} color={colors.surface} />
+          <Text variant="s" weight="semibold" color={colors.surface}>
+            {confirmDeliveryMutation.isPending
+              ? 'Confirming...'
+              : 'Confirm Delivery'}
+          </Text>
+        </TouchableOpacity>
       )}
 
-      {/* Modals */}
-      <Modal
-        visible={isMenuVisible}
-        transparent
-        animationType="none"
-        onRequestClose={() => setIsMenuVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setIsMenuVisible(false)}>
-          <View style={styles.modalBackdrop}>
-            <View
-              style={[
-                styles.menuOverlay,
-                {
-                  top: menuPosition.top,
-                  right: menuPosition.right,
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleCancelPress}
-              >
-                <Ionicons
-                  name="close-circle-outline"
-                  size={18}
-                  color={colors.error}
-                />
-                <Text
-                  variant="s"
-                  color={colors.error}
-                  style={styles.menuItemText}
-                >
-                  Cancel Order
-                </Text>
-              </TouchableOpacity>
+      {renderCancellationInfo()}
 
-              <View style={styles.menuDivider} />
-
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={handleContactPress}
-              >
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={18}
-                  color={colors.primary}
-                />
-                <Text
-                  variant="s"
-                  color={colors.primary}
-                  style={styles.menuItemText}
-                >
-                  Contact Support
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      {renderMenuModal()}
 
       <OrderCancelModal
         visible={isModalVisible}
@@ -548,208 +606,4 @@ function OrderCardComponent({ order, loading }: Props) {
   );
 }
 
-const ICON_BOX_SIZE = 28;
-
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: spacing.m,
-    padding: spacing.s,
-    backgroundColor: colors.surface,
-    borderRadius: spacing.radius.l,
-    borderWidth: 0,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.s,
-  },
-  headerTitleContainer: {
-    flex: 1,
-    marginRight: spacing.s,
-  },
-  productName: {
-    fontSize: 16,
-    marginBottom: spacing.xs,
-  },
-  orderNo: {
-    fontSize: 12,
-  },
-  headerRightContainer: {
-    alignItems: 'flex-end',
-  },
-  dateText: {
-    marginTop: spacing.xs,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.s,
-    paddingVertical: spacing.xxs,
-    borderRadius: spacing.radius.xl,
-    borderWidth: 1,
-    backgroundColor: '#FFFBEB',
-  },
-  menuTrigger: {
-    padding: spacing.xs,
-    marginLeft: spacing.xs,
-    marginTop: -spacing.xs,
-  },
-  detailsContainer: {
-    backgroundColor: colors.background,
-    borderRadius: spacing.radius.m,
-    padding: spacing.s,
-    marginBottom: spacing.s,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.s,
-  },
-  iconBox: {
-    width: ICON_BOX_SIZE,
-    height: ICON_BOX_SIZE,
-    borderRadius: ICON_BOX_SIZE / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.s,
-  },
-  detailText: {
-    flex: 1,
-    fontSize: 13,
-  },
-  quantityRow: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  itemsList: {
-    marginTop: spacing.s,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.s,
-    paddingLeft: ICON_BOX_SIZE + spacing.s,
-  },
-  itemRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xs,
-  },
-  itemName: {
-    flex: 1,
-  },
-  amountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.s,
-    paddingHorizontal: spacing.xs,
-  },
-  footerContainer: {
-    marginBottom: spacing.s,
-  },
-  paymentStatusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.xs,
-  },
-  paymentLabel: {
-    marginRight: spacing.xs,
-  },
-  paymentStatusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.s,
-    paddingVertical: spacing.xxs,
-    borderRadius: spacing.radius.m + 4,
-    borderWidth: 1,
-  },
-  paymentModeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.s,
-    paddingVertical: spacing.xxs,
-    borderRadius: spacing.radius.m + 4,
-    borderWidth: 1,
-    marginLeft: spacing.xs,
-  },
-  trackerContainer: {
-    backgroundColor: '#FAFAFA',
-    borderRadius: spacing.radius.m,
-    padding: spacing.s,
-  },
-  otpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.s,
-    padding: spacing.s,
-    backgroundColor: '#EFF6FF',
-    borderRadius: spacing.radius.m,
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
-  },
-  otpText: {
-    marginLeft: spacing.s,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  menuOverlay: {
-    position: 'absolute',
-    backgroundColor: colors.surface,
-    borderRadius: spacing.radius.m,
-    padding: spacing.s,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    minWidth: 160,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.s,
-  },
-  menuItemText: {
-    marginLeft: spacing.s,
-    fontWeight: '500',
-  },
-  menuDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.s,
-  },
-  cancellationContainer: {
-    marginTop: spacing.s,
-    backgroundColor: colors.background,
-    borderRadius: spacing.radius.m,
-    padding: spacing.s,
-  },
-  cancellationRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.s,
-  },
-  cancellationContent: {
-    flex: 1,
-    marginLeft: spacing.s,
-  },
-  cancellationLabel: {
-    marginBottom: spacing.xxs,
-  },
-  cancellationValue: {
-    lineHeight: 18,
-  },
-});
-
-// Memoize the component to prevent unnecessary re-renders
-// Only re-render when order or loading props change
 export default React.memo(OrderCardComponent);

@@ -30,7 +30,16 @@ export default function OrdersTab() {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>(
     tab === 'HISTORY' ? 'HISTORY' : 'ACTIVE',
   );
-  const historyStatuses = ['PENDING'];
+
+  useEffect(() => {
+    if (tab === 'HISTORY') {
+      setActiveTab('HISTORY');
+    } else if (tab === 'ACTIVE') {
+      setActiveTab('ACTIVE');
+    }
+  }, [tab]);
+
+  const historyStatuses = ['CANCELLED', 'DELIVERED'];
 
   const { isEnabled, requestPermission } = useNotifications();
   const router = useRouter();

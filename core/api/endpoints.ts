@@ -7,9 +7,9 @@ export const API_ENDPOINTS = {
   CART: '/cart',
   CUSTOMER_ORDER: '/customer/orders',
   CUSTOMER_ORDER_CANCEL: '/customer/orders/:orderId/cancel',
+  CUSTOMER_ORDER_CONFIRM: '/customer/orders/:orderId/confirm',
   SUBSCRIPTION: '/customer/subscriptions',
-  SUBSCRIPTION_PREVIEW_RECALCULATE:
-    '/customer/subscriptions/preview',
+  SUBSCRIPTION_PREVIEW_CALCULATE: '/customer/subscriptions/preview',
   NOTIFICATION_REGISTER: '/tokens/register',
   SUPPORT_TICKET: '/customer/support-tickets',
   WALLET_PAYMENTS: '/customer/wallet/payments',

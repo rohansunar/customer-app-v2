@@ -24,6 +24,12 @@ export const orderService = {
       .then((res) => res.data);
   },
 
+  confirmDelivery(id: string): Promise<any> {
+    return apiClient
+      .post(API_ENDPOINTS.CUSTOMER_ORDER_CONFIRM.replace(':orderId', id))
+      .then((res) => res.data);
+  },
+
   submitSupportTicket(payload: {
     orderNo: string;
     subject: string;
