@@ -22,6 +22,7 @@ import { IconSymbol } from '../../core/ui/icon-symbol';
 import { TopUpModal } from '@/features/profile/components/TopUpModal';
 import { useWalletTopUp } from '@/features/payment/hooks/useWalletTopUp';
 import { RecentTransactions } from '@/features/payment/components/RecentTransactions';
+import SupportSection from '@/features/profile/components/SupportSection';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function ProfileScreen() {
@@ -239,6 +240,7 @@ export default function ProfileScreen() {
               Deletion requests take up to 60 days to complete. No data will
               remain on the server after processing.
             </Text>
+            <SupportSection />
           </View>
         </View>
       ) : (

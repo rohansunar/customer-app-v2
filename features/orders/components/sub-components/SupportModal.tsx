@@ -19,7 +19,9 @@ import { useSubmitSupportTicket } from '../../hooks/useSubmitSupportTicket';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  orderNo: string;
+  orderNo?: string;
+  isGeneralSupport?: boolean;
+  phone?: string;
 }
 
 const SUBJECTS = [
@@ -30,8 +32,18 @@ const SUBJECTS = [
   'Other',
 ];
 
-export default function SupportModal({ visible, onClose, orderNo }: Props) {
-  const [subject, setSubject] = useState(SUBJECTS[0]);
+const GENERAL_SUBJECT = 'General Queries and Feedback';
+
+export default function SupportModal({
+  visible,
+  onClose,
+  orderNo,
+  isGeneralSupport,
+  phone,
+}: Props) {
+  const [subject, setSubject] = useState(
+    isGeneralSupport ? GENERAL_SUBJECT : SUBJECTS[0],
+  );
   const [message, setMessage] = useState('');
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const submitTicket = useSubmitSupportTicket();
@@ -49,7 +61,11 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
     }
 
     submitTicket.mutate(
-      { orderNo, subject, message: trimmedMessage },
+      {
+        orderNo: orderNo || '',
+        subject: phone ? `${subject} (${phone})` : subject,
+        message: trimmedMessage,
+      },
       {
         onSuccess: () => {
           setMessage('');
@@ -74,11 +90,15 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
           <View style={styles.header}>
             <View>
               <Text variant="l" weight="bold">
-                Contact Support
+                {isGeneralSupport
+                  ? 'General Support & Feedback'
+                  : 'Contact Support'}
               </Text>
-              <Text variant="s" color={colors.textSecondary}>
-                Order #{orderNo}
-              </Text>
+              {!isGeneralSupport && (
+                <Text variant="s" color={colors.textSecondary}>
+                  {orderNo ? `Order #${orderNo}` : 'General Support'}
+                </Text>
+              )}
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Ionicons name="close" size={24} color={colors.textPrimary} />
@@ -90,58 +110,62 @@ export default function SupportModal({ visible, onClose, orderNo }: Props) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <Text variant="m" weight="semibold" style={styles.sectionTitle}>
-              What can we help you with?
-            </Text>
+            {!isGeneralSupport && (
+              <>
+                <Text variant="m" weight="semibold" style={styles.sectionTitle}>
+                  What can we help you with?
+                </Text>
 
-            <TouchableOpacity
-              style={[
-                styles.customPicker,
-                isPickerOpen && styles.customPickerOpen,
-              ]}
-              onPress={() => setIsPickerOpen(!isPickerOpen)}
-              activeOpacity={0.7}
-            >
-              <Text variant="m" color={colors.textPrimary}>
-                {subject}
-              </Text>
-              <Ionicons
-                name={isPickerOpen ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color={colors.textSecondary}
-              />
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.customPicker,
+                    isPickerOpen && styles.customPickerOpen,
+                  ]}
+                  onPress={() => setIsPickerOpen(!isPickerOpen)}
+                  activeOpacity={0.7}
+                >
+                  <Text variant="m" color={colors.textPrimary}>
+                    {subject}
+                  </Text>
+                  <Ionicons
+                    name={isPickerOpen ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
 
-            {isPickerOpen && (
-              <View style={styles.optionsContainer}>
-                {SUBJECTS.map((s) => (
-                  <TouchableOpacity
-                    key={s}
-                    style={styles.optionItem}
-                    onPress={() => {
-                      setSubject(s);
-                      setIsPickerOpen(false);
-                    }}
-                  >
-                    <Text
-                      variant="m"
-                      color={
-                        subject === s ? colors.primary : colors.textPrimary
-                      }
-                      weight={subject === s ? 'bold' : 'medium'}
-                    >
-                      {s}
-                    </Text>
-                    {subject === s && (
-                      <Ionicons
-                        name="checkmark"
-                        size={20}
-                        color={colors.primary}
-                      />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
+                {isPickerOpen && (
+                  <View style={styles.optionsContainer}>
+                    {SUBJECTS.map((s) => (
+                      <TouchableOpacity
+                        key={s}
+                        style={styles.optionItem}
+                        onPress={() => {
+                          setSubject(s);
+                          setIsPickerOpen(false);
+                        }}
+                      >
+                        <Text
+                          variant="m"
+                          color={
+                            subject === s ? colors.primary : colors.textPrimary
+                          }
+                          weight={subject === s ? 'bold' : 'medium'}
+                        >
+                          {s}
+                        </Text>
+                        {subject === s && (
+                          <Ionicons
+                            name="checkmark"
+                            size={20}
+                            color={colors.primary}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </>
             )}
 
             <Text variant="m" weight="semibold" style={styles.sectionTitle}>
