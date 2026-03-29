@@ -15,4 +15,5 @@ export type Product = {
   distance: Distance;
   is_schedulable?: boolean;
   isReadyToAcceptOrders?: boolean;
+  vendorBusinessName?: string;
 };

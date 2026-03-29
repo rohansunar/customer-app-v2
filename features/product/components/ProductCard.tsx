@@ -143,6 +143,22 @@ export const ProductCard = memo(function ProductCard({
       </View>
 
       <View style={styles.details}>
+        {product.vendorBusinessName && (
+          <View style={styles.vendorContainer}>
+            <Ionicons
+              name="storefront-outline"
+              size={12}
+              color={colors.textSecondary}
+            />
+            <Text
+              variant="xs"
+              color={colors.textSecondary}
+              style={styles.vendorName}
+            >
+             Seller: {product.vendorBusinessName}
+            </Text>
+          </View>
+        )}
         <View style={styles.header}>
           <Text
             variant="l"
@@ -195,7 +211,10 @@ export const ProductCard = memo(function ProductCard({
             variant="secondary"
             style={styles.cartButton}
             loading={addToCartMutation.isPending}
-            disabled={addToCartMutation.isPending || product.isReadyToAcceptOrders === false}
+            disabled={
+              addToCartMutation.isPending ||
+              product.isReadyToAcceptOrders === false
+            }
             icon={
               <IconSymbol name="cart.fill" color={colors.primary} size={20} />
             }
@@ -262,6 +281,15 @@ const styles = StyleSheet.create({
   },
   details: {
     padding: spacing.m,
+  },
+  vendorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xxs,
+    marginBottom: spacing.xxs,
+  },
+  vendorName: {
+    opacity: 0.8,
   },
   header: {
     flexDirection: 'row',
@@ -337,22 +365,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-   buttonInner: {
-     flexDirection: 'row',
-     alignItems: 'center',
-     justifyContent: 'center',
-     position: 'relative',
-     height: '100%',
-   },
-   rightBadge: {
-     backgroundColor: '#FFE135',
-     paddingHorizontal: 8,
-     paddingVertical: 2,
-     borderRadius: spacing.radius.circle,
-     borderWidth: 1,
-     borderColor: 'rgba(0,0,0,0.1)',
-     marginLeft: 10,
-   },
+  buttonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    height: '100%',
+  },
+  rightBadge: {
+    backgroundColor: '#FFE135',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: spacing.radius.circle,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    marginLeft: 10,
+  },
   rightBadgeText: {
     color: '#D84315',
     fontSize: 10,

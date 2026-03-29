@@ -29,7 +29,7 @@ export function ProductImageSlider({ images }: ProductImageSliderProps) {
         <Image
           source={require('@/assets/images/product-placeholder.png')}
           style={styles.image}
-          resizeMode="contain"
+          contentFit="contain"
         />
       </View>
     );

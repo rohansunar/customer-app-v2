@@ -34,8 +34,8 @@ export const orderService = {
     orderNo: string;
     subject: string;
     message: string;
+    category?: string;
   }): Promise<any> {
-    console.log("payload",payload)
     return apiClient
       .post(API_ENDPOINTS.SUPPORT_TICKET, payload)
       .then((res) => res.data);

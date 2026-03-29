@@ -11,7 +11,7 @@ export const API_ENDPOINTS = {
   SUBSCRIPTION: '/customer/subscriptions',
   SUBSCRIPTION_PREVIEW_CALCULATE: '/customer/subscriptions/preview',
   NOTIFICATION_REGISTER: '/tokens/register',
-  SUPPORT_TICKET: '/customer/support-tickets',
+  SUPPORT_TICKET: '/customer/me/support-tickets',
   WALLET_PAYMENTS: '/customer/wallet/payments',
   WALLET_TRANSACTIONS: '/customer/wallet/payments/transactions',
 };

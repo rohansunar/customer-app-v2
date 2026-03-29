@@ -65,6 +65,7 @@ export default function SupportModal({
         orderNo: orderNo || '',
         subject: phone ? `${subject} (${phone})` : subject,
         message: trimmedMessage,
+        category: isGeneralSupport ? 'GENERAL' : 'ORDER',
       },
       {
         onSuccess: () => {

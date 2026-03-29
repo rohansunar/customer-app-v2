@@ -23,6 +23,9 @@ export function useSetDefaultAddress() {
       queryClient.invalidateQueries({
         queryKey: ['subscriptions'],
       });
+       queryClient.invalidateQueries({
+        queryKey: ['cart'],
+      });
     },
     onError: (error) => {
       // Show error toast with user-friendly message

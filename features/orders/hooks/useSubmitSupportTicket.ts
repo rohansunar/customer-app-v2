@@ -9,6 +9,7 @@ export function useSubmitSupportTicket() {
       orderNo: string;
       subject: string;
       message: string;
+      category?: string;
     }) => orderService.submitSupportTicket(payload),
     onSuccess: () => {
       showToast.success(
