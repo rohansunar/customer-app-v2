@@ -2,10 +2,9 @@ import { AxiosError } from 'axios';
 
 export function getErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
-    if (error.response?.status === 502) {
+    if (error.response?.status === 502 || error.response?.status === 500) {
       return 'Service temporarily unavailable. Please try again later.';
     }
-
     return error.response?.data?.message ?? error.message ?? 'Request failed';
   }
 

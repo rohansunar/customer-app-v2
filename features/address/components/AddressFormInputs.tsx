@@ -3,6 +3,7 @@ import { Input } from '@/core/ui/Input';
 import { Text } from '@/core/ui/Text';
 import { StyleSheet, View } from 'react-native';
 import { AddressFormInputsProps } from '../address.types';
+import { FamilyMembersInput } from './FamilyMembersInput';
 
 /**
  * Sub-component for rendering the form input fields.
@@ -30,13 +31,46 @@ export function AddressFormInputs({
   onCityChange,
   errors = {},
   isEdit = false,
+  familyMembersCount,
+  onFamilyMembersCountChange,
+  nearLandmark,
+  onNearLandmarkChange,
+  onClearError,
 }: AddressFormInputsProps) {
+  const handleAddressTextChange = (text: string) => {
+    onAddressTextChange(text);
+    if (errors.addressText && onClearError) {
+      onClearError('addressText');
+    }
+  };
+
+  const handlePincodeChange = (text: string) => {
+    onPincodeChange(text);
+    if (errors.pincode && onClearError) {
+      onClearError('pincode');
+    }
+  };
+
+  const handleStateChange = (text: string) => {
+    onStateChange(text);
+    if (errors.state && onClearError) {
+      onClearError('state');
+    }
+  };
+
+  const handleCityChange = (text: string) => {
+    onCityChange(text);
+    if (errors.city && onClearError) {
+      onClearError('city');
+    }
+  };
+
   return (
     <>
       <Input
         label="Full Address (Street, Building, etc)"
         value={addressText}
-        onChangeText={onAddressTextChange}
+        onChangeText={handleAddressTextChange}
         multiline
         placeholder="e.g. Flat 12, 123 Main St"
         error={!!errors.addressText}
@@ -50,8 +84,8 @@ export function AddressFormInputs({
           <Input
             label="State"
             value={state}
-            onChangeText={onStateChange}
-            placeholder="e.g. Mahastarhtra"
+            onChangeText={handleStateChange}
+            placeholder="e.g. Mahastarhra"
             error={!!errors.state}
             editable={!isEdit}
           />
@@ -61,7 +95,7 @@ export function AddressFormInputs({
           <Input
             label="City"
             value={city}
-            onChangeText={onCityChange}
+            onChangeText={handleCityChange}
             placeholder="e.g. Mumbai"
             error={!!errors.city}
             editable={!isEdit}
@@ -73,7 +107,7 @@ export function AddressFormInputs({
         <Input
           label="Pincode"
           value={pincode}
-          onChangeText={onPincodeChange}
+          onChangeText={handlePincodeChange}
           keyboardType="number-pad"
           placeholder="e.g. 400002"
           error={!!errors.pincode}
@@ -83,6 +117,19 @@ export function AddressFormInputs({
           <Text style={styles.errorText}>{errors.pincode}</Text>
         )}
       </View>
+
+      <FamilyMembersInput
+        label="Family Members"
+        value={familyMembersCount}
+        onChange={onFamilyMembersCountChange}
+        error={errors.familyMembersCount}
+      />
+      <Input
+        label="Nearby Landmark (Optional)"
+        value={nearLandmark}
+        onChangeText={onNearLandmarkChange}
+        placeholder="e.g. Opposite Park"
+      />
     </>
   );
 }
@@ -93,13 +140,19 @@ const styles = StyleSheet.create({
   },
   rowInputs: {
     flexDirection: 'row',
-    gap: spacing.m,
+    gap: spacing.s,
   },
   halfInput: {
     flex: 1,
   },
   errorText: {
     color: '#EF4444',
+    fontSize: 12,
+    marginTop: spacing.xxs,
+    marginBottom: spacing.xs,
+  },
+  helperText: {
+    color: '#6B7280',
     fontSize: 12,
     marginBottom: 4,
   },

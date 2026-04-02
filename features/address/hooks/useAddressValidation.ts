@@ -1,14 +1,9 @@
 import { AddressFormErrors, AddressFormState } from '../address.types';
 import { addressFormSchema } from '@/shared/utils/addressValidator';
 import { ZodError } from 'zod';
-import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { Dispatch, SetStateAction } from 'react';
 
 export const useAddressValidation = () => {
-  const showToast = useToastHelpers();
-
-  /* ---------------- ZOD VALIDATION ---------------- */
-
   const mapZodErrors = (zodError: ZodError): AddressFormErrors => {
     const fieldErrors: AddressFormErrors = {};
 
@@ -34,13 +29,7 @@ export const useAddressValidation = () => {
     });
 
     if (!result.success) {
-      const zodError = result.error as ZodError;
-      setErrors(mapZodErrors(zodError));
-
-      // Show FIRST error only (better UX)
-      // Removed global toast as errors are shown inline in the form
-      const firstError = zodError.issues[0]?.message;
-
+      setErrors(mapZodErrors(result.error as ZodError));
       return false;
     }
 
@@ -48,42 +37,53 @@ export const useAddressValidation = () => {
     return true;
   };
 
-  /* ---------------- BUSINESS RULE VALIDATION ---------------- */
-
   const validateRequiredFields = (
     formState: AddressFormState,
     setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
-    isEdit: boolean
+    isEdit: boolean,
   ): boolean => {
     const { label, lng, lat } = formState;
 
     if (!label) {
-      setErrors((prev) => ({ ...prev, label: 'Please select an address type (Home, Work, Other)' }));
+      setErrors((prev) => ({
+        ...prev,
+        label: 'Please select an address type (Home, Work, Other)',
+      }));
       return false;
     }
 
-    // Map selection is CRITICAL for delivery apps
     if (!isEdit && (!lng || !lat)) {
-      setErrors((prev) => ({ ...prev, location: 'Please select your location on the map' }));
+      setErrors((prev) => ({
+        ...prev,
+        location: 'Please select your location on the map',
+      }));
       return false;
     }
 
     return true;
   };
 
-  /* ---------------- FINAL VALIDATOR ---------------- */
-
   const validateForm = (
     formState: AddressFormState,
     setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
-    isEdit: boolean = false
+    isEdit: boolean = false,
   ): boolean => {
-    // Step 1 → Validate inputs (Zod)
     const zodValid = validateZodFields(formState, setErrors);
     if (!zodValid) return false;
 
-    // Step 2 → Validate delivery logic
-    const requiredFieldValid = validateRequiredFields(formState, setErrors, isEdit);
+    if (formState.familyMembersCount < 1) {
+      setErrors((prev) => ({
+        ...prev,
+        familyMembersCount: 'At least 1 family member is required',
+      }));
+      return false;
+    }
+
+    const requiredFieldValid = validateRequiredFields(
+      formState,
+      setErrors,
+      isEdit,
+    );
     if (!requiredFieldValid) return false;
 
     return true;

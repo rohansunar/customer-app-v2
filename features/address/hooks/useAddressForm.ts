@@ -17,6 +17,11 @@ export function useAddressForm(address?: Address): AddressFormState & {
   setLat: (lat: number) => void;
   setState: (state: string) => void;
   setErrors: Dispatch<SetStateAction<AddressFormErrors>>;
+  setPincodeDirty: (dirty: boolean) => void;
+  setCityDirty: (dirty: boolean) => void;
+  setStateDirty: (dirty: boolean) => void;
+  setNearLandmark: (value: string) => void;
+  setFamilyMembersCount: (value: number) => void;
 } {
   const [label, setLabel] = useState(address?.label || 'Home');
   const [addressText, setAddressText] = useState(address?.address || '');
@@ -26,6 +31,13 @@ export function useAddressForm(address?: Address): AddressFormState & {
   const [lat, setLat] = useState(address?.lat || 0);
   const [state, setState] = useState(address?.location.state || '');
   const [errors, setErrors] = useState<AddressFormErrors>({});
+  const [pincodeDirty, setPincodeDirty] = useState(false);
+  const [cityDirty, setCityDirty] = useState(false);
+  const [stateDirty, setStateDirty] = useState(false);
+  const [nearLandmark, setNearLandmark] = useState(address?.nearLandmark || '');
+  const [familyMembersCount, setFamilyMembersCount] = useState(
+    address?.familyMembersCount || 3,
+  );
 
   useEffect(() => {
     if (address) {
@@ -36,6 +48,8 @@ export function useAddressForm(address?: Address): AddressFormState & {
       setLat(address.lat || 0);
       setCity(address.location.name);
       setState(address.location.state);
+      setNearLandmark(address.nearLandmark || '');
+      setFamilyMembersCount(address.familyMembersCount || 3);
     }
   }, [address]);
 
@@ -48,6 +62,11 @@ export function useAddressForm(address?: Address): AddressFormState & {
     lat,
     state,
     errors,
+    pincodeDirty,
+    cityDirty,
+    stateDirty,
+    nearLandmark,
+    familyMembersCount,
     setLabel,
     setAddressText,
     setPincode,
@@ -56,5 +75,10 @@ export function useAddressForm(address?: Address): AddressFormState & {
     setLat,
     setState,
     setErrors,
+    setPincodeDirty,
+    setCityDirty,
+    setStateDirty,
+    setNearLandmark,
+    setFamilyMembersCount,
   };
 }

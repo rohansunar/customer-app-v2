@@ -12,7 +12,11 @@ import { useCreateAddress } from '@/features/address/hooks/useCreateAddress';
 import { useDeleteAddress } from '@/features/address/hooks/useDeleteAddress';
 import { useSetDefaultAddress } from '@/features/address/hooks/useSetDefaultAddress';
 import { useUpdateAddress } from '@/features/address/hooks/useUpdateAddress';
-import { Address, CreateAddressData } from '@/features/address/address.types';
+import {
+  Address,
+  AddressFormErrors,
+  CreateAddressData,
+} from '@/features/address/address.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useState } from 'react';
 import {
@@ -45,6 +49,10 @@ export function AddressPickerModal({
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [settingDefaultId, setSettingDefaultId] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | undefined>(undefined);
+  const [fieldErrors, setFieldErrors] = useState<Partial<AddressFormErrors>>(
+    {},
+  );
   const showToast = useToastHelpers();
   const { showConfirm } = useAlert();
 
@@ -74,6 +82,8 @@ export function AddressPickerModal({
 
   const handleEdit = useCallback((address: Address) => {
     setEditingAddress(address);
+    setServerError(undefined);
+    setFieldErrors({});
     setShowForm(true);
   }, []);
 
@@ -92,7 +102,7 @@ export function AddressPickerModal({
             },
           });
         },
-        () => { },
+        () => {},
 
         'Delete', // confirmText
         'Cancel', // cancelText
@@ -103,34 +113,58 @@ export function AddressPickerModal({
 
   const handleSaveAddress = useCallback(
     (formData: CreateAddressData) => {
-      if (editingAddress) {
-        updateMutation.mutate(
-          { id: editingAddress.id, data: formData },
-          {
-            onSuccess: () => {
-              showToast.success('Address updated');
-              setShowForm(false);
-              setEditingAddress(null);
-            },
-            onError: (error) => {
-              showToast.error(getErrorMessage(error));
-            },
-          },
-        );
-      } else {
-        createMutation.mutate(formData, {
-          onSuccess: () => {
-            showToast.success('Address added');
-            setShowForm(false);
-            setEditingAddress(null);
-          },
-          onError: (error) => {
-            showToast.error(getErrorMessage(error));
-          },
-        });
-      }
+      setServerError(undefined);
+      setFieldErrors({});
+      const mutation = editingAddress ? updateMutation : createMutation;
+      const mutationData = editingAddress
+        ? { id: editingAddress.id, data: formData }
+        : formData;
+
+      mutation.mutate(mutationData as any, {
+        onSuccess: () => {
+          showToast.success(
+            editingAddress ? 'Address updated' : 'Address added',
+          );
+          setShowForm(false);
+          setEditingAddress(null);
+          setServerError(undefined);
+          setFieldErrors({});
+        },
+        onError: (error: any) => {
+          const errors = error?.response?.data?.errors;
+          const message = error?.response?.data?.message;
+          const globalError = error?.response?.data?.error;
+
+          if (errors && typeof errors === 'object') {
+            const mappedFieldErrors: Partial<AddressFormErrors> = {};
+            const fieldKeys = [
+              'addressText',
+              'pincode',
+              'city',
+              'state',
+              'label',
+              'nearLandmark',
+              'familyMembersCount',
+            ] as const;
+            fieldKeys.forEach((key) => {
+              if (errors[key]) {
+                mappedFieldErrors[key] = errors[key];
+              }
+            });
+            setFieldErrors(mappedFieldErrors);
+
+            if (message || globalError) {
+              setServerError(message || globalError);
+            }
+          } else if (message || globalError) {
+            setServerError(message || globalError);
+          } else {
+            setServerError(getErrorMessage(error));
+          }
+        },
+      });
     },
-    [editingAddress, updateMutation, showToast, onClose, createMutation],
+    [editingAddress, updateMutation, createMutation, showToast],
   );
 
   const renderItem = useCallback(
@@ -248,6 +282,12 @@ export function AddressPickerModal({
             onSave={handleSaveAddress}
             onCancel={() => setShowForm(false)}
             isPending={createMutation.isPending || updateMutation.isPending}
+            serverError={serverError}
+            onClearServerError={() => setServerError(undefined)}
+            fieldErrors={fieldErrors}
+            onClearFieldError={(field) =>
+              setFieldErrors((prev) => ({ ...prev, [field]: undefined }))
+            }
           />
         )}
         {!showForm && addresses && addresses.length > 0 && (

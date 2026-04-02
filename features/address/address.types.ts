@@ -22,6 +22,8 @@ export type Address = {
   lng: number;
   lat: number;
   isDefault: boolean;
+  nearLandmark?: string;
+  familyMembersCount?: number;
 };
 
 export type AddressFormErrors = {
@@ -32,6 +34,9 @@ export type AddressFormErrors = {
   location?: string;
   label?: string;
   global?: string;
+  nearLandmark?: string;
+  familyMembersCount?: string;
+  serverError?: string;
 };
 
 /**
@@ -49,9 +54,11 @@ export type CreateAddressData = {
   pincode: string;
   city: string;
   state: string;
-  lng?: number;
-  lat?: number;
+  lng: number;
+  lat: number;
   isDefault?: boolean;
+  nearLandmark?: string;
+  familyMembersCount: number;
 };
 
 /**
@@ -68,6 +75,10 @@ export interface AddressFormProps {
   onSave: (data: CreateAddressData) => void;
   onCancel: () => void;
   isPending: boolean;
+  serverError?: string;
+  onClearServerError?: () => void;
+  fieldErrors?: Partial<AddressFormErrors>;
+  onClearFieldError?: (field: keyof AddressFormErrors) => void;
 }
 
 /**
@@ -88,6 +99,13 @@ export interface AddressFormState {
   lat: number;
   state: string;
   errors: AddressFormErrors;
+  pincodeDirty: boolean;
+  cityDirty: boolean;
+  stateDirty: boolean;
+  nearLandmark: string;
+  familyMembersCount: number;
+  setNearLandmark: (value: string) => void;
+  setFamilyMembersCount: (value: number) => void;
 }
 
 /**
@@ -136,6 +154,11 @@ export interface AddressFormInputsProps {
   onCityChange: (text: string) => void;
   errors: AddressFormErrors;
   isEdit?: boolean;
+  nearLandmark: string;
+  onNearLandmarkChange: (value: string) => void;
+  familyMembersCount: number;
+  onFamilyMembersCountChange: (value: number) => void;
+  onClearError?: (field: keyof AddressFormErrors) => void;
 }
 
 /**

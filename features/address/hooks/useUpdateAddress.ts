@@ -10,6 +10,8 @@
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addressService } from '../services/address.service';
+import Toast from 'react-native-toast-message';
+import { getErrorMessage } from '@/core/utils/getErrorMessage';
 
 export function useUpdateAddress() {
   const queryClient = useQueryClient();
@@ -27,6 +29,13 @@ export function useUpdateAddress() {
       // Refresh addresses list after update
       queryClient.invalidateQueries({
         queryKey: ['addresses'],
+      });
+    },
+    onError: (error) => {
+      // Show error toast with user-friendly message
+      Toast.show({
+        type: 'error',
+        text1: `${getErrorMessage(error)}`,
       });
     },
   });

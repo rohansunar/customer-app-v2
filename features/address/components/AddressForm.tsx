@@ -5,6 +5,8 @@ import { Text } from '@/core/ui/Text';
 import { addressTextSchema } from '@/shared/utils/addressValidator';
 import { Ionicons } from '@expo/vector-icons';
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -17,7 +19,6 @@ import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
 import { useLocationLogic } from '../hooks/useLocationLogic';
 import { AddressFormErrors, AddressFormProps } from '../address.types';
 import { AddressFormInputs } from './AddressFormInputs';
-import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressTabs } from './AddressTabs';
 
 /**
@@ -41,6 +42,10 @@ export function AddressForm({
   onSave,
   onCancel,
   isPending,
+  serverError,
+  onClearServerError,
+  fieldErrors,
+  onClearFieldError,
 }: AddressFormProps) {
   // Form state management: Custom hook initializes and manages form fields.
   // Pre-fills with address data if editing; provides setters for updates.
@@ -83,6 +88,9 @@ export function AddressForm({
     formState.state,
     formState.city,
     address,
+    formState.pincodeDirty,
+    formState.cityDirty,
+    formState.stateDirty,
   );
 
   // handleSave: Validates form and constructs CreateAddressData for parent callback.
@@ -96,7 +104,10 @@ export function AddressForm({
       pincode: formState.pincode,
       city: formState.city,
       state: formState.state,
-      ...(isEdit ? {} : { lng: formState.lng, lat: formState.lat }),
+      nearLandmark: formState.nearLandmark,
+      familyMembersCount: formState.familyMembersCount,
+      lng: formState.lng,
+      lat: formState.lat,
     });
   };
 
@@ -109,157 +120,208 @@ export function AddressForm({
     });
   };
 
+  const combinedErrors: AddressFormErrors = {
+    ...formState.errors,
+    ...fieldErrors,
+  };
+
+  const handleClearFieldError = (field: keyof AddressFormErrors) => {
+    formState.setErrors((prev: AddressFormErrors) => ({
+      ...prev,
+      [field]: undefined,
+    }));
+    if (onClearFieldError) {
+      onClearFieldError(field);
+    }
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Header: Displays mode-specific title and close button for UX. */}
-      <View style={styles.header}>
-        <Text variant="l" weight="bold">
-          {isEdit ? 'Edit Address' : 'Add Address'}
-        </Text>
-        <TouchableOpacity onPress={onCancel}>
-          <Ionicons name="close" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Location Buttons: Enhanced UX for setting current location. */}
-      {!isEdit && (
-        <View style={styles.locationButtonsContainer}>
-          {permissionStatus === 'granted' && (
-            <TouchableOpacity
-              style={[styles.locationButton, { backgroundColor: colors.primary }]}
-              onPress={handleUseCurrentLocation}
-              disabled={locationLoading}
-            >
-              {locationLoading ? (
-                <ActivityIndicator size="small" color={colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="locate" size={20} color={colors.white} />
-                  <Text
-                    variant="s"
-                    color={colors.white}
-                    weight="medium"
-                    style={styles.buttonText}
-                  >
-                    Use Current Location
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          )}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header: Displays mode-specific title and close button for UX. */}
+        <View style={styles.header}>
+          <Text variant="l" weight="bold">
+            {isEdit ? 'Edit Address' : 'Add Address'}
+          </Text>
+          <TouchableOpacity onPress={onCancel}>
+            <Ionicons name="close" size={24} color={colors.textPrimary} />
+          </TouchableOpacity>
         </View>
-      )}
 
-      {/* Geocode Info: Displays address derived from coordinates.
+        {/* Location Buttons: Enhanced UX for setting current location. */}
+        {!isEdit && (
+          <View style={styles.locationButtonsContainer}>
+            {permissionStatus === 'granted' && (
+              <TouchableOpacity
+                style={[
+                  styles.locationButton,
+                  { backgroundColor: colors.primary },
+                ]}
+                onPress={handleUseCurrentLocation}
+                disabled={locationLoading}
+              >
+                {locationLoading ? (
+                  <ActivityIndicator size="small" color={colors.white} />
+                ) : (
+                  <>
+                    <Ionicons name="locate" size={20} color={colors.white} />
+                    <Text
+                      variant="s"
+                      color={colors.white}
+                      weight="medium"
+                      style={styles.buttonText}
+                    >
+                      Use Current Location
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Geocode Info: Displays address derived from coordinates.
           Provides feedback on geocoding process. */}
-      {/* {permissionStatus === 'granted' && (
+        {/* {permissionStatus === 'granted' && (
         <AddressGeocodeInfo
           geocodeResult={geocodeResult}
           geocodeLoading={geocodeLoading}
         />
         )} */}
-      {/* Address Tabs: Selection for address label (Home, Work, etc.).
+        {/* Address Tabs: Selection for address label (Home, Work, etc.).
          Updates form label state. */}
-      <AddressTabs label={formState.label} onLabelChange={formState.setLabel} />
+        <AddressTabs
+          label={formState.label}
+          onLabelChange={formState.setLabel}
+        />
 
-      {/* Form Inputs: Text fields for address details.
+        {/* Form Inputs: Text fields for address details.
          Controlled inputs linked to form state. */}
-      <AddressFormInputs
-        isEdit={isEdit}
-        addressText={formState.addressText}
-        onAddressTextChange={(text) => {
-          formState.setAddressText(text);
-          const result = addressTextSchema.safeParse(text);
-          formState.setErrors((prev: AddressFormErrors) => ({
-            ...prev,
-            addressText: result.success
-              ? undefined
-              : result.error.issues[0]?.message,
-          }));
-        }}
-        pincode={formState.pincode}
-        onPincodeChange={(text) => {
-          formState.setPincode(text);
-          clearFieldError('pincode');
-        }}
-        state={formState.state}
-        onStateChange={(text) => {
-          formState.setState(text);
-          clearFieldError('state');
-        }}
-        city={formState.city}
-        onCityChange={(text) => {
-          formState.setCity(text);
-          clearFieldError('city');
-        }}
-        errors={formState.errors}
-      />
+        <AddressFormInputs
+          isEdit={isEdit}
+          addressText={formState.addressText}
+          onAddressTextChange={(text) => {
+            formState.setAddressText(text);
+            const result = addressTextSchema.safeParse(text);
+            formState.setErrors((prev: AddressFormErrors) => ({
+              ...prev,
+              addressText: result.success
+                ? undefined
+                : result.error.issues[0]?.message,
+            }));
+          }}
+          pincode={formState.pincode}
+          onPincodeChange={(text) => {
+            formState.setPincode(text);
+            formState.setPincodeDirty(true);
+            clearFieldError('pincode');
+          }}
+          state={formState.state}
+          onStateChange={(text) => {
+            formState.setState(text);
+            formState.setStateDirty(true);
+            clearFieldError('state');
+          }}
+          city={formState.city}
+          onCityChange={(text) => {
+            formState.setCity(text);
+            formState.setCityDirty(true);
+            clearFieldError('city');
+          }}
+          errors={combinedErrors}
+          onClearError={handleClearFieldError}
+          nearLandmark={formState.nearLandmark}
+          onNearLandmarkChange={formState.setNearLandmark}
+          familyMembersCount={formState.familyMembersCount}
+          onFamilyMembersCountChange={formState.setFamilyMembersCount}
+        />
 
-      {/* Location Permission Message */}
-      {!isEdit && permissionStatus !== 'granted' && (
-        <View style={styles.permissionContainer}>
-          <Ionicons
-            name="information-circle-outline"
-            size={20}
-            color={colors.error}
-          />
-          <View style={styles.permissionTextContainer}>
-            <Text variant="s" color={colors.error} weight="medium">
-              {permissionStatus === 'denied'
-                ? 'Location permission is denied. Please enable it in your app settings to save an address and see nearby products.'
-                : 'Location permission is required to save an address and to show nearby products.'}
-            </Text>
-            <TouchableOpacity
-              onPress={
-                permissionStatus === 'denied' ? openSettings : refetchLocation
-              }
-              style={styles.retryButton}
-            >
-              <Text variant="s" color={colors.primary} weight="bold">
+        {/* Location Permission Message */}
+        {!isEdit && permissionStatus !== 'granted' && (
+          <View style={styles.permissionContainer}>
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={colors.error}
+            />
+            <View style={styles.permissionTextContainer}>
+              <Text variant="s" color={colors.error} weight="medium">
                 {permissionStatus === 'denied'
-                  ? 'Open App Settings'
-                  : 'Retry Enabling Permission'}
+                  ? 'Location permission is denied. Please enable it in your app settings to save an address and see nearby products.'
+                  : 'Location permission is required to save an address and to show nearby products.'}
               </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={
+                  permissionStatus === 'denied' ? openSettings : refetchLocation
+                }
+                style={styles.retryButton}
+              >
+                <Text variant="s" color={colors.primary} weight="bold">
+                  {permissionStatus === 'denied'
+                    ? 'Open App Settings'
+                    : 'Retry Enabling Permission'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
-      {/* Form Level Errors */}
-      {(formState.errors.location || formState.errors.label || formState.errors.global) && (
-        <View style={styles.formErrorContainer}>
-          <Ionicons name="alert-circle" size={20} color={colors.error} />
-          <Text variant="s" color={colors.error} style={styles.formErrorText}>
-            {formState.errors.location || formState.errors.label || formState.errors.global}
-          </Text>
-        </View>
-      )}
+        {/* Form Level Errors */}
+        {(combinedErrors.location ||
+          combinedErrors.label ||
+          combinedErrors.global ||
+          combinedErrors.serverError) && (
+          <View style={styles.formErrorContainer}>
+            <Ionicons name="alert-circle" size={20} color={colors.error} />
+            <Text variant="s" color={colors.error} style={styles.formErrorText}>
+              {combinedErrors.location ||
+                combinedErrors.label ||
+                combinedErrors.global ||
+                combinedErrors.serverError}
+            </Text>
+          </View>
+        )}
 
-      {/* Save Button: Triggers validation and save.
+        {/* Save Button: Triggers validation and save.
          Disabled during pending state or when location is missing to prevent invalid submissions. */}
-      <Button
-        title={isPending ? 'Saving...' : 'Save'}
-        onPress={handleSave}
-        loading={isPending}
-        disabled={isPending || (!isEdit && permissionStatus !== 'granted')}
-        style={styles.saveButton}
-      />
-    </ScrollView>
+        <Button
+          title={isPending ? 'Saving...' : 'Save'}
+          onPress={handleSave}
+          loading={isPending}
+          disabled={isPending || (!isEdit && permissionStatus !== 'granted')}
+          style={styles.saveButton}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: colors.surface,
   },
+  scrollView: {
+    flex: 1,
+  },
   content: {
-    padding: spacing.l,
+    padding: spacing.m,
+    paddingBottom: spacing.xl,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.l,
+    marginBottom: spacing.m,
   },
   locationButtonsContainer: {
     flexDirection: 'row',
