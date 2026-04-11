@@ -17,6 +17,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   setLat: (lat: number) => void;
   setState: (state: string) => void;
   setErrors: Dispatch<SetStateAction<AddressFormErrors>>;
+  setAddressTextDirty: (dirty: boolean) => void;
   setPincodeDirty: (dirty: boolean) => void;
   setCityDirty: (dirty: boolean) => void;
   setStateDirty: (dirty: boolean) => void;
@@ -31,6 +32,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
   const [lat, setLat] = useState(address?.lat || 0);
   const [state, setState] = useState(address?.location.state || '');
   const [errors, setErrors] = useState<AddressFormErrors>({});
+  const [addressTextDirty, setAddressTextDirty] = useState(false);
   const [pincodeDirty, setPincodeDirty] = useState(false);
   const [cityDirty, setCityDirty] = useState(false);
   const [stateDirty, setStateDirty] = useState(false);
@@ -51,6 +53,10 @@ export function useAddressForm(address?: Address): AddressFormState & {
       setNearLandmark(address.nearLandmark || '');
       setFamilyMembersCount(address.familyMembersCount || 3);
     }
+    setAddressTextDirty(false);
+    setPincodeDirty(false);
+    setCityDirty(false);
+    setStateDirty(false);
   }, [address]);
 
   return {
@@ -62,6 +68,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
     lat,
     state,
     errors,
+    addressTextDirty,
     pincodeDirty,
     cityDirty,
     stateDirty,
@@ -75,6 +82,7 @@ export function useAddressForm(address?: Address): AddressFormState & {
     setLat,
     setState,
     setErrors,
+    setAddressTextDirty,
     setPincodeDirty,
     setCityDirty,
     setStateDirty,

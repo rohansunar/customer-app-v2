@@ -40,22 +40,13 @@ export const useAddressValidation = () => {
   const validateRequiredFields = (
     formState: AddressFormState,
     setErrors: Dispatch<SetStateAction<AddressFormErrors>>,
-    isEdit: boolean,
   ): boolean => {
-    const { label, lng, lat } = formState;
+    const { label } = formState;
 
     if (!label) {
       setErrors((prev) => ({
         ...prev,
         label: 'Please select an address type (Home, Work, Other)',
-      }));
-      return false;
-    }
-
-    if (!isEdit && (!lng || !lat)) {
-      setErrors((prev) => ({
-        ...prev,
-        location: 'Please select your location on the map',
       }));
       return false;
     }
@@ -82,7 +73,6 @@ export const useAddressValidation = () => {
     const requiredFieldValid = validateRequiredFields(
       formState,
       setErrors,
-      isEdit,
     );
     if (!requiredFieldValid) return false;
 

@@ -33,6 +33,6 @@ export interface UseLocationReturn {
   loading: boolean;
   error: LocationError | null;
   permissionStatus: LocationPermissionStatus;
-  refetch: () => void;
+  refetch: () => Promise<Location | null>;
   openSettings: () => void;
 }

@@ -13,8 +13,7 @@
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification"],
-        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby services.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide services even when the app is not in use."
+        "NSLocationWhenInUseUsageDescription": "We use your location to show products available near your delivery address."
       },
       "bundleIdentifier": "com.droptro.customer.dev"
     },
@@ -26,7 +25,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"],
+      "permissions": ["ACCESS_FINE_LOCATION"],
       "package": "com.droptro.customer.dev"
     },
     "splash": {

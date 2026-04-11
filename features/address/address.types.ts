@@ -99,6 +99,7 @@ export interface AddressFormState {
   lat: number;
   state: string;
   errors: AddressFormErrors;
+  addressTextDirty: boolean;
   pincodeDirty: boolean;
   cityDirty: boolean;
   stateDirty: boolean;
@@ -153,7 +154,6 @@ export interface AddressFormInputsProps {
   city: string;
   onCityChange: (text: string) => void;
   errors: AddressFormErrors;
-  isEdit?: boolean;
   nearLandmark: string;
   onNearLandmarkChange: (value: string) => void;
   familyMembersCount: number;

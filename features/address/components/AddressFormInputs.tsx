@@ -30,7 +30,6 @@ export function AddressFormInputs({
   city,
   onCityChange,
   errors = {},
-  isEdit = false,
   familyMembersCount,
   onFamilyMembersCountChange,
   nearLandmark,
@@ -87,7 +86,6 @@ export function AddressFormInputs({
             onChangeText={handleStateChange}
             placeholder="e.g. Mahastarhra"
             error={!!errors.state}
-            editable={!isEdit}
           />
           {errors.state && <Text style={styles.errorText}>{errors.state}</Text>}
         </View>
@@ -98,7 +96,6 @@ export function AddressFormInputs({
             onChangeText={handleCityChange}
             placeholder="e.g. Mumbai"
             error={!!errors.city}
-            editable={!isEdit}
           />
           {errors.city && <Text style={styles.errorText}>{errors.city}</Text>}
         </View>
@@ -111,7 +108,6 @@ export function AddressFormInputs({
           keyboardType="number-pad"
           placeholder="e.g. 400002"
           error={!!errors.pincode}
-          editable={!isEdit}
         />
         {errors.pincode && (
           <Text style={styles.errorText}>{errors.pincode}</Text>

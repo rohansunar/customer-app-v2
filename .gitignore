@@ -36,6 +36,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+.codex
 
 app-example
 
@@ -43,10 +44,6 @@ app-example
 /ios
 /android
 
-
-TODO.md
-plans
-prompts
 package-lock.json
 google-services.json
 google-services-dev.json

@@ -1,21 +1,16 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useLocation } from '@/features/map/hooks/useLocation';
-import { useEffect } from 'react';
-import { Address } from '../address.types';
+import { useCallback } from 'react';
 
 /**
  * Hook for managing location logic.
- * Handles initialization of coordinates from current location or existing address.
+ * Fetches the user's current location only after an explicit action in the address form.
  */
 export function useLocationLogic(
-  lat: number,
-  lng: number,
   setLat: (lat: number) => void,
   setLng: (lng: number) => void,
-  address?: Address,
 ) {
   const {
-    location: currentLocation,
     loading: locationLoading,
     permissionStatus,
     refetch: refetchLocation,
@@ -23,45 +18,27 @@ export function useLocationLogic(
   } = useLocation();
   const showToast = useToastHelpers();
 
-  // Initialize map with current location if no address is provided and coordinates are empty
-  useEffect(() => {
-    if (!address && currentLocation && lat === 0 && lng === 0) {
-      // Small epsilon check even for the initial set to be absolutely safe
-      const EPSILON = 0.00001;
-      const isMeaningful =
-        Math.abs(currentLocation.latitude) > EPSILON ||
-        Math.abs(currentLocation.longitude) > EPSILON;
+  const handleUseCurrentLocation = useCallback(async () => {
+    const currentLocation = await refetchLocation();
 
-      if (isMeaningful) {
-        if (Math.abs(currentLocation.latitude - lat) > EPSILON) {
-          setLat(currentLocation.latitude);
-        }
-        if (Math.abs(currentLocation.longitude - lng) > EPSILON) {
-          setLng(currentLocation.longitude);
-        }
-      }
-    }
-  }, [currentLocation, address, lat, lng, setLat, setLng]);
-
-  const handleUseCurrentLocation = () => {
-    if (currentLocation) {
-      setLat(currentLocation.latitude);
-      setLng(currentLocation.longitude);
-      showToast.success('Current location set');
-    } else {
+    if (!currentLocation) {
       showToast.error(
-        'Unable to get current location. Please check your location permissions.',
+        permissionStatus === 'denied'
+          ? 'Location access was not granted. Enter the address manually or enable it in app settings.'
+          : 'Unable to get your current location. Enter the address manually or try again.',
       );
-      // Passing true to force a fresh fetch regardless of throttle
-      (refetchLocation as any)(true);
+      return false;
     }
-  };
+
+    setLat(currentLocation.latitude);
+    setLng(currentLocation.longitude);
+    showToast.success('Current location set');
+    return true;
+  }, [permissionStatus, refetchLocation, setLat, setLng, showToast]);
 
   return {
-    currentLocation,
     locationLoading,
     permissionStatus,
-    refetchLocation,
     openSettings,
     handleUseCurrentLocation,
   };

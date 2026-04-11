@@ -2,22 +2,24 @@ import { colors } from '@/core/theme/colors';
 import { spacing } from '@/core/theme/spacing';
 import { Button } from '@/core/ui/Button';
 import { Text } from '@/core/ui/Text';
+import { useForwardGeocode } from '@/features/map/hooks/useForwardGeocode';
 import { addressTextSchema } from '@/shared/utils/addressValidator';
 import { Ionicons } from '@expo/vector-icons';
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
+import { AddressFormErrors, AddressFormProps } from '../address.types';
 import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
 import { useLocationLogic } from '../hooks/useLocationLogic';
-import { AddressFormErrors, AddressFormProps } from '../address.types';
+import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressTabs } from './AddressTabs';
 
@@ -43,47 +45,27 @@ export function AddressForm({
   onCancel,
   isPending,
   serverError,
-  onClearServerError,
   fieldErrors,
   onClearFieldError,
 }: AddressFormProps) {
-  // Form state management: Custom hook initializes and manages form fields.
-  // Pre-fills with address data if editing; provides setters for updates.
   const formState = useAddressForm(address);
-
-  // Form validation: Hook provides validation logic for form data.
-  // Ensures required fields and format correctness before submission.
   const { validateForm } = useAddressValidation();
+  const { geocodeAddress, loading: manualGeocodeLoading } = useForwardGeocode();
+  const isEdit = !!address;
 
-  // Location services: Provides current location fetching and integration.
-  // Updates form coordinates when user selects current location.
-  // 'address' passed to avoid resetting during edit mode.
   const {
-    currentLocation,
     locationLoading,
     permissionStatus,
-    refetchLocation,
     openSettings,
     handleUseCurrentLocation,
-  } = useLocationLogic(
-    formState.lat,
-    formState.lng,
-    formState.setLat,
-    formState.setLng,
-    address,
-  );
+  } = useLocationLogic(formState.setLat, formState.setLng);
 
-  // Geocoding: Reverse geocodes coordinates to populate address fields automatically.
-  // Updates address text, pincode, state, city based on map position.
-  // Essential for user-friendly address entry via map interaction.
   const { geocodeResult, geocodeLoading } = useGeocodingLogic(
     formState.lat,
     formState.lng,
-    formState.setAddressText,
     formState.setPincode,
     formState.setState,
     formState.setCity,
-    permissionStatus,
     formState.pincode,
     formState.state,
     formState.city,
@@ -93,11 +75,56 @@ export function AddressForm({
     formState.stateDirty,
   );
 
-  // handleSave: Validates form and constructs CreateAddressData for parent callback.
-  // Only proceeds if validation passes; prevents invalid data submission.
-  // Maps internal form state to API-expected structure.
-  const handleSave = () => {
+  const clearFieldError = (field: keyof AddressFormErrors) => {
+    formState.setErrors((prev: AddressFormErrors) => {
+      if (!prev[field]) return prev;
+      return { ...prev, [field]: undefined };
+    });
+  };
+
+  const clearLocationError = () => {
+    clearFieldError('location');
+  };
+
+  const shouldResolveCoordinatesFromAddress =
+    !formState.lng ||
+    !formState.lat ||
+    formState.addressTextDirty ||
+    formState.pincodeDirty ||
+    formState.cityDirty ||
+    formState.stateDirty;
+
+  const handleSave = async () => {
     if (!validateForm(formState, formState.setErrors, isEdit)) return;
+
+    clearLocationError();
+
+    let nextLat = formState.lat;
+    let nextLng = formState.lng;
+
+    if (shouldResolveCoordinatesFromAddress) {
+      const resolvedCoordinates = await geocodeAddress({
+        addressText: formState.addressText,
+        city: formState.city,
+        state: formState.state,
+        pincode: formState.pincode,
+      });
+
+      if (!resolvedCoordinates) {
+        formState.setErrors((prev: AddressFormErrors) => ({
+          ...prev,
+          location:
+            'We could not match this address to a delivery location. Review the address details or use your current location.',
+        }));
+        return;
+      }
+
+      nextLat = resolvedCoordinates.latitude;
+      nextLng = resolvedCoordinates.longitude;
+      formState.setLat(nextLat);
+      formState.setLng(nextLng);
+    }
+
     onSave({
       label: formState.label,
       address: formState.addressText,
@@ -106,18 +133,16 @@ export function AddressForm({
       state: formState.state,
       nearLandmark: formState.nearLandmark,
       familyMembersCount: formState.familyMembersCount,
-      lng: formState.lng,
-      lat: formState.lat,
+      lng: nextLng,
+      lat: nextLat,
     });
   };
 
-  // Determines edit mode based on address prop presence.
-  const isEdit = !!address;
-  const clearFieldError = (field: keyof AddressFormErrors) => {
-    formState.setErrors((prev: AddressFormErrors) => {
-      if (!prev[field]) return prev;
-      return { ...prev, [field]: undefined };
-    });
+  const handleUseCurrentLocationPress = async () => {
+    const didResolveLocation = await handleUseCurrentLocation();
+    if (didResolveLocation) {
+      clearLocationError();
+    }
   };
 
   const combinedErrors: AddressFormErrors = {
@@ -147,7 +172,6 @@ export function AddressForm({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header: Displays mode-specific title and close button for UX. */}
         <View style={styles.header}>
           <Text variant="l" weight="bold">
             {isEdit ? 'Edit Address' : 'Add Address'}
@@ -157,60 +181,88 @@ export function AddressForm({
           </TouchableOpacity>
         </View>
 
-        {/* Location Buttons: Enhanced UX for setting current location. */}
-        {!isEdit && (
+        <View style={styles.locationInfoCard}>
+          <View style={styles.locationInfoHeader}>
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color={colors.primary}
+            />
+            <Text variant="m" weight="bold">
+              Use Current Location
+            </Text>
+          </View>
+          <Text
+            variant="s"
+            color={colors.textSecondary}
+            style={styles.locationInfoDescription}
+          >
+            We use your location to show products available near your delivery
+            address.
+          </Text>
           <View style={styles.locationButtonsContainer}>
-            {permissionStatus === 'granted' && (
+            <TouchableOpacity
+              style={[
+                styles.locationButton,
+                { backgroundColor: colors.primary },
+              ]}
+              onPress={() => {
+                void handleUseCurrentLocationPress();
+              }}
+              disabled={locationLoading || isPending || manualGeocodeLoading}
+            >
+              {locationLoading ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <>
+                  <Ionicons name="locate" size={20} color={colors.white} />
+                  <Text
+                    variant="s"
+                    color={colors.white}
+                    weight="medium"
+                    style={styles.buttonText}
+                  >
+                    Use Current Location
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+            {permissionStatus === 'denied' && (
               <TouchableOpacity
-                style={[
-                  styles.locationButton,
-                  { backgroundColor: colors.primary },
-                ]}
-                onPress={handleUseCurrentLocation}
-                disabled={locationLoading}
+                style={styles.locationButtonSecondary}
+                onPress={openSettings}
+                disabled={locationLoading || isPending || manualGeocodeLoading}
               >
-                {locationLoading ? (
-                  <ActivityIndicator size="small" color={colors.white} />
-                ) : (
-                  <>
-                    <Ionicons name="locate" size={20} color={colors.white} />
-                    <Text
-                      variant="s"
-                      color={colors.white}
-                      weight="medium"
-                      style={styles.buttonText}
-                    >
-                      Use Current Location
-                    </Text>
-                  </>
-                )}
+                <Text
+                  variant="s"
+                  color={colors.primary}
+                  weight="medium"
+                  style={styles.secondaryButtonText}
+                >
+                  Open App Settings
+                </Text>
               </TouchableOpacity>
             )}
           </View>
-        )}
+          {permissionStatus === 'denied' && (
+            <Text variant="xs" color={colors.warning} style={styles.helperText}>
+              Location access is off. You can still continue by entering the
+              address manually.
+            </Text>
+          )}
+        </View>
 
-        {/* Geocode Info: Displays address derived from coordinates.
-          Provides feedback on geocoding process. */}
-        {/* {permissionStatus === 'granted' && (
-        <AddressGeocodeInfo
-          geocodeResult={geocodeResult}
-          geocodeLoading={geocodeLoading}
-        />
-        )} */}
-        {/* Address Tabs: Selection for address label (Home, Work, etc.).
-         Updates form label state. */}
         <AddressTabs
           label={formState.label}
           onLabelChange={formState.setLabel}
         />
 
-        {/* Form Inputs: Text fields for address details.
-         Controlled inputs linked to form state. */}
         <AddressFormInputs
-          isEdit={isEdit}
           addressText={formState.addressText}
           onAddressTextChange={(text) => {
             formState.setAddressText(text);
+            formState.setAddressTextDirty(true);
+            clearLocationError();
             const result = addressTextSchema.safeParse(text);
             formState.setErrors((prev: AddressFormErrors) => ({
               ...prev,
@@ -223,18 +275,21 @@ export function AddressForm({
           onPincodeChange={(text) => {
             formState.setPincode(text);
             formState.setPincodeDirty(true);
+            clearLocationError();
             clearFieldError('pincode');
           }}
           state={formState.state}
           onStateChange={(text) => {
             formState.setState(text);
             formState.setStateDirty(true);
+            clearLocationError();
             clearFieldError('state');
           }}
           city={formState.city}
           onCityChange={(text) => {
             formState.setCity(text);
             formState.setCityDirty(true);
+            clearLocationError();
             clearFieldError('city');
           }}
           errors={combinedErrors}
@@ -245,37 +300,6 @@ export function AddressForm({
           onFamilyMembersCountChange={formState.setFamilyMembersCount}
         />
 
-        {/* Location Permission Message */}
-        {!isEdit && permissionStatus !== 'granted' && (
-          <View style={styles.permissionContainer}>
-            <Ionicons
-              name="information-circle-outline"
-              size={20}
-              color={colors.error}
-            />
-            <View style={styles.permissionTextContainer}>
-              <Text variant="s" color={colors.error} weight="medium">
-                {permissionStatus === 'denied'
-                  ? 'Location permission is denied. Please enable it in your app settings to save an address and see nearby products.'
-                  : 'Location permission is required to save an address and to show nearby products.'}
-              </Text>
-              <TouchableOpacity
-                onPress={
-                  permissionStatus === 'denied' ? openSettings : refetchLocation
-                }
-                style={styles.retryButton}
-              >
-                <Text variant="s" color={colors.primary} weight="bold">
-                  {permissionStatus === 'denied'
-                    ? 'Open App Settings'
-                    : 'Retry Enabling Permission'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* Form Level Errors */}
         {(combinedErrors.location ||
           combinedErrors.label ||
           combinedErrors.global ||
@@ -291,13 +315,19 @@ export function AddressForm({
           </View>
         )}
 
-        {/* Save Button: Triggers validation and save.
-         Disabled during pending state or when location is missing to prevent invalid submissions. */}
         <Button
-          title={isPending ? 'Saving...' : 'Save'}
-          onPress={handleSave}
-          loading={isPending}
-          disabled={isPending || (!isEdit && permissionStatus !== 'granted')}
+          title={
+            isPending
+              ? 'Saving...'
+              : manualGeocodeLoading
+                ? 'Resolving Address...'
+                : 'Save'
+          }
+          onPress={() => {
+            void handleSave();
+          }}
+          loading={isPending || manualGeocodeLoading}
+          disabled={isPending || manualGeocodeLoading || locationLoading}
           style={styles.saveButton}
         />
       </ScrollView>
@@ -323,10 +353,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.m,
   },
+  locationInfoCard: {
+    backgroundColor: colors.background,
+    borderRadius: spacing.radius.m,
+    padding: spacing.m,
+    marginBottom: spacing.m,
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  locationInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  locationInfoDescription: {
+    lineHeight: 20,
+  },
   locationButtonsContainer: {
     flexDirection: 'row',
     gap: spacing.s,
-    marginBottom: spacing.m,
+    marginTop: spacing.xs,
   },
   locationButton: {
     flex: 1,
@@ -338,31 +385,32 @@ const styles = StyleSheet.create({
     borderRadius: spacing.radius.m,
     gap: spacing.xs,
   },
+  locationButtonSecondary: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.m,
+    paddingHorizontal: spacing.s,
+    borderRadius: spacing.radius.m,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
+  },
   buttonText: {
     marginLeft: spacing.xs,
+  },
+  secondaryButtonText: {
+    textAlign: 'center',
+  },
+  helperText: {
+    lineHeight: 18,
   },
   saveButton: {
     marginTop: spacing.m,
   },
-  permissionContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.error + '10', // 10% opacity for subtle background
-    padding: spacing.m,
-    borderRadius: spacing.radius.m,
-    marginTop: spacing.m,
-    gap: spacing.s,
-    alignItems: 'flex-start',
-  },
-  permissionTextContainer: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  retryButton: {
-    marginTop: spacing.xs,
-  },
   formErrorContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.error + '10', // 10% opacity for subtle background
+    backgroundColor: colors.error + '10',
     padding: spacing.m,
     borderRadius: spacing.radius.m,
     marginTop: spacing.m,

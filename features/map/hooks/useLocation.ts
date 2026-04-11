@@ -5,8 +5,7 @@
 
 import * as Location from 'expo-location';
 import * as Linking from 'expo-linking';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
 import {
   LocationError,
   Location as LocationType,
@@ -24,75 +23,64 @@ export function useLocation(): UseLocationReturn {
   const [error, setError] = useState<LocationError | null>(null);
   const [permissionStatus, setPermissionStatus] =
     useState<LocationPermissionStatus>('undetermined');
-  const appState = useRef(AppState.currentState);
-  const lastFetchTime = useRef(0);
-  const lastLocation = useRef<LocationType | null>(null);
+
+  const syncPermissionStatus = useCallback(async () => {
+    const { status } = await Location.getForegroundPermissionsAsync();
+    const nextStatus = status as LocationPermissionStatus;
+    setPermissionStatus(nextStatus);
+    return nextStatus;
+  }, []);
 
   const getCurrentLocation = useCallback(
-    async (force = false) => {
-      // Throttle: Don't fetch more than once every 5 seconds unless forced
-      const now = Date.now();
-      if (loading || (!force && now - lastFetchTime.current < 5000)) {
-        return;
+    async (): Promise<LocationType | null> => {
+      if (loading) {
+        return null;
       }
 
-      // Update throttle timer immediately to prevent rapid retries on failure
-      lastFetchTime.current = now;
-
       try {
-        // Lazy check: If not forced, check existing permission first to avoid loading flash
-        if (!force) {
-          const { status: existingStatus } =
-            await Location.getForegroundPermissionsAsync();
-          if (existingStatus !== permissionStatus) {
-            setPermissionStatus(existingStatus as LocationPermissionStatus);
-          }
-          if (
-            existingStatus !== 'granted' &&
-            existingStatus !== 'undetermined'
-          ) {
-            // If we already know it's not granted and not undetermined, don't proceed
-            return;
-          }
-        }
-
         setLoading(true);
         setError(null);
 
-        // Request/Refresh permissions if needed
-        let status = permissionStatus as any;
-        if (force || status !== 'granted') {
-          const result = await Location.requestForegroundPermissionsAsync();
-          status = result.status;
-          setPermissionStatus(status as LocationPermissionStatus);
+        let status = permissionStatus;
+        if (status === 'undetermined') {
+          status = await syncPermissionStatus();
         }
 
         if (status !== 'granted') {
-          throw new Error('Location permission denied');
+          const result = await Location.requestForegroundPermissionsAsync();
+          status = result.status as LocationPermissionStatus;
+          setPermissionStatus(status);
         }
 
-        // Get current position
+        if (status !== 'granted') {
+          const permissionError: LocationError = {
+            code: 'LOCATION_PERMISSION_DENIED',
+            message: 'Location permission denied',
+          };
+          setError(permissionError);
+          return null;
+        }
+
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+        if (!servicesEnabled) {
+          const serviceError: LocationError = {
+            code: 'LOCATION_SERVICES_DISABLED',
+            message: 'Location services are turned off',
+          };
+          setError(serviceError);
+          return null;
+        }
+
         const position = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced, // High might be overkill and slower
+          accuracy: Location.Accuracy.Balanced,
         });
 
-        const loc: LocationType = {
+        const nextLocation: LocationType = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         };
-
-        // Stability check: Only update if location has changed meaningfully (> 1 meter ~ 0.00001)
-        const EPSILON = 0.00001;
-        const prev = lastLocation.current;
-        const hasChanged =
-          !prev ||
-          Math.abs(loc.latitude - prev.latitude) > EPSILON ||
-          Math.abs(loc.longitude - prev.longitude) > EPSILON;
-
-        if (hasChanged) {
-          lastLocation.current = loc;
-          setLocation(loc);
-        }
+        setLocation(nextLocation);
+        return nextLocation;
       } catch (err) {
         const locationError: LocationError = {
           code: 'LOCATION_ERROR',
@@ -100,37 +88,22 @@ export function useLocation(): UseLocationReturn {
             err instanceof Error ? err.message : 'Failed to get location',
         };
         setError(locationError);
+        return null;
       } finally {
         setLoading(false);
       }
     },
-    [loading, permissionStatus],
+    [loading, permissionStatus, syncPermissionStatus],
   );
 
   const refetch = getCurrentLocation;
 
   useEffect(() => {
-    getCurrentLocation();
-  }, [getCurrentLocation]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        getCurrentLocation(true);
-      }
-      appState.current = nextAppState;
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [getCurrentLocation]);
+    void syncPermissionStatus();
+  }, [syncPermissionStatus]);
 
   const openSettings = useCallback(() => {
-    Linking.openSettings();
+    void Linking.openSettings();
   }, []);
 
   return {

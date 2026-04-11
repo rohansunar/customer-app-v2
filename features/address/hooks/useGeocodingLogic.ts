@@ -1,7 +1,7 @@
 import { useToastHelpers } from '@/core/utils/toastHelpers';
 import { useReverseGeocode } from '@/features/map/hooks/useReverseGeocode';
 import { useEffect, useRef } from 'react';
-import { Address, LocationPermissionStatus } from '../address.types';
+import { Address } from '../address.types';
 
 /**
  * Hook for managing geocoding logic.
@@ -10,11 +10,9 @@ import { Address, LocationPermissionStatus } from '../address.types';
 export function useGeocodingLogic(
   lat: number,
   lng: number,
-  setAddressText: (text: string) => void,
   setPincode: (text: string) => void,
   setState: (state: string) => void,
   setCity: (city: string) => void,
-  permissionStatus: LocationPermissionStatus,
   currentPincode: string,
   currentState: string,
   currentCity: string,
@@ -48,19 +46,11 @@ export function useGeocodingLogic(
   const debounceTimer = useRef<any>(null);
 
   useEffect(() => {
-    // Movement threshold for auto-geocoding (0.0001 is ~10-15 meters)
-    // Larger epsilon prevents micro-jitter from triggering redundant fetches.
     const EPSILON = 0.0001;
     const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
     const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
 
-    if (
-      permissionStatus === 'granted' &&
-      !geocodeLoading &&
-      lat !== 0 &&
-      lng !== 0 &&
-      (latChanged || lngChanged)
-    ) {
+    if (!geocodeLoading && lat !== 0 && lng !== 0 && (latChanged || lngChanged)) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
@@ -75,7 +65,7 @@ export function useGeocodingLogic(
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [lat, lng, reverseGeocode, geocodeLoading, permissionStatus]);
+  }, [lat, lng, reverseGeocode, geocodeLoading]);
 
   // Show error if reverse geocoding fails
   useEffect(() => {
