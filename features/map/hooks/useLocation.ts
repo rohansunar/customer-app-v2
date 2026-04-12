@@ -5,7 +5,8 @@
 
 import * as Location from 'expo-location';
 import * as Linking from 'expo-linking';
-import { useCallback, useEffect, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   LocationError,
   Location as LocationType,
@@ -31,8 +32,33 @@ export function useLocation(): UseLocationReturn {
     return nextStatus;
   }, []);
 
-  const getCurrentLocation = useCallback(
-    async (): Promise<LocationType | null> => {
+  const appState = useRef(AppState.currentState);
+
+  const handleAppStateChange = useCallback(
+    async (nextAppState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        void syncPermissionStatus();
+      }
+      appState.current = nextAppState;
+    },
+    [syncPermissionStatus],
+  );
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+    return () => {
+      subscription.remove();
+    };
+  }, [handleAppStateChange]);
+
+  const getCurrentLocation =
+    useCallback(async (): Promise<LocationType | null> => {
       if (loading) {
         return null;
       }
@@ -92,9 +118,7 @@ export function useLocation(): UseLocationReturn {
       } finally {
         setLoading(false);
       }
-    },
-    [loading, permissionStatus, syncPermissionStatus],
-  );
+    }, [loading, permissionStatus, syncPermissionStatus]);
 
   const refetch = getCurrentLocation;
 

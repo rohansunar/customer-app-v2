@@ -131,9 +131,10 @@ export function AddressPickerModal({
           setFieldErrors({});
         },
         onError: (error: any) => {
-          const errors = error?.response?.data?.errors;
-          const message = error?.response?.data?.message;
-          const globalError = error?.response?.data?.error;
+          const responseData = error?.response?.data;
+          const errors = responseData?.errors;
+          const message = responseData?.message;
+          const globalError = responseData?.error;
 
           if (errors && typeof errors === 'object') {
             const mappedFieldErrors: Partial<AddressFormErrors> = {};

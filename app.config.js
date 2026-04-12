@@ -1,7 +1,89 @@
-const { expo } = require('./app.json');
 const { withAndroidManifest } = require('expo/config-plugins');
 
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+const baseConfig = {
+  name: 'Droptro',
+  slug: 'customer-app',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/logo.png',
+  scheme: 'customerapp',
+  userInterfaceStyle: 'automatic',
+  newArchEnabled: true,
+  ios: {
+    supportsTablet: true,
+    infoPlist: {
+      UIBackgroundModes: ['remote-notification'],
+      NSLocationWhenInUseUsageDescription:
+        'We use your location to show products available near your delivery address.',
+    },
+    bundleIdentifier: 'com.droptro.customer',
+  },
+  android: {
+    googleServicesFile: './google-services.json',
+    adaptiveIcon: {
+      backgroundColor: '#f7f7f7',
+      foregroundImage: './assets/images/foregroundimage.png',
+    },
+    edgeToEdgeEnabled: true,
+    predictiveBackGestureEnabled: false,
+    permissions: ['ACCESS_FINE_LOCATION'],
+    package: 'com.droptro.customer',
+  },
+  splash: {
+    image: './assets/logo.png',
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
+  },
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    [
+      'expo-notifications',
+      {
+        icon: './assets/notification-icon.png',
+        color: '#9fd6fc',
+        defaultChannel: 'orders',
+        channels: [
+          {
+            id: 'orders',
+            name: 'Order Updates',
+            description: 'Notifications about your order status',
+            importance: 'default',
+          },
+          {
+            id: 'wallet',
+            name: 'Wallet & Balance',
+            description: 'Notifications about your wallet status',
+            importance: 'high',
+          },
+          {
+            id: 'subscription',
+            name: 'Subscriptions',
+            description: 'Notifications about your subscription status',
+            importance: 'low',
+          },
+          {
+            id: 'marketing',
+            name: 'Offers & Promotions',
+            description: 'Special offers and marketing messages',
+            importance: 'high',
+          },
+        ],
+      },
+    ],
+  ],
+  experiments: {
+    typedRoutes: true,
+    reactCompiler: true,
+  },
+  extra: {
+    router: {},
+    eas: {
+      projectId: '7de74265-b0be-4636-a966-9df463fc83b2',
+    },
+  },
+  owner: 'droptro',
+};
 
 const withStrippedLocationPermissions = (config) =>
   withAndroidManifest(config, (cfg) => {
@@ -24,16 +106,6 @@ const withStrippedLocationPermissions = (config) =>
   });
 
 module.exports = {
-  ...expo,
-  android: {
-    ...expo.android,
-    config: googleMapsApiKey
-      ? {
-          googleMaps: {
-            apiKey: googleMapsApiKey,
-          },
-        }
-      : undefined,
-  },
-  plugins: [...(expo.plugins || []), withStrippedLocationPermissions],
+  ...baseConfig,
+  plugins: [...baseConfig.plugins, withStrippedLocationPermissions],
 };

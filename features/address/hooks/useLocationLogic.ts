@@ -3,8 +3,22 @@ import { useLocation } from '@/features/map/hooks/useLocation';
 import { useCallback } from 'react';
 
 /**
- * Hook for managing location logic.
- * Fetches the user's current location only after an explicit action in the address form.
+ * useLocationLogic Hook
+ *
+ * Manages location fetching for address form.
+ * Provides both manual trigger (button press) and auto-trigger (form open) functions.
+ *
+ * Permission states: 'undetermined', 'granted', 'denied'
+ * Handles the "Open App Settings" flow for denied permissions.
+ *
+ * @param setLat, setLng - Form state setters for coordinates
+ *
+ * Returns:
+ * - locationLoading: Loading state for location fetch
+ * - permissionStatus: Current permission state
+ * - openSettings: Open device settings (for denied state)
+ * - handleUseCurrentLocation: Button click handler (with toast feedback)
+ * - fetchLocation: Silent fetch for auto-fill (no toast)
  */
 export function useLocationLogic(
   setLat: (lat: number) => void,
@@ -36,10 +50,21 @@ export function useLocationLogic(
     return true;
   }, [permissionStatus, refetchLocation, setLat, setLng, showToast]);
 
+  const fetchLocation = useCallback(async () => {
+    const currentLocation = await refetchLocation();
+    if (currentLocation) {
+      setLat(currentLocation.latitude);
+      setLng(currentLocation.longitude);
+      return true;
+    }
+    return false;
+  }, [refetchLocation, setLat, setLng]);
+
   return {
     locationLoading,
     permissionStatus,
     openSettings,
     handleUseCurrentLocation,
+    fetchLocation,
   };
 }

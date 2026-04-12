@@ -14,30 +14,38 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useEffect } from 'react';
 import { useAddressForm } from '../hooks/useAddressForm';
 import { useAddressValidation } from '../hooks/useAddressValidation';
 import { AddressFormErrors, AddressFormProps } from '../address.types';
 import { useGeocodingLogic } from '../hooks/useGeocodingLogic';
 import { useLocationLogic } from '../hooks/useLocationLogic';
-import { AddressGeocodeInfo } from './AddressGeocodeInfo';
 import { AddressFormInputs } from './AddressFormInputs';
 import { AddressTabs } from './AddressTabs';
 
 /**
  * AddressForm Component
  *
- * Main address form component for adding and editing user addresses.
- * Uses custom hooks for location detection, geocoding, and form validation.
- * Composes smaller sub-components like AddressTabs and AddressFormInputs.
- * Handles both add and edit modes based on 'address' prop presence.
- * Why this design: Separates concerns (UI, logic, data) for testability and maintainability.
- * Dependencies: Relies on custom hooks for state management and external services.
- * Edge cases: Handles loading states, form validation errors, and coordinate updates.
+ * Main address form for adding/editing addresses.
+ * Handles location auto-fetch, validation, and coordinate resolution.
+ * Includes "Use Current Location" with permission handling and Open Settings flow.
  *
- * @param address - Optional existing address for editing; if provided, pre-fills form
- * @param onSave - Callback invoked with validated CreateAddressData on successful save
- * @param onCancel - Callback to close the form without saving
- * @param isPending - Indicates save operation in progress; disables form to prevent double-submission
+ * Auto-fetch behavior:
+ * - On "Add Address": auto-fetches location if permission granted (one-time, not continuous)
+ * - On "Edit Address": does NOT auto-fetch; uses existing coordinates
+ *
+ * Permission handling:
+ * - Shows "Open App Settings" button when permission denied
+ * - On returning from settings (AppState listener), immediately re-checks permission
+ * - Auto-fetches location if permission now granted
+ *
+ * @param address - undefined for add mode, existing Address for edit mode
+ * @param onSave - Callback with CreateAddressData on successful validation
+ * @param onCancel - Close form without saving
+ * @param isPending - Disables form during save operation
+ * @param serverError - Global server error message
+ * @param fieldErrors - Field-specific validation errors
+ * @param onClearFieldError - Clear specific field error
  */
 export function AddressForm({
   address,
@@ -58,6 +66,7 @@ export function AddressForm({
     permissionStatus,
     openSettings,
     handleUseCurrentLocation,
+    fetchLocation,
   } = useLocationLogic(formState.setLat, formState.setLng);
 
   const { geocodeResult, geocodeLoading } = useGeocodingLogic(
@@ -74,6 +83,22 @@ export function AddressForm({
     formState.cityDirty,
     formState.stateDirty,
   );
+
+  const hasLocation = formState.lat !== 0 && formState.lng !== 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!isEdit && !hasLocation && permissionStatus === 'granted') {
+      fetchLocation().then((success) => {
+        if (!cancelled && success) {
+          clearLocationError();
+        }
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [isEdit, hasLocation, permissionStatus, fetchLocation]);
 
   const clearFieldError = (field: keyof AddressFormErrors) => {
     formState.setErrors((prev: AddressFormErrors) => {
@@ -198,7 +223,7 @@ export function AddressForm({
             style={styles.locationInfoDescription}
           >
             We use your location to show products available near your delivery
-            address.
+            address. Tap button to auto fetch your location details.
           </Text>
           <View style={styles.locationButtonsContainer}>
             <TouchableOpacity
@@ -246,8 +271,8 @@ export function AddressForm({
           </View>
           {permissionStatus === 'denied' && (
             <Text variant="xs" color={colors.warning} style={styles.helperText}>
-              Location access is off. You can still continue by entering the
-              address manually.
+              Location access is off. Please enable location access to allow us
+              to display nearby products tailored to your area.
             </Text>
           )}
         </View>

@@ -4,8 +4,21 @@ import { useEffect, useRef } from 'react';
 import { Address } from '../address.types';
 
 /**
- * Hook for managing geocoding logic.
- * Handles reverse geocoding and updating form fields based on results.
+ * useGeocodingLogic Hook
+ *
+ * Handles reverse geocoding (coordinates -> address details).
+ * Auto-fills form fields when coordinates change (unless user already edited them).
+ *
+ * Behavior:
+ * - Watches lat/lng changes and triggers reverse geocode after 800ms debounce
+ * - Only fills fields user hasn't manually modified (check dirty flags)
+ * - Shows toast if geocoding fails
+ *
+ * @param lat, lng - Current coordinates
+ * @param setPincode, setState, setCity - Setters for form fields
+ * @param currentPincode, currentState, currentCity - Current field values (for diff check)
+ * @param address - Existing address for edit mode
+ * @param pincodeDirty, cityDirty, stateDirty - Flags indicating user modified field
  */
 export function useGeocodingLogic(
   lat: number,
@@ -50,7 +63,12 @@ export function useGeocodingLogic(
     const latChanged = Math.abs(lat - lastGeocodedCoords.current.lat) > EPSILON;
     const lngChanged = Math.abs(lng - lastGeocodedCoords.current.lng) > EPSILON;
 
-    if (!geocodeLoading && lat !== 0 && lng !== 0 && (latChanged || lngChanged)) {
+    if (
+      !geocodeLoading &&
+      lat !== 0 &&
+      lng !== 0 &&
+      (latChanged || lngChanged)
+    ) {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }

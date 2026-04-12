@@ -17,7 +17,7 @@ export type CartItem = {
 
 export type CartResponse = {
   cartId: string;
-  deliveryAddress: {
+  deliveryAddress?: {
     id: string;
     label: string;
     address: string;
